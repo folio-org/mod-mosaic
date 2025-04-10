@@ -37,11 +37,28 @@
     </sonar.exclusions>
     <argLine />
 
-    <!--Folio dependencies properties-->
-    <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <folio-spring-base.version>9.0.0</folio-spring-base.version>
+    <!-- Other properties -->
+    <generated-sources.dir>${project.build.directory}/generated-sources</generated-sources.dir>
 
-    <!--Maven plugin dependencies-->
+    <!-- Jsonschema2pojo -->
+    <jsonschema2pojo.output>${generated-sources.dir}/src/main/java</jsonschema2pojo.output>
+    <jsonschema2pojo.version>1.2.2</jsonschema2pojo.version>
+
+    <!-- OpenAPI generator -->
+    <openapi-generator.file>${project.basedir}/src/main/resources/swagger.api/mosaic.yaml</openapi-generator.file>
+    <openapi-generator.output>${generated-sources.dir}</openapi-generator.output>
+    <openapi-generator.version>7.12.0</openapi-generator.version>
+    <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
+
+
+    <!-- Folio dependencies properties -->
+    <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
+    <folio-spring-base.version>9.0.1</folio-spring-base.version>
+
+    <!-- Other dependencies -->
+    <lombok.version>1.18.38</lombok.version>
+
+    <!-- Maven plugin dependencies -->
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
     <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -73,6 +90,17 @@
           <artifactId>spring-boot-starter-logging</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-ui</artifactId>
+      <version>${springdoc-openapi-ui.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -163,7 +191,8 @@
             </goals>
             <configuration>
               <sources>
-                <source>${project.build.directory}/generated-sources</source>
+                <!-- Includes both OpenAPI and jsonschema2pojo generated sources -->
+                <source>${jsonschema2pojo.output}</source>
               </sources>
             </configuration>
           </execution>
@@ -190,6 +219,119 @@
           <pushChanges>false</pushChanges>
           <localCheckout>true</localCheckout>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${openapi-generator.version}</version>
+        <executions>
+          <execution>
+            <id>mosaic</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${openapi-generator.file}</inputSpec>
+              <output>${openapi-generator.output}</output>
+              <generatorName>spring</generatorName>
+              <modelPackage>${project.groupId}.mosaic.domain.dto</modelPackage>
+              <apiPackage>${project.groupId}.mosaic.rest.resource</apiPackage>
+              <generateApis>true</generateApis>
+              <generateApiTests>true</generateApiTests>
+              <generateApiDocumentation>true</generateApiDocumentation>
+              <generateModels>true</generateModels>
+              <generateModelTests>false</generateModelTests>
+              <generateSupportingFiles>true</generateSupportingFiles>
+              <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+              <generateModelDocumentation>true</generateModelDocumentation>
+              <schemaMappings>
+                <schemaMapping>MosaicOrder=org.folio.rest.acq.model.orders.CompositePurchaseOrder</schemaMapping>
+              </schemaMappings>
+              <configOptions>
+                <dateLibrary>java</dateLibrary>
+                <interfaceOnly>true</interfaceOnly>
+                <useSpringBoot3>true</useSpringBoot3>
+                <serializableModel>true</serializableModel>
+              </configOptions>
+            </configuration>
+          </execution>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>${openapi-generator.file}</inputSpec>
+              <output>${project.build.directory}/docs/mod-mosaic</output>
+              <generatorName>html2</generatorName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jsonschema2pojo</groupId>
+        <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+        <version>${jsonschema2pojo.version}</version>
+        <configuration>
+          <includes>
+            <include>*.json</include>
+          </includes>
+          <outputDirectory>${jsonschema2pojo.output}</outputDirectory>
+          <generateBuilders>true</generateBuilders>
+        </configuration>
+        <executions>
+          <execution>
+            <id>common</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${basedir}/ramls/acq-models/common/schemas</sourceDirectory>
+              <targetPackage>org.folio.rest.acq.model</targetPackage>
+            </configuration>
+          </execution>
+          <execution>
+            <id>orders</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${basedir}/ramls/acq-models/mod-orders/schemas</sourceDirectory>
+              <targetPackage>org.folio.rest.acq.model.orders</targetPackage>
+            </configuration>
+          </execution>
+          <execution>
+            <id>orders-storage</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${basedir}/ramls/acq-models/mod-orders-storage/schemas</sourceDirectory>
+              <targetPackage>org.folio.rest.acq.model.orders</targetPackage>
+            </configuration>
+          </execution>
+          <execution>
+            <id>mod-orgs</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${basedir}/ramls/acq-models/mod-orgs/schemas</sourceDirectory>
+              <targetPackage>org.folio.rest.acq.model.orgs</targetPackage>
+            </configuration>
+          </execution>
+          <execution>
+            <id>mod-finance</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${basedir}/ramls/acq-models/mod-finance/schemas</sourceDirectory>
+              <targetPackage>org.folio.rest.acq.model.finance</targetPackage>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
