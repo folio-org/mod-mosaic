@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import lombok.val;
 
 @CopilotGenerated(partiallyGenerated = true)
-public class ErrorUtilsTest {
+class ErrorUtilsTest {
 
   @Test
   void testGetErrors() {
