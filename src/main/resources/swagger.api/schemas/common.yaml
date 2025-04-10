@@ -14,7 +14,7 @@ Error:
       description: "Error message code"
     parameters:
       description: "Error message parameters"
-      $ref: "common.yaml#/Parameters"
+      $ref: "#/Parameters"
   additionalProperties: false
   required:
     - message
@@ -27,8 +27,7 @@ Errors:
       description: "List of errors"
       type: array
       items:
-        type: object
-        $ref: "common.yaml#/Error"
+        $ref: "#/Error"
     total_records:
       description: "Total number of errors"
       type: integer
@@ -51,5 +50,4 @@ Parameters:
   description: "List of key/value parameters of an error"
   type: array
   items:
-    $ref: "common.yaml#/Parameter"
-  additionalProperties: false
+    $ref: "#/Parameter"

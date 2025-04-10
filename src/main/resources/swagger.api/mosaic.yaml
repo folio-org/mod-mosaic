@@ -49,5 +49,11 @@ components:
         name:
           $ref: "MosaicOrder"
     errors:
-      $ref: "schemas/common.yaml#/Errors"
+      $ref: "./schemas/common.yaml#/Errors"
+    error:
+      $ref: "./schemas/common.yaml#/Error"
+    parameters:
+      $ref: "./schemas/common.yaml#/Parameters"
+    parameter:
+      $ref: "./schemas/common.yaml#/Parameter"
 
