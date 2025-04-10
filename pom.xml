@@ -212,7 +212,6 @@
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <useSystemClassLoader>false</useSystemClassLoader>
-          <groups>unit</groups>
         </configuration>
       </plugin>
 
