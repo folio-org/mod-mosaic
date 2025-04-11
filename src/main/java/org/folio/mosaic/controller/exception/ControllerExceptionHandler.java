@@ -13,36 +13,49 @@ import lombok.extern.log4j.Log4j2;
 
 @RestControllerAdvice
 @Log4j2
-public class ExceptionHandlerController {
+public class ControllerExceptionHandler {
 
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler(FeignException.NotFound.class)
   public Errors handleNotFoundException(FeignException.NotFound e) {
+    logException(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.NOT_FOUND_ERROR);
   }
 
   @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
   @ExceptionHandler(FeignException.UnprocessableEntity.class)
-  public Errors handleNotFoundException(FeignException.UnprocessableEntity e) {
+  public Errors handleValidationException(FeignException.UnprocessableEntity e) {
+    logException(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.VALIDATION_ERROR);
   }
 
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(FeignException.FeignClientException.class)
-  public Errors handleNotFoundException(FeignException.FeignClientException e) {
+  public Errors handleClientException(FeignException.FeignClientException e) {
+    logException(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.BAD_REQUEST_ERROR);
   }
 
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ExceptionHandler(FeignException.FeignServerException.class)
-  public Errors handleNotFoundException(FeignException.FeignServerException e) {
+  public Errors handleServerException(FeignException.FeignServerException e) {
+    logException(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.INTERNAL_ERROR);
   }
 
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ExceptionHandler(Exception.class)
-  public Errors handleNotFoundException(Exception e) {
+  public Errors handleGenericException(Exception e) {
+    logException(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.UNKNOWN_ERROR);
+  }
+
+  public void logException(FeignException e) {
+    log.error("Feign exception occurred with status code {}", e.status(), e);
+  }
+
+  public void logException(Exception e) {
+    log.error("Generic exception occurred", e);
   }
 
 }
