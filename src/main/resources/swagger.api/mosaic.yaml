@@ -1,0 +1,59 @@
+openapi: 3.0.0
+info:
+  title: Mosaic integration API
+  description: "Mosaic integration API"
+  version: 0.0.1
+servers:
+  - url: /mosaic
+paths:
+  /orders:
+    description: Orders API
+    post:
+      summary: Create a new order in FOLIO
+      operationId: createMosaicOrder
+      requestBody:
+        description: Mosaic Order object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MosaicOrder"
+      responses:
+        '201':
+          description: Order successfully created, returns the POL number
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "10001-1"
+        '400':
+          description:
+            Bad request, e.g. malformed request body or query parameter.
+            Details of the error (e.g. name of the parameter or line/character number
+            with malformed data) provided in the response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors"
+        '500':
+          description: Internal server error, e.g. due to misconfiguration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errors"
+components:
+  schemas:
+    MosaicOrder:
+      type: object
+      properties:
+        name:
+          $ref: "MosaicOrder"
+    errors:
+      $ref: "./schemas/common.yaml#/Errors"
+    error:
+      $ref: "./schemas/common.yaml#/Error"
+    parameters:
+      $ref: "./schemas/common.yaml#/Parameters"
+    parameter:
+      $ref: "./schemas/common.yaml#/Parameter"
+
