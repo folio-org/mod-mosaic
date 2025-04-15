@@ -30,7 +30,7 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/orders",
+          "pathPattern": "/mosaic/orders",
           "permissionsRequired": [
             "mosaic.orders.item.post"
           ],

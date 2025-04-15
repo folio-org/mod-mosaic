@@ -27,20 +27,10 @@ paths:
                 type: string
               example: "10001-1"
         '400':
-          description:
-            Bad request, e.g. malformed request body or query parameter.
-            Details of the error (e.g. name of the parameter or line/character number
-            with malformed data) provided in the response.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errors"
+          $ref: "#/components/responses/BadRequest"
         '500':
-          description: Internal server error, e.g. due to misconfiguration
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errors"
+          $ref: "#/components/responses/InternalServerError"
+
 components:
   schemas:
     MosaicOrder:
@@ -56,4 +46,19 @@ components:
       $ref: "./schemas/common.yaml#/Parameters"
     parameter:
       $ref: "./schemas/common.yaml#/Parameter"
-
+  responses:
+    BadRequest:
+      description:
+        Bad request, e.g. malformed request body or query parameter.
+        Details of the error (e.g. name of the parameter or line/character number
+        with malformed data) provided in the response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errors"
+    InternalServerError:
+      description: Internal server error, e.g. due to misconfiguration
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errors"
