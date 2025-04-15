@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient("orders")
 public interface OrdersClient {
 
-  @PostMapping(value = "/orders")
+  @PostMapping(value = "/composite-orders")
   CompositePurchaseOrder createOrder(@RequestBody CompositePurchaseOrder poLine);
 
 }
