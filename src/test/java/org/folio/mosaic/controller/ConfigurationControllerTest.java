@@ -14,6 +14,7 @@ import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.mosaic.exception.ResourceAlreadyExistException;
 import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.mosaic.service.ConfigurationService;
+import org.folio.mosaic.support.JsonUtils;
 import org.folio.mosaic.util.error.ErrorCode;
 import org.folio.mosaic.util.error.ErrorUtils;
 import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
@@ -23,10 +24,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.val;
-
 
 @CopilotGenerated(partiallyGenerated = true)
 @WebMvcTest(ConfigurationController.class)
@@ -38,8 +36,6 @@ class ConfigurationControllerTest {
   private ConfigurationController configurationController;
   @Autowired
   private MockMvc mockMvc;
-  @Autowired
-  private ObjectMapper objectMapper;
 
   @Test
   void testGetConfiguration() throws Exception {
@@ -48,7 +44,7 @@ class ConfigurationControllerTest {
 
     mockMvc.perform(get("/mosaic/configuration"))
       .andExpect(status().isOk())
-      .andExpect(content().json(objectMapper.writeValueAsString(configuration)));
+      .andExpect(content().json(JsonUtils.toJson(configuration)));
 
     verify(configurationService).getConfiguration();
   }
@@ -62,7 +58,7 @@ class ConfigurationControllerTest {
 
     mockMvc.perform(get("/mosaic/configuration"))
       .andExpect(status().isNotFound())
-      .andExpect(content().json(objectMapper.writeValueAsString(expectedError)));
+      .andExpect(content().json(JsonUtils.toJson(expectedError)));
 
     verify(configurationService).getConfiguration();
   }
@@ -75,9 +71,9 @@ class ConfigurationControllerTest {
 
     mockMvc.perform(post("/mosaic/configuration")
         .contentType("application/json")
-        .content(objectMapper.writeValueAsString(configuration)))
+        .content(JsonUtils.toJson(configuration)))
       .andExpect(status().isCreated())
-      .andExpect(content().json(objectMapper.writeValueAsString(savedConfiguration)));
+      .andExpect(content().json(JsonUtils.toJson(savedConfiguration)));
 
     verify(configurationService).saveConfiguration(configuration);
   }
@@ -92,9 +88,9 @@ class ConfigurationControllerTest {
 
     mockMvc.perform(post("/mosaic/configuration")
         .contentType("application/json")
-        .content(objectMapper.writeValueAsString(configuration)))
+        .content(JsonUtils.toJson(configuration)))
       .andExpect(status().isConflict())
-      .andExpect(content().json(objectMapper.writeValueAsString(expectedError)));
+      .andExpect(content().json(JsonUtils.toJson(expectedError)));
 
     verify(configurationService).saveConfiguration(configuration);
   }
@@ -105,7 +101,7 @@ class ConfigurationControllerTest {
 
     mockMvc.perform(put("/mosaic/configuration")
         .contentType("application/json")
-        .content(objectMapper.writeValueAsString(configuration)))
+        .content(JsonUtils.toJson(configuration)))
       .andExpect(status().isNoContent());
 
     verify(configurationService).updateConfiguration(configuration);
@@ -121,9 +117,9 @@ class ConfigurationControllerTest {
 
     mockMvc.perform(put("/mosaic/configuration")
         .contentType("application/json")
-        .content(objectMapper.writeValueAsString(configuration)))
+        .content(JsonUtils.toJson(configuration)))
       .andExpect(status().isNotFound())
-      .andExpect(content().json(objectMapper.writeValueAsString(expectedError)));
+      .andExpect(content().json(JsonUtils.toJson(expectedError)));
 
     verify(configurationService).updateConfiguration(configuration);
   }
