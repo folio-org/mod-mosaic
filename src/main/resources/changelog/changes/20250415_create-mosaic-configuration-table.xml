@@ -9,7 +9,7 @@
       <column name="id" type="uuid">
         <constraints primaryKey="true" primaryKeyName="pk_mosaic_configuration_id"/>
       </column>
-      <column name="default_template_id" type="text">
+      <column name="default_template_id" type="uuid">
         <constraints unique="true" nullable="false"/>
       </column>
       <column name="created_by" type="uuid"/>
