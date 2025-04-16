@@ -1,0 +1,24 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.17.xsd">
+
+  <changeSet id="MODMO-6" author="sabazed">
+    <createTable tableName="mosaic_configuration">
+      <column name="id" type="uuid">
+        <constraints primaryKey="true" primaryKeyName="pk_mosaic_configuration_id"/>
+      </column>
+      <column name="default_template_id" type="text">
+        <constraints unique="true" nullable="false"/>
+      </column>
+      <column name="created_by" type="uuid"/>
+      <column name="created_date" type="timestamp without time zone" defaultValueComputed="now()">
+        <constraints nullable="false"/>
+      </column>
+      <column name="updated_by" type="uuid"/>
+      <column name="updated_date" type="timestamp without time zone"/>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

@@ -3,4 +3,8 @@
                    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+  <!-- 1.0.0 -->
+  <include file="changes/20250415_create-mosaic-configuration-table.xml" relativeToChangelogFile="true"/>
+
 </databaseChangeLog>
