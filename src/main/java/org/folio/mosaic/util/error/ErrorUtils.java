@@ -1,10 +1,9 @@
-package org.folio.mosaic.util;
+package org.folio.mosaic.util.error;
 
 import java.util.List;
 
 import org.folio.mosaic.domain.dto.Error;
 import org.folio.mosaic.domain.dto.Errors;
-import org.folio.mosaic.util.error.ErrorCode;
 
 import lombok.experimental.UtilityClass;
 

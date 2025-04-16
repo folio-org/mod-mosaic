@@ -10,6 +10,7 @@ public enum ErrorCode {
 
   VALIDATION_ERROR("validationError", "Validation error"),
   NOT_FOUND_ERROR("notFoundError", "Resource not found"),
+  ALREADY_EXISTS_ERROR("alreadyExistsError", "Resource already exists"),
   INTERNAL_ERROR("internalError", "Internal error occurred"),
   BAD_REQUEST_ERROR("badRequestError", "Bad request sent by the client"),
   UNKNOWN_ERROR("unknownError", "Unknown error occurred");
