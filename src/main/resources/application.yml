@@ -13,6 +13,7 @@ spring:
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
   jpa:
+    show-sql: false
     properties:
       hibernate:
         ddl-auto: validate
