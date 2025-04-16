@@ -34,6 +34,8 @@
     <sonar.exclusions>
       <!-- define sonar exclusions here -->
       src/main/java/**/*Application.java
+      src/main/java/**/*Config.java
+      src/main/java/**/*Exception.java
     </sonar.exclusions>
     <argLine />
 
