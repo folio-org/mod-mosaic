@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.folio.mosaic.service.OrdersService;
-import org.folio.mosaic.util.ErrorUtils;
+import org.folio.mosaic.util.error.ErrorUtils;
 import org.folio.mosaic.util.error.ErrorCode;
 import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;

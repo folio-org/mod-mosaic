@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.folio.mosaic.CopilotGenerated;
 import org.folio.mosaic.util.error.ErrorCode;
+import org.folio.mosaic.util.error.ErrorUtils;
 import org.junit.jupiter.api.Test;
 
 import lombok.val;
