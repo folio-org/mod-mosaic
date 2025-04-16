@@ -48,14 +48,14 @@ public class ControllerExceptionHandler {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler(ResourceNotFoundException.class)
   public Errors handleResourceNotFoundException(ResourceNotFoundException e) {
-    logException(e);
+    logExceptionMessage(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.NOT_FOUND_ERROR);
   }
 
   @ResponseStatus(HttpStatus.CONFLICT)
   @ExceptionHandler(ResourceAlreadyExistException.class)
   public Errors handleResourceAlreadyExistException(ResourceAlreadyExistException e) {
-    logException(e);
+    logExceptionMessage(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.ALREADY_EXISTS_ERROR);
   }
 
@@ -64,6 +64,10 @@ public class ControllerExceptionHandler {
   public Errors handleGenericException(Exception e) {
     logException(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.UNKNOWN_ERROR);
+  }
+
+  public void logExceptionMessage(Exception e) {
+    log.error("Exception occurred: {}", e.getMessage());
   }
 
   public void logException(FeignException e) {

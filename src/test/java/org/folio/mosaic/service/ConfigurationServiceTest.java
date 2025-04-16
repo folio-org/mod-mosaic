@@ -28,15 +28,13 @@ class ConfigurationServiceTest {
 
   @Mock
   private ConfigurationRepository configurationRepository;
-
   @Mock
   private MosaicConfigurationMapper mapper;
-
   @InjectMocks
   private ConfigurationService configurationService;
 
   @Test
-  void getConfigurationReturnsMappedDtoWhenEntityExists() {
+  void testGetConfiguration() {
     MosaicConfigurationEntity entity = new MosaicConfigurationEntity();
     MosaicConfiguration dto = new MosaicConfiguration();
 
@@ -51,7 +49,7 @@ class ConfigurationServiceTest {
   }
 
   @Test
-  void getConfigurationThrowsExceptionWhenNoEntityExists() {
+  void testGetConfigurationNotFound() {
     when(configurationRepository.findAll()).thenReturn(Collections.emptyList());
 
     assertThrows(ResourceNotFoundException.class, () -> configurationService.getConfiguration());
@@ -59,7 +57,7 @@ class ConfigurationServiceTest {
   }
 
   @Test
-  void saveConfigurationSavesEntityAndReturnsMappedDto() {
+  void testSaveConfiguration() {
     MosaicConfiguration configuration = new MosaicConfiguration();
     MosaicConfigurationEntity entity = new MosaicConfigurationEntity();
     MosaicConfigurationEntity savedEntity = new MosaicConfigurationEntity();
@@ -80,7 +78,7 @@ class ConfigurationServiceTest {
   }
 
   @Test
-  void saveConfigurationThrowsExceptionWhenConfigurationAlreadyExists() {
+  void testSaveConfigurationAlreadyExists() {
     when(configurationRepository.count()).thenReturn(1L);
 
     MosaicConfiguration configuration = new MosaicConfiguration();
@@ -90,7 +88,7 @@ class ConfigurationServiceTest {
   }
 
   @Test
-  void updateConfigurationUpdatesExistingEntity() {
+  void testUpdateConfiguration() {
     MosaicConfiguration configuration = new MosaicConfiguration();
     configuration.setDefaultTemplateId(UUID.randomUUID().toString());
     MosaicConfigurationEntity existingEntity = new MosaicConfigurationEntity();
@@ -105,7 +103,7 @@ class ConfigurationServiceTest {
   }
 
   @Test
-  void updateConfigurationThrowsExceptionWhenNoEntityExists() {
+  void testUpdateConfigurationNotFound() {
     when(configurationRepository.findAll()).thenReturn(Collections.emptyList());
 
     MosaicConfiguration configuration = new MosaicConfiguration();
@@ -115,7 +113,7 @@ class ConfigurationServiceTest {
   }
 
   @Test
-  void deleteConfigurationDeletesAllEntities() {
+  void testDeleteConfiguration() {
     configurationService.deleteConfiguration();
 
     verify(configurationRepository).deleteAll();
