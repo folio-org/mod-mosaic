@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.folio.mosaic.CopilotGenerated;
+import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.mosaic.domain.entity.MosaicConfigurationEntity;
 import org.folio.mosaic.domain.mapper.MosaicConfigurationMapper;
 import org.folio.mosaic.exception.ResourceAlreadyExistException;
