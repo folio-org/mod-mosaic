@@ -11,6 +11,8 @@ paths:
     post:
       summary: Create a new order in FOLIO
       operationId: createMosaicOrder
+      parameters:
+        - $ref: "#/components/parameters/templateId"
       requestBody:
         description: Mosaic Order object
         required: true
@@ -57,3 +59,12 @@ components:
     parameter:
       $ref: "./schemas/common.yaml#/Parameter"
 
+  parameters:
+    templateId:
+      in: query
+      name: templateId
+      schema:
+        type: string
+        format: uuid
+      required: true
+      description: The ID of the template

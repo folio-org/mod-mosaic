@@ -2,10 +2,12 @@ package org.folio.mosaic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.folio.mosaic.CopilotGenerated;
 import org.folio.mosaic.client.OrdersClient;
@@ -28,29 +30,48 @@ class OrdersServiceTest {
   private OrdersService ordersService;
 
   @Test
-  void testCreateOrder() {
+  void positive_createOrder() {
     CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
     compositePurchaseOrder.setPoNumber("PO12345");
+    var templateId = UUID.randomUUID();
 
     CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
     createdOrder.setCompositePoLines(List.of(new CompositePoLine().withPoLineNumber("POL12345")));
 
     when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
 
-    String result = ordersService.createOrder(compositePurchaseOrder);
+    String result = ordersService.createOrder(templateId, compositePurchaseOrder);
 
     assertEquals("POL12345", result);
     verify(ordersClient).createOrder(compositePurchaseOrder);
   }
 
   @Test
-  void testCreateOrderClientException() {
+  void positive_createOrder_useDefaultTemplate() {
     CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
     compositePurchaseOrder.setPoNumber("PO12345");
 
+    CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
+    createdOrder.setCompositePoLines(List.of(new CompositePoLine().withPoLineNumber("POL12345")));
+
+    when(ordersClient.getOrderTemplateById(any())).thenReturn(compositePurchaseOrder);
+    when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
+
+    String result = ordersService.createOrder(null, compositePurchaseOrder);
+
+    assertEquals("POL12345", result);
+    verify(ordersClient).getOrderTemplateById(any());
+  }
+
+  @Test
+  void negative_createOrder_throwClientException() {
+    CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
+    compositePurchaseOrder.setPoNumber("PO12345");
+    var templateId = UUID.randomUUID();
+
     when(ordersClient.createOrder(compositePurchaseOrder)).thenThrow(new RuntimeException("Order creation failed"));
 
-    assertThrows(RuntimeException.class, () -> ordersService.createOrder(compositePurchaseOrder));
+    assertThrows(RuntimeException.class, () -> ordersService.createOrder(templateId, compositePurchaseOrder));
     verify(ordersClient).createOrder(compositePurchaseOrder);
   }
 

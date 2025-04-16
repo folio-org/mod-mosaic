@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.folio.mosaic.service.OrdersService;
@@ -47,16 +48,17 @@ class OrdersControllerTest {
   void testCreateOrder() throws Exception {
     val poLineNumber = "12345";
     val mosaicOrder = new CompositePurchaseOrder().withCompositePoLines(List.of(new CompositePoLine().withPoLineNumber(poLineNumber)));
+    var templateId = UUID.randomUUID();
 
-    when(ordersService.createOrder(mosaicOrder)).thenReturn(poLineNumber);
+    when(ordersService.createOrder(templateId, mosaicOrder)).thenReturn(poLineNumber);
 
-    mockMvc.perform(post("/mosaic/orders")
+    mockMvc.perform(post("/mosaic/orders?templateId=" + templateId)
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(mosaicOrder)))
       .andExpect(status().isCreated())
       .andExpect(content().string(poLineNumber));
 
-    verify(ordersService).createOrder(mosaicOrder);
+    verify(ordersService).createOrder(templateId, mosaicOrder);
   }
 
   @ParameterizedTest
@@ -64,16 +66,17 @@ class OrdersControllerTest {
   void testCreateOrderThrowsException(int statusCode, ErrorCode errorCode, Throwable throwable) throws Exception {
     val mosaicOrder = new CompositePurchaseOrder();
     val expectedError = ErrorUtils.getErrors(errorCode.toError());
+    var templateId = UUID.randomUUID();
 
-    when(ordersService.createOrder(mosaicOrder)).thenThrow(throwable);
+    when(ordersService.createOrder(templateId, mosaicOrder)).thenThrow(throwable);
 
-    mockMvc.perform(post("/mosaic/orders")
+    mockMvc.perform(post("/mosaic/orders?templateId=" + templateId)
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(mosaicOrder)))
       .andExpect(status().is(statusCode))
       .andExpect(content().json(objectMapper.writeValueAsString(expectedError)));
 
-    verify(ordersService).createOrder(mosaicOrder);
+    verify(ordersService).createOrder(templateId, mosaicOrder);
   }
 
   private static Stream<Arguments> createOrderExceptionProvider() {
