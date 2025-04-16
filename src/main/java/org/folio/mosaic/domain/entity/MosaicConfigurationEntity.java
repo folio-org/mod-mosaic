@@ -12,11 +12,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "mosaic_configuration")
 @Data
 @EqualsAndHashCode(callSuper = false)
+@ToString(callSuper = true)
 public class MosaicConfigurationEntity extends AuditableEntity {
 
   @Id
