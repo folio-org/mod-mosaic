@@ -8,7 +8,7 @@ import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MosaicConfigurationMapperTest {
+class MosaicConfigurationMapperTest {
 
   private static final String MOCK_ENTITY_PATH = "src/test/resources/mock/mapper/mosaic_configuration_entity.json";
   private static final String MOCK_DTO_PATH = "src/test/resources/mock/mapper/mosaic_configuration.json";

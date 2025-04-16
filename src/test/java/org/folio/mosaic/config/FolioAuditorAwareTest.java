@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @EnableAutoConfiguration(exclude = BatchAutoConfiguration.class)
-public class AuditorTest {
+class FolioAuditorAwareTest {
 
   @Mock
   FolioExecutionContext folioExecutionContext;
