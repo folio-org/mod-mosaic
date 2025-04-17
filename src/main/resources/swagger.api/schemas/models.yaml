@@ -1,0 +1,13 @@
+MosaicOrder:
+  type: object
+  properties:
+    placeholder:
+      type: boolean
+      default: true
+
+MosaicConfiguration:
+  type: object
+  properties:
+    placeholder:
+      type: boolean
+      default: true

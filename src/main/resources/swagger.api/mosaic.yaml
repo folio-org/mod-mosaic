@@ -84,15 +84,9 @@ paths:
 components:
   schemas:
     MosaicOrder:
-      type: object
-      properties:
-        name:
-          $ref: "MosaicOrder"
+      $ref: "./schemas/models.yaml#/MosaicOrder"
     MosaicConfiguration:
-      type: object
-      properties:
-        name:
-          $ref: "MosaicConfiguration"
+      $ref: "./schemas/models.yaml#/MosaicConfiguration"
     errors:
       $ref: "./schemas/common.yaml#/Errors"
     error:
@@ -117,12 +111,6 @@ components:
           schema:
             $ref: "#/components/schemas/MosaicConfiguration"
   responses:
-    MosaicOrderResponse:
-      description: Mosaic Order object
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/MosaicOrder"
     MosaicConfigurationResponse:
       description: Mosaic configuration object
       content:
