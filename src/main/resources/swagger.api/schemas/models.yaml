@@ -1,3 +1,11 @@
+# Use this file to define placeholder models for the API documentation.
+# These models are not used in the actual API implementation, as they are replaced with the
+# actual models using <schemaMappings> within the `openapi-generator-maven-plugin` of `pom.xml`.
+#
+# Such placeholders are required for GitHub Actions to pass api-lint checks.
+# Each placeholder model must have the same name as the actual model, and must contain at least
+# one property, so it is not recognized as a simple Object after generating the resource interfaces.
+
 MosaicOrder:
   type: object
   properties:
