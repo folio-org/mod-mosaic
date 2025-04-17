@@ -1,7 +1,9 @@
 package org.folio.mosaic.controller.exception;
 
 import org.folio.mosaic.domain.dto.Errors;
-import org.folio.mosaic.util.ErrorUtils;
+import org.folio.mosaic.exception.ResourceAlreadyExistException;
+import org.folio.mosaic.exception.ResourceNotFoundException;
+import org.folio.mosaic.util.error.ErrorUtils;
 import org.folio.mosaic.util.error.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,11 +45,29 @@ public class ControllerExceptionHandler {
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.INTERNAL_ERROR);
   }
 
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public Errors handleResourceNotFoundException(ResourceNotFoundException e) {
+    logExceptionMessage(e);
+    return ErrorUtils.getErrors(e.getMessage(), ErrorCode.NOT_FOUND_ERROR);
+  }
+
+  @ResponseStatus(HttpStatus.CONFLICT)
+  @ExceptionHandler(ResourceAlreadyExistException.class)
+  public Errors handleResourceAlreadyExistException(ResourceAlreadyExistException e) {
+    logExceptionMessage(e);
+    return ErrorUtils.getErrors(e.getMessage(), ErrorCode.ALREADY_EXISTS_ERROR);
+  }
+
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   @ExceptionHandler(Exception.class)
   public Errors handleGenericException(Exception e) {
     logException(e);
     return ErrorUtils.getErrors(e.getMessage(), ErrorCode.UNKNOWN_ERROR);
+  }
+
+  public void logExceptionMessage(Exception e) {
+    log.error("Exception occurred: {}", e.getMessage());
   }
 
   public void logException(FeignException e) {

@@ -1,4 +1,4 @@
-package org.folio.mosaic;
+package org.folio.mosaic.support;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

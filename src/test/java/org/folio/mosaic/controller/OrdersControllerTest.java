@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.folio.mosaic.service.OrdersService;
-import org.folio.mosaic.util.ErrorUtils;
+import org.folio.mosaic.support.JsonUtils;
+import org.folio.mosaic.util.error.ErrorUtils;
 import org.folio.mosaic.util.error.ErrorCode;
 import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
@@ -26,8 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import feign.FeignException;
 import feign.Request;
 import lombok.val;
@@ -40,8 +39,6 @@ class OrdersControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-  @Autowired
-  private ObjectMapper objectMapper;
 
   @Test
   void testCreateOrder() throws Exception {
@@ -52,7 +49,7 @@ class OrdersControllerTest {
 
     mockMvc.perform(post("/mosaic/orders")
         .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(mosaicOrder)))
+        .content(JsonUtils.toJson(mosaicOrder)))
       .andExpect(status().isCreated())
       .andExpect(content().string(poLineNumber));
 
@@ -69,9 +66,9 @@ class OrdersControllerTest {
 
     mockMvc.perform(post("/mosaic/orders")
         .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(mosaicOrder)))
+        .content(JsonUtils.toJson(mosaicOrder)))
       .andExpect(status().is(statusCode))
-      .andExpect(content().json(objectMapper.writeValueAsString(expectedError)));
+      .andExpect(content().json(JsonUtils.toJson(expectedError)));
 
     verify(ordersService).createOrder(mosaicOrder);
   }
