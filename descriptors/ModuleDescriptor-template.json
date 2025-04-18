@@ -11,6 +11,10 @@
       "version": "3.0"
     },
     {
+      "id": "order-templates",
+      "version": "1.0"
+    },
+    {
       "id": "organizations.organizations",
       "version": "1.1"
     },
@@ -35,6 +39,7 @@
             "mosaic.orders.item.post"
           ],
           "modulePermissions": [
+            "orders.order-templates.collection.get",
             "orders.item.post"
           ]
         },
