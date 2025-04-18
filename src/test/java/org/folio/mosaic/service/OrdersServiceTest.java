@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.UUID;
 
-import org.folio.mosaic.CopilotGenerated;
+import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.mosaic.client.OrdersClient;
 import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;

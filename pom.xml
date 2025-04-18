@@ -33,7 +33,9 @@
     <start-class>org.folio.mosaic.FolioMosaicApplication</start-class>
     <sonar.exclusions>
       <!-- define sonar exclusions here -->
-      src/main/java/**/*Application.java
+      src/main/java/**/*Application.java,
+      src/main/java/**/*Config.java,
+      src/main/java/**/*Exception.java,
     </sonar.exclusions>
     <argLine />
 
@@ -56,6 +58,7 @@
 
     <!-- Other dependencies -->
     <lombok.version>1.18.38</lombok.version>
+    <mapstruct.version>1.6.3</mapstruct.version>
 
     <!-- Maven plugin dependencies -->
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
@@ -100,6 +103,12 @@
       <artifactId>lombok</artifactId>
       <version>${lombok.version}</version>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct-processor</artifactId>
+      <version>${mapstruct.version}</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -277,6 +286,7 @@
               <generateModelDocumentation>true</generateModelDocumentation>
               <schemaMappings>
                 <schemaMapping>MosaicOrder=org.folio.rest.acq.model.orders.CompositePurchaseOrder</schemaMapping>
+                <schemaMapping>MosaicConfiguration=org.folio.rest.acq.model.mosaic.MosaicConfiguration</schemaMapping>
               </schemaMappings>
               <configOptions>
                 <dateLibrary>java</dateLibrary>
@@ -319,6 +329,16 @@
             <configuration>
               <sourceDirectory>${basedir}/ramls/acq-models/common/schemas</sourceDirectory>
               <targetPackage>org.folio.rest.acq.model</targetPackage>
+            </configuration>
+          </execution>
+          <execution>
+            <id>mosaic</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <sourceDirectory>${basedir}/ramls/acq-models/mod-mosaic/schemas</sourceDirectory>
+              <targetPackage>org.folio.rest.acq.model.mosaic</targetPackage>
             </configuration>
           </execution>
           <execution>

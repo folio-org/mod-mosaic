@@ -6,6 +6,7 @@ info:
 servers:
   - url: /mosaic
 paths:
+  ### Orders API ###
   /orders:
     description: Orders API
     post:
@@ -14,12 +15,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/templateId"
       requestBody:
-        description: Mosaic Order object
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/MosaicOrder"
+        $ref: "#/components/requestBodies/MosaicOrderBody"
       responses:
         '201':
           description: Order successfully created, returns the POL number
@@ -29,27 +25,70 @@ paths:
                 type: string
               example: "10001-1"
         '400':
-          description:
-            Bad request, e.g. malformed request body or query parameter.
-            Details of the error (e.g. name of the parameter or line/character number
-            with malformed data) provided in the response.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errors"
+          $ref: "#/components/responses/BadRequest"
         '500':
-          description: Internal server error, e.g. due to misconfiguration
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/errors"
+          $ref: "#/components/responses/InternalServerError"
+
+  ### Configuration API ###
+  /configuration:
+    description: Configuration API
+    get:
+      summary: Get Mosaic configuration
+      operationId: getConfiguration
+      responses:
+        '200':
+          $ref: "#/components/responses/MosaicConfigurationResponse"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: Save Mosaic configuration
+      operationId: saveConfiguration
+      requestBody:
+        $ref: "#/components/requestBodies/MosaicConfigurationBody"
+      responses:
+        '201':
+          $ref: "#/components/responses/MosaicConfigurationResponse"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '409':
+          $ref: "#/components/responses/Conflict"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      summary: Update Mosaic configuration
+      operationId: updateConfiguration
+      requestBody:
+        $ref: "#/components/requestBodies/MosaicConfigurationBody"
+      responses:
+        '204':
+          $ref: "#/components/responses/NoContent"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '404':
+          $ref: "#/components/responses/NotFound"
+        '422':
+          $ref: "#/components/responses/UnprocessableEntity"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete Mosaic configuration
+      operationId: deleteConfiguration
+      responses:
+        '204':
+          $ref: "#/components/responses/NoContent"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
 components:
   schemas:
     MosaicOrder:
-      type: object
-      properties:
-        name:
-          $ref: "MosaicOrder"
+      $ref: "./schemas/models.yaml#/MosaicOrder"
+    MosaicConfiguration:
+      $ref: "./schemas/models.yaml#/MosaicConfiguration"
     errors:
       $ref: "./schemas/common.yaml#/Errors"
     error:
@@ -59,12 +98,60 @@ components:
     parameter:
       $ref: "./schemas/common.yaml#/Parameter"
 
-  parameters:
-    templateId:
-      in: query
-      name: templateId
-      schema:
-        type: string
-        format: uuid
+  requestBodies:
+    MosaicOrderBody:
+      description: Mosaic Order object
       required: true
-      description: The ID of the template
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MosaicOrder"
+    MosaicConfigurationBody:
+      description: Mosaic configuration object
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MosaicConfiguration"
+  responses:
+    MosaicConfigurationResponse:
+      description: Mosaic configuration object
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MosaicConfiguration"
+    NoContent:
+      description: No content
+    BadRequest:
+      description:
+        Bad request, e.g. malformed request body or query parameter.
+        Details of the error (e.g. name of the parameter or line/character number
+        with malformed data) provided in the response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errors"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errors"
+    Conflict:
+      description: Resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errors"
+    UnprocessableEntity:
+      description: Validation errors
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errors"
+    InternalServerError:
+      description: Internal server error, e.g. due to misconfiguration
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/errors"

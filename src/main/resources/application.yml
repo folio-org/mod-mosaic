@@ -13,12 +13,17 @@ spring:
   liquibase:
     change-log: classpath:changelog/changelog-master.xml
   jpa:
+    show-sql: false
     properties:
       hibernate:
         ddl-auto: validate
         dialect: org.hibernate.dialect.PostgreSQLDialect
   jackson:
     default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
+    serialization:
+      write-dates-as-timestamps: false
   cloud:
     openfeign:
       okhttp:
