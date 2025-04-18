@@ -97,6 +97,15 @@ components:
       $ref: "./schemas/common.yaml#/Parameters"
     parameter:
       $ref: "./schemas/common.yaml#/Parameter"
+  parameters:
+    templateId:
+      in: query
+      name: templateId
+      schema:
+        type: string
+        format: uuid
+      required: false
+      description: The ID of the template
 
   requestBodies:
     MosaicOrderBody:

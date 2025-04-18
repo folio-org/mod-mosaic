@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.mosaic.client.OrdersClient;
+import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
 import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class OrdersServiceTest {
 
   @Mock
   private OrdersClient ordersClient;
+
+  @Mock
+  private ConfigurationService configurationService;
 
   @InjectMocks
   private OrdersService ordersService;
@@ -47,13 +51,32 @@ class OrdersServiceTest {
   }
 
   @Test
-  void positive_createOrder_useDefaultTemplate() {
+  void positive_createOrder_useTemplateId() {
     CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
     compositePurchaseOrder.setPoNumber("PO12345");
 
     CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
     createdOrder.setCompositePoLines(List.of(new CompositePoLine().withPoLineNumber("POL12345")));
 
+    when(ordersClient.getOrderTemplateById(any())).thenReturn(compositePurchaseOrder);
+    when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
+
+    String result = ordersService.createOrder(null, compositePurchaseOrder);
+
+    assertEquals("POL12345", result);
+    verify(ordersClient).getOrderTemplateById(any());
+  }
+
+  @Test
+  void positive_createOrder_useDefaultTemplate() {
+    CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
+    compositePurchaseOrder.setPoNumber("PO12345");
+    var defaultTemplateId = UUID.randomUUID();
+
+    CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
+    createdOrder.setCompositePoLines(List.of(new CompositePoLine().withPoLineNumber("POL12345")));
+
+    when(configurationService.getConfiguration()).thenReturn(new MosaicConfiguration().withDefaultTemplateId(defaultTemplateId.toString()));
     when(ordersClient.getOrderTemplateById(any())).thenReturn(compositePurchaseOrder);
     when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
 

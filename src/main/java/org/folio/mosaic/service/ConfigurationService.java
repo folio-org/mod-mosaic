@@ -30,6 +30,7 @@ public class ConfigurationService {
   @Transactional
   public MosaicConfiguration saveConfiguration(MosaicConfiguration configuration) {
     validateConfigurationNotExists();
+    configuration.setId(null);
     val entity = configurationRepository.save(mapper.toEntity(configuration));
     return mapper.toDto(entity);
   }

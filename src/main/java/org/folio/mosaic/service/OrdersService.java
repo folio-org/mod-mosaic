@@ -14,14 +14,14 @@ import org.springframework.stereotype.Service;
 public class OrdersService {
 
   private final OrdersClient ordersClient;
+  private final ConfigurationService configurationService;
 
   public String createOrder(UUID templateId, CompositePurchaseOrder compositePurchaseOrder) {
     log.info("createOrder:: Creating mosaic order with number: {}", compositePurchaseOrder.getPoNumber());
 
     var orderTemplateId = templateId != null
       ? templateId.toString()
-      : null;
-    // TODO: Get the default template ID from the configuration
+      : configurationService.getConfiguration().getDefaultTemplateId();
 
     var orderTemplate = ordersClient.getOrderTemplateById(orderTemplateId);
     // TODO: Merge the order template with the composite purchase order
