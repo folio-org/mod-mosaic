@@ -1,12 +1,12 @@
 package org.folio.mosaic.service;
 
-import org.folio.mosaic.client.OrdersClient;
-import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
-import org.springframework.stereotype.Service;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import lombok.val;
+import org.folio.mosaic.client.OrdersClient;
+import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -14,10 +14,19 @@ import lombok.val;
 public class OrdersService {
 
   private final OrdersClient ordersClient;
+  private final ConfigurationService configurationService;
 
-  public String createOrder(CompositePurchaseOrder compositePurchaseOrder) {
+  public String createOrder(UUID templateId, CompositePurchaseOrder compositePurchaseOrder) {
     log.info("createOrder:: Creating mosaic order with number: {}", compositePurchaseOrder.getPoNumber());
-    val createdOrder = ordersClient.createOrder(compositePurchaseOrder);
+
+    var orderTemplateId = templateId != null
+      ? templateId.toString()
+      : configurationService.getConfiguration().getDefaultTemplateId();
+
+    var orderTemplate = ordersClient.getOrderTemplateById(orderTemplateId);
+    // TODO: Merge the order template with the composite purchase order
+
+    var createdOrder = ordersClient.createOrder(compositePurchaseOrder);
     return createdOrder.getCompositePoLines().getFirst().getPoLineNumber();
   }
 
