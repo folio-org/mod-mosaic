@@ -54,6 +54,7 @@ class OrdersServiceTest {
   void positive_createOrder_useTemplateId() {
     CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
     compositePurchaseOrder.setPoNumber("PO12345");
+    var templateId = UUID.randomUUID();
 
     CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
     createdOrder.setCompositePoLines(List.of(new CompositePoLine().withPoLineNumber("POL12345")));
@@ -61,7 +62,7 @@ class OrdersServiceTest {
     when(ordersClient.getOrderTemplateById(any())).thenReturn(compositePurchaseOrder);
     when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
 
-    String result = ordersService.createOrder(null, compositePurchaseOrder);
+    String result = ordersService.createOrder(templateId, compositePurchaseOrder);
 
     assertEquals("POL12345", result);
     verify(ordersClient).getOrderTemplateById(any());
