@@ -27,7 +27,7 @@ public class OrdersService {
     // TODO: Merge the order template with the composite purchase order
 
     var createdOrder = ordersClient.createOrder(compositePurchaseOrder);
-    return createdOrder.getCompositePoLines().getFirst().getPoLineNumber();
+    return createdOrder.getPoLines().getFirst().getPoLineNumber();
   }
 
 }

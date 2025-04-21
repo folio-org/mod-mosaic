@@ -15,8 +15,8 @@ import org.folio.mosaic.service.OrdersService;
 import org.folio.mosaic.support.JsonUtils;
 import org.folio.mosaic.util.error.ErrorUtils;
 import org.folio.mosaic.util.error.ErrorCode;
-import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.orders.PoLine;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -44,7 +44,7 @@ class OrdersControllerTest {
   @Test
   void testCreateOrder() throws Exception {
     val poLineNumber = "12345";
-    val mosaicOrder = new CompositePurchaseOrder().withCompositePoLines(List.of(new CompositePoLine().withPoLineNumber(poLineNumber)));
+    val mosaicOrder = new CompositePurchaseOrder().withPoLines(List.of(new PoLine().withPoLineNumber(poLineNumber)));
     var templateId = UUID.randomUUID();
 
     when(ordersService.createOrder(templateId, mosaicOrder)).thenReturn(poLineNumber);

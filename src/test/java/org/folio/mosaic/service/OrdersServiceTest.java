@@ -12,8 +12,8 @@ import java.util.UUID;
 import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.mosaic.client.OrdersClient;
 import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
-import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.orders.PoLine;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,7 +40,7 @@ class OrdersServiceTest {
     var templateId = UUID.randomUUID();
 
     CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
-    createdOrder.setCompositePoLines(List.of(new CompositePoLine().withPoLineNumber("POL12345")));
+    createdOrder.setPoLines(List.of(new PoLine().withPoLineNumber("POL12345")));
 
     when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
 
@@ -57,7 +57,7 @@ class OrdersServiceTest {
     var templateId = UUID.randomUUID();
 
     CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
-    createdOrder.setCompositePoLines(List.of(new CompositePoLine().withPoLineNumber("POL12345")));
+    createdOrder.setPoLines(List.of(new PoLine().withPoLineNumber("POL12345")));
 
     when(ordersClient.getOrderTemplateById(any())).thenReturn(compositePurchaseOrder);
     when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
@@ -75,7 +75,7 @@ class OrdersServiceTest {
     var defaultTemplateId = UUID.randomUUID();
 
     CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
-    createdOrder.setCompositePoLines(List.of(new CompositePoLine().withPoLineNumber("POL12345")));
+    createdOrder.setPoLines(List.of(new PoLine().withPoLineNumber("POL12345")));
 
     when(configurationService.getConfiguration()).thenReturn(new MosaicConfiguration().withDefaultTemplateId(defaultTemplateId.toString()));
     when(ordersClient.getOrderTemplateById(any())).thenReturn(compositePurchaseOrder);
