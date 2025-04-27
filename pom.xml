@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.4</version>
+    <version>3.4.5</version>
     <relativePath />
   </parent>
 
@@ -54,7 +54,7 @@
 
     <!-- Folio dependencies properties -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <folio-spring-base.version>9.0.1</folio-spring-base.version>
+    <folio-spring-base.version>9.1.0</folio-spring-base.version>
 
     <!-- Other dependencies -->
     <lombok.version>1.18.38</lombok.version>
