@@ -93,7 +93,7 @@ public class MosaicOrderConverter {
       order.setShipTo(mosaicOrder.getShipTo());
     }
 
-    if (CollectionUtils.isEmpty(mosaicOrder.getAcqUnitIds())) {
+    if (CollectionUtils.isNotEmpty(mosaicOrder.getAcqUnitIds())) {
       order.setAcqUnitIds(mosaicOrder.getAcqUnitIds());
     }
 
@@ -114,7 +114,7 @@ public class MosaicOrderConverter {
 
       MosaicOrder.Format format = mosaicOrder.getFormat();
 
-      if (format == MosaicOrder.Format.ELECTRONIC || mosaicOrder.getListUnitPriceElectronic() != null) {
+      if (format == MosaicOrder.Format.ELECTRONIC && mosaicOrder.getListUnitPriceElectronic() != null) {
         cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
         cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
         cost.setQuantityPhysical(0);
@@ -181,7 +181,7 @@ public class MosaicOrderConverter {
     }
 
     if (isNotBlank(mosaicOrder.getReceivingNote())) {
-      Details details = new Details();
+      var details = poLine.getDetails() != null ? poLine.getDetails() : new Details();
       details.setReceivingNote(mosaicOrder.getReceivingNote());
       poLine.setDetails(details);
     }
@@ -193,7 +193,7 @@ public class MosaicOrderConverter {
       for (var mosaicRefNumber : mosaicOrder.getReferenceNumbers()) {
         var referenceNumber = new ReferenceNumberItem();
         referenceNumber.setRefNumber(mosaicRefNumber.getRefNumber());
-        referenceNumber.setRefNumberType(ReferenceNumberItem.RefNumberType.valueOf(mosaicRefNumber.getRefNumberType().toString()));
+        referenceNumber.setRefNumberType(ReferenceNumberItem.RefNumberType.fromValue(mosaicRefNumber.getRefNumberType().toString()));
         referenceNumbers.add(referenceNumber);
       }
 
@@ -202,7 +202,8 @@ public class MosaicOrderConverter {
     }
 
     if (isNotBlank(mosaicOrder.getUserLimit())) {
-      var eresource = new Eresource().withUserLimit(mosaicOrder.getUserLimit());
+      var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
+      eresource.setUserLimit(mosaicOrder.getUserLimit());
       poLine.setEresource(eresource);
     }
 
@@ -226,7 +227,7 @@ public class MosaicOrderConverter {
       poLine.setRenewalNote(mosaicOrder.getRenewalNote());
     }
 
-    if (CollectionUtils.isEmpty(mosaicOrder.getLocations())) {
+    if (CollectionUtils.isNotEmpty(mosaicOrder.getLocations())) {
       var convertedLocations = mosaicOrder.getLocations()
         .stream()
         .map(mosaicLocation ->
@@ -241,28 +242,30 @@ public class MosaicOrderConverter {
       poLine.setLocations(convertedLocations);
     }
 
-    if (CollectionUtils.isEmpty(mosaicOrder.getFundDistribution())) {
+    if (CollectionUtils.isNotEmpty(mosaicOrder.getFundDistribution())) {
       var convertedFunds = mosaicOrder.getFundDistribution()
         .stream()
         .map(mosaicFund ->
           new FundDistribution()
             .withFundId(mosaicFund.getFundId())
-            .withDistributionType(FundDistribution.DistributionType.valueOf(mosaicFund.getDistributionType().toString()))
+            .withDistributionType(FundDistribution.DistributionType.fromValue(mosaicFund.getDistributionType().toString()))
             .withValue(mosaicFund.getValue()))
         .toList();
       poLine.setFundDistribution(convertedFunds);
     }
 
     if (mosaicOrder.getMaterialTypeId() != null) {
-      var physical = new Physical()
-        .withMaterialType(mosaicOrder.getMaterialTypeId());
+      var physical = poLine.getPhysical() != null ? poLine.getPhysical() : new Physical();
+      physical.setMaterialType(mosaicOrder.getMaterialTypeId());
       poLine.setPhysical(physical);
     }
 
     if (mosaicOrder.getAccessProvider() != null) {
-      var eresource = new Eresource()
-        .withAccessProvider(mosaicOrder.getAccessProvider());
+      var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
+      eresource.setAccessProvider(mosaicOrder.getAccessProvider());
       poLine.setEresource(eresource);
     }
+
+    order.setPoLines(List.of(poLine));
   }
 }

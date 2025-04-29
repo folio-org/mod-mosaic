@@ -39,15 +39,15 @@ class OrdersServiceTest {
 
   @Test
   void positive_createOrder_withProvidedTemplateId() {
-    String templateId = UUID.randomUUID().toString();
-    MosaicOrder mosaicOrder = new MosaicOrder().withTitle("Test Book");
-    MosaicOrderRequest request = new MosaicOrderRequest()
+    var templateId = UUID.randomUUID().toString();
+    var mosaicOrder = new MosaicOrder().withTitle("Test Book");
+    var request = new MosaicOrderRequest()
       .withOrderTemplateId(templateId)
       .withMosaicOrder(mosaicOrder);
 
-    CompositePurchaseOrder orderTemplate = new CompositePurchaseOrder();
-    CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
-    CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
+    var orderTemplate = new CompositePurchaseOrder();
+    var compositePurchaseOrder = new CompositePurchaseOrder();
+    var createdOrder = new CompositePurchaseOrder();
     createdOrder.setPoLines(List.of(new PoLine().withPoLineNumber("POL12345")));
 
     when(ordersClient.getOrderTemplateById(templateId)).thenReturn(orderTemplate);
@@ -64,14 +64,14 @@ class OrdersServiceTest {
 
   @Test
   void positive_createOrder_useDefaultTemplate() {
-    String defaultTemplateId = UUID.randomUUID().toString();
-    MosaicOrder mosaicOrder = new MosaicOrder().withTitle("Test Book");
-    MosaicOrderRequest request = new MosaicOrderRequest()
+    var defaultTemplateId = UUID.randomUUID().toString();
+    var mosaicOrder = new MosaicOrder().withTitle("Test Book");
+    var request = new MosaicOrderRequest()
       .withMosaicOrder(mosaicOrder); // No template ID provided
 
-    CompositePurchaseOrder orderTemplate = new CompositePurchaseOrder();
-    CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
-    CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
+    var orderTemplate = new CompositePurchaseOrder();
+    var compositePurchaseOrder = new CompositePurchaseOrder();
+    var createdOrder = new CompositePurchaseOrder();
     createdOrder.setPoLines(List.of(new PoLine().withPoLineNumber("POL12345")));
 
     when(configurationService.getConfiguration()).thenReturn(new MosaicConfiguration().withDefaultTemplateId(defaultTemplateId));
@@ -90,14 +90,14 @@ class OrdersServiceTest {
 
   @Test
   void negative_createOrder_throwClientException() {
-    String templateId = UUID.randomUUID().toString();
-    MosaicOrder mosaicOrder = new MosaicOrder().withTitle("Test Book");
-    MosaicOrderRequest request = new MosaicOrderRequest()
+    var templateId = UUID.randomUUID().toString();
+    var mosaicOrder = new MosaicOrder().withTitle("Test Book");
+    var request = new MosaicOrderRequest()
       .withOrderTemplateId(templateId)
       .withMosaicOrder(mosaicOrder);
 
-    CompositePurchaseOrder orderTemplate = new CompositePurchaseOrder();
-    CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
+    var orderTemplate = new CompositePurchaseOrder();
+    var compositePurchaseOrder = new CompositePurchaseOrder();
 
     when(ordersClient.getOrderTemplateById(templateId)).thenReturn(orderTemplate);
     when(orderConverter.convertToCompositePurchaseOrder(mosaicOrder, orderTemplate)).thenReturn(compositePurchaseOrder);
