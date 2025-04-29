@@ -18,7 +18,7 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 ## Introduction
 
-This module provides a functionality to ingegrate with Mosaic ordering system.
+This module provides a functionality to integrate with Mosaic ordering system.
 
 ## Additional Information
 ### Issue tracker

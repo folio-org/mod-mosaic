@@ -285,8 +285,10 @@
               <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
               <generateModelDocumentation>true</generateModelDocumentation>
               <schemaMappings>
-                <schemaMapping>MosaicOrder=org.folio.rest.acq.model.orders.CompositePurchaseOrder</schemaMapping>
+                <schemaMapping>MosaicOrder=org.folio.rest.acq.model.mosaic.MosaicOrder</schemaMapping>
+                <schemaMapping>MosaicOrderRequest=org.folio.rest.acq.model.mosaic.MosaicOrderRequest</schemaMapping>
                 <schemaMapping>MosaicConfiguration=org.folio.rest.acq.model.mosaic.MosaicConfiguration</schemaMapping>
+                <schemaMapping>OrderTemplate=org.folio.rest.acq.model.orders.OrderTemplate</schemaMapping>
               </schemaMappings>
               <configOptions>
                 <dateLibrary>java</dateLibrary>

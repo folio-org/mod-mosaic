@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.UUID;
-
-import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.mosaic.client.OrdersClient;
+import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,17 +52,17 @@ class OrdersServiceTest {
 
   @Test
   void positive_createOrder_useTemplateId() {
-    CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
-    compositePurchaseOrder.setPoNumber("PO12345");
+    var orderTemplate = new OrderTemplate();
+    orderTemplate.setTemplateCode("Amazon_dot_com");
     var templateId = UUID.randomUUID();
 
-    CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
+    var createdOrder = new CompositePurchaseOrder();
     createdOrder.setPoLines(List.of(new PoLine().withPoLineNumber("POL12345")));
 
-    when(ordersClient.getOrderTemplateById(any())).thenReturn(compositePurchaseOrder);
-    when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
+    when(ordersClient.getOrderTemplateById(any())).thenReturn(orderTemplate);
+    when(ordersClient.createOrder(createdOrder)).thenReturn(createdOrder);
 
-    String result = ordersService.createOrder(templateId, compositePurchaseOrder);
+    String result = ordersService.createOrder(templateId, createdOrder);
 
     assertEquals("POL12345", result);
     verify(ordersClient).getOrderTemplateById(any());
@@ -70,18 +70,19 @@ class OrdersServiceTest {
 
   @Test
   void positive_createOrder_useDefaultTemplate() {
-    CompositePurchaseOrder compositePurchaseOrder = new CompositePurchaseOrder();
-    compositePurchaseOrder.setPoNumber("PO12345");
+    var orderTemplate = new OrderTemplate();
+    orderTemplate.setTemplateCode("Amazon_dot_com");
+
     var defaultTemplateId = UUID.randomUUID();
 
     CompositePurchaseOrder createdOrder = new CompositePurchaseOrder();
     createdOrder.setPoLines(List.of(new PoLine().withPoLineNumber("POL12345")));
 
     when(configurationService.getConfiguration()).thenReturn(new MosaicConfiguration().withDefaultTemplateId(defaultTemplateId.toString()));
-    when(ordersClient.getOrderTemplateById(any())).thenReturn(compositePurchaseOrder);
-    when(ordersClient.createOrder(compositePurchaseOrder)).thenReturn(createdOrder);
+    when(ordersClient.getOrderTemplateById(any())).thenReturn(orderTemplate);
+    when(ordersClient.createOrder(createdOrder)).thenReturn(createdOrder);
 
-    String result = ordersService.createOrder(null, compositePurchaseOrder);
+    String result = ordersService.createOrder(null, createdOrder);
 
     assertEquals("POL12345", result);
     verify(ordersClient).getOrderTemplateById(any());
