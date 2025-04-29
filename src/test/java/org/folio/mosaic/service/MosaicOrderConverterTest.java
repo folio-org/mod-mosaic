@@ -32,20 +32,18 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertToCompositePurchaseOrderWithNullTemplate() {
-    // Given
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Test Book")
       .withAuthor("Test Author")
       .withPublicationDate("2023")
       .withEdition("First Edition");
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
-    PoLine poLine = result.getPoLines().getFirst();
+
+    var poLine = result.getPoLines().getFirst();
     assertEquals("Test Book", poLine.getTitleOrPackage());
     assertEquals("Test Author", poLine.getContributors().getFirst().getContributor());
     assertEquals("2023", poLine.getPublicationDate());
@@ -54,27 +52,24 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertToCompositePurchaseOrderWithTemplate() {
-    // Given
-    String templateId = UUID.randomUUID().toString();
-    CompositePurchaseOrder template = new CompositePurchaseOrder()
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder()
       .withId(templateId)
       .withOrderType(CompositePurchaseOrder.OrderType.ONE_TIME)
       .withVendor("vendor-id")
       .withBillTo("bill-to-id")
       .withShipTo("ship-to-id");
 
-    List<String> acqUnitIds = new ArrayList<>();
+    var acqUnitIds = new ArrayList<String>();
     acqUnitIds.add("acq-unit-1");
     template.setAcqUnitIds(acqUnitIds);
 
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Test Book")
       .withAuthor("Test Author");
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
-    // Then
     assertNotNull(result);
     assertEquals(templateId, result.getTemplate());
     assertEquals(CompositePurchaseOrder.OrderType.ONE_TIME, result.getOrderType());
@@ -82,17 +77,16 @@ class MosaicOrderConverterTest {
     assertEquals("bill-to-id", result.getBillTo());
     assertEquals("ship-to-id", result.getShipTo());
     assertEquals(acqUnitIds, result.getAcqUnitIds());
-
     assertEquals(1, result.getPoLines().size());
-    PoLine poLine = result.getPoLines().getFirst();
+
+    var poLine = result.getPoLines().getFirst();
     assertEquals("Test Book", poLine.getTitleOrPackage());
     assertEquals("Test Author", poLine.getContributors().getFirst().getContributor());
   }
 
   @Test
   void testConvertPhysicalResource() {
-    // Given
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Physical Book")
       .withListUnitPrice(29.99)
       .withQuantityPhysical(3)
@@ -100,13 +94,12 @@ class MosaicOrderConverterTest {
       .withCurrency("USD")
       .withMaterialTypeId("material-type-id");
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
-    PoLine poLine = result.getPoLines().getFirst();
+
+    var poLine = result.getPoLines().getFirst();
     assertEquals(OrderFormat.PHYSICAL_RESOURCE, poLine.getOrderFormat());
     assertEquals(29.99, poLine.getCost().getListUnitPrice());
     assertEquals(3, poLine.getCost().getQuantityPhysical());
@@ -118,8 +111,7 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertElectronicResource() {
-    // Given
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("E-Book")
       .withListUnitPriceElectronic(19.99)
       .withQuantityElectronic(5)
@@ -128,13 +120,12 @@ class MosaicOrderConverterTest {
       .withUserLimit("10")
       .withAccessProvider("access-provider-id");
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
-    PoLine poLine = result.getPoLines().getFirst();
+
+    var poLine = result.getPoLines().getFirst();
     assertEquals(OrderFormat.ELECTRONIC_RESOURCE, poLine.getOrderFormat());
     assertEquals(19.99, poLine.getCost().getListUnitPriceElectronic());
     assertEquals(5, poLine.getCost().getQuantityElectronic());
@@ -147,8 +138,7 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertMixedResource() {
-    // Given
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Mixed Resource")
       .withListUnitPrice(24.99)
       .withListUnitPriceElectronic(14.99)
@@ -157,13 +147,12 @@ class MosaicOrderConverterTest {
       .withFormat(MosaicOrder.Format.P_E_MIX)
       .withCurrency("GBP");
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
-    PoLine poLine = result.getPoLines().getFirst();
+
+    var poLine = result.getPoLines().getFirst();
     assertEquals(OrderFormat.P_E_MIX, poLine.getOrderFormat());
     assertEquals(24.99, poLine.getCost().getListUnitPrice());
     assertEquals(14.99, poLine.getCost().getListUnitPriceElectronic());
@@ -174,15 +163,14 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithDetails() {
-    // Given
-    ProductIdentifier productId = new ProductIdentifier()
+    var productId = new ProductIdentifier()
       .withProductId("9781234567890")
       .withProductIdType("ISBN");
 
     List<ProductIdentifier> productIds = new ArrayList<>();
     productIds.add(productId);
 
-    Details details = new Details()
+    var details = new Details()
       .withIsAcknowledged(true)
       .withIsBinderyActive(false)
       .withReceivingNote("Test receiving note")
@@ -191,15 +179,15 @@ class MosaicOrderConverterTest {
       .withSubscriptionInterval(365)
       .withProductIds(productIds);
 
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Book with Details")
       .withDetails(details);
 
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
-    PoLine poLine = result.getPoLines().getFirst();
+    var poLine = result.getPoLines().getFirst();
 
     assertNotNull(poLine.getDetails());
     assertEquals(true, poLine.getDetails().getIsAcknowledged());
@@ -216,58 +204,53 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithReceivingNote() {
-    // Given
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Book with Note")
       .withReceivingNote("Special handling required");
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
-    PoLine poLine = result.getPoLines().getFirst();
+
+    var poLine = result.getPoLines().getFirst();
     assertNotNull(poLine.getDetails());
     assertEquals("Special handling required", poLine.getDetails().getReceivingNote());
   }
 
   @Test
   void testConvertOrderWithReferenceNumbers() {
-    // Given
-    String vendorId = UUID.randomUUID().toString();
-    ReferenceNumberItem refNumber = new ReferenceNumberItem()
+    var vendorId = UUID.randomUUID().toString();
+    var refNumber = new ReferenceNumberItem()
       .withRefNumber("REF-123")
       .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER);
 
     List<ReferenceNumberItem> referenceNumbers = new ArrayList<>();
     referenceNumbers.add(refNumber);
 
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Book with Ref Numbers")
       .withVendor(vendorId)
       .withReferenceNumbers(referenceNumbers);
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(vendorId, result.getVendor());
     assertEquals(1, result.getPoLines().size());
 
-    PoLine poLine = result.getPoLines().getFirst();
+    var poLine = result.getPoLines().getFirst();
     assertNotNull(poLine.getVendorDetail());
     assertEquals(1, poLine.getVendorDetail().getReferenceNumbers().size());
     assertEquals("REF-123", poLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumber());
     assertEquals(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER,
-                poLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumberType());
+      poLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumberType());
   }
 
   @Test
   void testConvertOrderWithFundDistribution() {
     // Given
-    FundDistribution fundDist = new FundDistribution()
+    var fundDist = new FundDistribution()
       .withFundId("fund-id-1")
       .withDistributionType(FundDistribution.DistributionType.PERCENTAGE)
       .withValue(100.0);
@@ -275,29 +258,26 @@ class MosaicOrderConverterTest {
     List<FundDistribution> fundDistributions = new ArrayList<>();
     fundDistributions.add(fundDist);
 
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Book with Fund")
       .withFundDistribution(fundDistributions);
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
 
-    PoLine poLine = result.getPoLines().getFirst();
+    var poLine = result.getPoLines().getFirst();
     assertEquals(1, poLine.getFundDistribution().size());
     assertEquals("fund-id-1", poLine.getFundDistribution().getFirst().getFundId());
     assertEquals(org.folio.rest.acq.model.orders.FundDistribution.DistributionType.PERCENTAGE,
-                poLine.getFundDistribution().getFirst().getDistributionType());
+      poLine.getFundDistribution().getFirst().getDistributionType());
     assertEquals(100.0, poLine.getFundDistribution().getFirst().getValue());
   }
 
   @Test
   void testConvertOrderWithLocations() {
-    // Given
-    Location location = new Location()
+    var location = new Location()
       .withLocationId("location-id-1")
       .withQuantity(5)
       .withHoldingId("holding-id-1")
@@ -308,18 +288,16 @@ class MosaicOrderConverterTest {
     List<Location> locations = new ArrayList<>();
     locations.add(location);
 
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Book with Locations")
       .withLocations(locations);
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
 
-    PoLine poLine = result.getPoLines().getFirst();
+    var poLine = result.getPoLines().getFirst();
     assertEquals(1, poLine.getLocations().size());
     assertEquals("location-id-1", poLine.getLocations().getFirst().getLocationId());
     assertEquals(5, poLine.getLocations().getFirst().getQuantity());
@@ -331,19 +309,16 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithCustomFields() {
-    // Given
-    CustomFields customFields = new CustomFields();
+    var customFields = new CustomFields();
     customFields.withAdditionalProperty("customField1", "value1");
     customFields.withAdditionalProperty("customField2", "value2");
 
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Book with Custom Fields")
       .withCustomFields(customFields);
 
-    // When
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertNotNull(result.getCustomFields());
     assertEquals("value1", result.getCustomFields().getAdditionalProperties().get("customField1"));
@@ -352,7 +327,6 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithAllMetadata() {
-    // Given
     MosaicOrder mosaicOrder = new MosaicOrder()
       .withTitle("Complete Book")
       .withAuthor("Test Author")
@@ -362,10 +336,8 @@ class MosaicOrderConverterTest {
       .withPoLineDescription("Detailed description")
       .withRenewalNote("Renewal instructions");
 
-    // When
     CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
 
-    // Then
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
     PoLine poLine = result.getPoLines().getFirst();
