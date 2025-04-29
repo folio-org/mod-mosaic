@@ -46,7 +46,6 @@ public class MosaicOrderConverter {
    */
   public CompositePurchaseOrder convertToCompositePurchaseOrder(MosaicOrder mosaicOrder, CompositePurchaseOrder template) {
     log.debug("convertToCompositePurchaseOrder:: Converting mosaicOrder: {} to compositePurchaseOrder", mosaicOrder.getTitle());
-    var order = new CompositePurchaseOrder();
 
     if (template == null) {
       log.warn("convertToCompositePurchaseOrder:: No template found for mosaicOrder: {}", mosaicOrder.getTitle());
@@ -54,7 +53,7 @@ public class MosaicOrderConverter {
     }
 
     log.info("convertToCompositePurchaseOrder:: Using template: {}", template.getId());
-    order = createOrderFromTemplate(template);
+    var order = createOrderFromTemplate(template);
 
     log.info("convertToCompositePurchaseOrder:: Applying overrides from mosaicOrder");
     applyOverrides(order, mosaicOrder);
