@@ -6,6 +6,16 @@ info:
 servers:
   - url: /mosaic
 paths:
+  ### Validation ###
+  /validate:
+    description: Validation API
+    post:
+      summary: Validate a request coming from edge-orders by checking for a valid API Key and User-attached permissions
+      operationId: getValidation
+      responses:
+        '200':
+          $ref: "#/components/responses/MosaicValidationResponse"
+
   ### Orders API ###
   /orders:
     description: Orders API
@@ -85,6 +95,8 @@ paths:
 
 components:
   schemas:
+    MosaicValidation:
+      $ref: "./schemas/models.yaml#/MosaicValidation"
     MosaicOrder:
       $ref: "./schemas/models.yaml#/MosaicOrder"
     MosaicConfiguration:
@@ -106,7 +118,6 @@ components:
         format: uuid
       required: false
       description: The ID of the template
-
   requestBodies:
     MosaicOrderBody:
       description: Mosaic Order object
@@ -123,6 +134,12 @@ components:
           schema:
             $ref: "#/components/schemas/MosaicConfiguration"
   responses:
+    MosaicValidationResponse:
+      description: Mosaic validation object
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MosaicValidation"
     MosaicConfigurationResponse:
       description: Mosaic configuration object
       content:
