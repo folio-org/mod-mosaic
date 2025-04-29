@@ -4,12 +4,13 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.Contributor;
@@ -20,7 +21,6 @@ import org.folio.rest.acq.model.orders.Eresource;
 import org.folio.rest.acq.model.orders.FundDistribution;
 import org.folio.rest.acq.model.orders.Location;
 import org.folio.rest.acq.model.orders.OrderFormat;
-import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.folio.rest.acq.model.orders.Physical;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.ProductIdentifier;
@@ -38,20 +38,18 @@ public class MosaicOrderConverter {
    * 1. Applies template values if available
    * 2. Override values from the request
    *
-   * @param request The order request
+   * @param request  The order request
    * @param template The order template to use (can be null)
    * @return A CompositePurchaseOrder object ready to be sent to FOLIO
    */
-  public CompositePurchaseOrder convertToCompositePurchaseOrder(MosaicOrder request, OrderTemplate template) {
-    CompositePurchaseOrder order = new CompositePurchaseOrder();
+  public CompositePurchaseOrder convertToCompositePurchaseOrder(MosaicOrder request, CompositePurchaseOrder template) {
+    var order = new CompositePurchaseOrder();
 
-    // Apply template values first if available
     if (template != null) {
-      applyTemplateToOrder(order, template);
+      order = createOrderFromTemplate(template);
     }
 
-    // Apply override values from the request
-//    applyOverrides(order, request);
+    applyOverrides(order, request);
 
     return order;
   }
@@ -76,99 +74,14 @@ public class MosaicOrderConverter {
       .withCustomFields(template.getCustomFields())
       .withPoLines(templatePoLines);
   }
-  /**
-   * Applies template values to the purchase order.
-   * This uses the structure of the OrderTemplate to set appropriate values on the purchase order.
-   *
-   */
-  private void applyTemplateToOrder(CompositePurchaseOrder order, OrderTemplate template) {
-    order.setTemplate(template.getId());
-
-    Map<String, Object> templateProps = template.getAdditionalProperties();
-    // 1. Order-level fields
-    if (templateProps.get("orderType") != null) {
-      order.setOrderType(CompositePurchaseOrder.OrderType.valueOf(templateProps.get("orderType").toString()));
-    }
-
-    if (templateProps.get("acqUnitIds") != null) {
-      order.setAcqUnitIds(
-        ((List<String>) templateProps.get("acqUnitIds")).stream()
-              .map(String::valueOf)
-              .collect(Collectors.toList()));
-    }
-
-    if (templateProps.get("billTo") != null) {
-      order.setBillTo(templateProps.get("billTo").toString());
-    }
-    if (templateProps.get("shipTo") != null) {
-      order.setShipTo(templateProps.get("shipTo").toString());
-    }
-    if (templateProps.get("vendor") != null) {
-      order.setVendor(templateProps.get("vendor").toString());
-    }
-    if (templateProps.get("notes") != null) {
-      order.setNotes((List<String>) templateProps.get("notes"));
-    }
-
-    // 2. Order line template fields
-    if (order.getPoLines() == null || order.getPoLines().isEmpty()) {
-      order.setPoLines(new ArrayList<>(singletonList(new PoLine())));
-    }
-
-    PoLine poLine = order.getPoLines().getFirst();
-
-    if (templateProps.get("orderFormat") != null) {
-      poLine.setOrderFormat(OrderFormat.valueOf(templateProps.get("orderFormat").toString()));
-    }
-
-    if (templateProps.get("acquisitionMethod") != null) {
-      poLine.setAcquisitionMethod(templateProps.get("acquisitionMethod").toString());
-    }
-
-    if (templateProps.get("receivingNote") != null) {
-      var details = poLine.getDetails() != null ? poLine.getDetails() : new Details();
-      details.setReceivingNote(templateProps.get("receivingNote").toString());
-      poLine.setDetails(details);
-    }
-
-    if (templateProps.get("materialType") != null) {
-      var physical = poLine.getPhysical() != null ? poLine.getPhysical() : new Physical();
-      physical.setMaterialType(templateProps.get("materialType").toString());
-      poLine.setPhysical(physical);
-    }
-
-    if (templateProps.get("materialSupplier") != null) {
-      var physical = poLine.getPhysical() != null ? poLine.getPhysical() : new Physical();
-      physical.setMaterialSupplier(templateProps.get("materialSupplier").toString());
-      poLine.setPhysical(physical);
-    }
-
-    if (templateProps.get("locations") != null)  {
-      poLine.setLocations(new ArrayList<>((List<Location>)templateProps.get("locations")));
-    }
-
-    if (templateProps.get("fundDistribution") != null) {
-      poLine.setFundDistribution(new ArrayList<>((List<FundDistribution>)templateProps.get("fundDistribution")));
-    }
-
-    if (templateProps.get("accessProvider") != null) {
-      var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
-      eresource.setAccessProvider(templateProps.get("accessProvider").toString());
-      poLine.setEresource(eresource);
-    }
-
-    if (templateProps.get("customFields") != null) {
-      order.setCustomFields((CustomFields) templateProps.get("customFields"));
-    }
-  }
 
   /**
    * Applies overrides from the request to the purchase order.
    * This will set values based on the request, overriding any template values.
    *
-   * @param order The purchase order to modify
+   * @param order       The purchase order to modify
    * @param mosaicOrder The request containing override values
-  */
+   */
   private void applyOverrides(CompositePurchaseOrder order, MosaicOrder mosaicOrder) {
     if (mosaicOrder.getVendor() != null) {
       order.setVendor(mosaicOrder.getVendor());
@@ -180,14 +93,15 @@ public class MosaicOrderConverter {
       order.setShipTo(mosaicOrder.getShipTo());
     }
 
-    if (mosaicOrder.getAcquisitionUnitId() != null) {
-      // TODO: double check if it is come as array
-      order.setAcqUnitIds(Collections.singletonList(mosaicOrder.getAcquisitionUnitId()));
+    if (CollectionUtils.isEmpty(mosaicOrder.getAcqUnitIds())) {
+      order.setAcqUnitIds(mosaicOrder.getAcqUnitIds());
     }
 
-//    if (mosaicOrder.getCustomFields() != null) {
-//      order.setCustomFields(mosaicOrder.getCustomFields());
-//    }
+    if (mosaicOrder.getCustomFields() != null) {
+      var convertedCustomFields = new CustomFields();
+      mosaicOrder.getCustomFields().getAdditionalProperties().forEach(convertedCustomFields::withAdditionalProperty);
+      order.setCustomFields(convertedCustomFields);
+    }
 
     var poLine = new PoLine();
 
@@ -198,7 +112,6 @@ public class MosaicOrderConverter {
     if (mosaicOrder.getListUnitPrice() != null || mosaicOrder.getListUnitPriceElectronic() != null) {
       Cost cost = poLine.getCost() != null ? poLine.getCost() : new Cost();
 
-      // Determine if electronic or physical based on order format
       MosaicOrder.Format format = mosaicOrder.getFormat();
 
       if (format == MosaicOrder.Format.ELECTRONIC || mosaicOrder.getListUnitPriceElectronic() != null) {
@@ -219,7 +132,6 @@ public class MosaicOrderConverter {
         poLine.setOrderFormat(OrderFormat.PHYSICAL_RESOURCE);
       }
 
-      // Set currency
       if (isNotBlank(mosaicOrder.getCurrency())) {
         cost.setCurrency(mosaicOrder.getCurrency());
       }
@@ -244,20 +156,28 @@ public class MosaicOrderConverter {
       poLine.setEdition(mosaicOrder.getEdition());
     }
 
-    if (mosaicOrder.getProductId() != null) {
-      var productIdentifier = new ProductIdentifier().withProductId(mosaicOrder.getProductId());
-      var details = new Details()
-        .withProductIds(singletonList(productIdentifier));
-//      List<String> productIds = details.getProductIds() != null ? details.getProductIds() : new ArrayList<>();
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getDetails())) {
+      var mosaicDetails = mosaicOrder.getDetails();
 
-//      for (MosaicOrderRequest.ProductIdentifier isbn : request.getIsbn()) {
-//        ProductId productId = new ProductId();
-//        productId.setProductId(isbn.getProductId());
-//        productId.setProductIdType(isbn.getProductIdType());
-//        productId.setQualifier(isbn.getQualifier());
-//        productIds.add(productId);
-//      }
-      poLine.setDetails(details);
+      var convertedDetails = new Details()
+        .withIsAcknowledged(mosaicDetails.getIsAcknowledged())
+        .withIsBinderyActive(mosaicDetails.getIsBinderyActive())
+        .withReceivingNote(mosaicDetails.getReceivingNote())
+        .withSubscriptionFrom(mosaicDetails.getSubscriptionFrom())
+        .withSubscriptionTo(mosaicDetails.getSubscriptionTo())
+        .withSubscriptionInterval(mosaicDetails.getSubscriptionInterval());
+
+      var mosaicProductIds = mosaicDetails.getProductIds();
+      if (CollectionUtils.isNotEmpty(mosaicProductIds)) {
+        convertedDetails.setProductIds(mosaicProductIds
+          .stream()
+          .map(mosaicProductId -> new ProductIdentifier()
+            .withProductId(mosaicProductId.getProductId())
+            .withProductIdType((mosaicProductId.getProductIdType())))
+          .collect(Collectors.toList()));
+      }
+
+      poLine.setDetails(convertedDetails);
     }
 
     if (isNotBlank(mosaicOrder.getReceivingNote())) {
@@ -306,72 +226,42 @@ public class MosaicOrderConverter {
       poLine.setRenewalNote(mosaicOrder.getRenewalNote());
     }
 
-    if (isNotBlank(mosaicOrder.getLocationId())) {
-      List<Location> locations = new ArrayList<>();
-
-//      for (UUID locationId : mosaicOrder.getLocationIds()) {
-//        Location location = new Location();
-//        location.setLocationId(locationId.toString());
-//
-//        // Set quantities based on format
-//        if (mosaicOrder.getOrderFormat() == MosaicOrdermosaicOrder.OrderFormat.ELECTRONIC) {
-//          location.setQuantityElectronic(1);
-//          location.setQuantityPhysical(0);
-//          location.setQuantity(1);
-//        } else if (mosaicOrder.getOrderFormat() == MosaicOrdermosaicOrder.OrderFormat.PE_MIX) {
-//          location.setQuantityElectronic(1);
-//          location.setQuantityPhysical(1);
-//          location.setQuantity(2);
-//        } else {
-//          location.setQuantityElectronic(0);
-//          location.setQuantityPhysical(1);
-//          location.setQuantity(1);
-//        }
-//
-//        locations.add(location);
-//      }
-
-      poLine.setLocations(locations);
+    if (CollectionUtils.isEmpty(mosaicOrder.getLocations())) {
+      var convertedLocations = mosaicOrder.getLocations()
+        .stream()
+        .map(mosaicLocation ->
+          new Location()
+            .withLocationId(mosaicLocation.getLocationId())
+            .withQuantity(mosaicLocation.getQuantity())
+            .withHoldingId(mosaicLocation.getHoldingId())
+            .withTenantId(mosaicLocation.getTenantId())
+            .withQuantityPhysical(mosaicLocation.getQuantityPhysical())
+            .withQuantityElectronic(mosaicLocation.getQuantityElectronic()))
+        .toList();
+      poLine.setLocations(convertedLocations);
     }
 
-    if (isNotBlank(mosaicOrder.getFundId())) {
-      List<FundDistribution> fundDistributions = new ArrayList<>();
-
-//      for (MosaicOrdermosaicOrder.FundDistribution fund : mosaicOrder.getFunds()) {
-//        FundDistribution distribution = new FundDistribution();
-//        distribution.setFundId(fund.getFundId().toString());
-//        distribution.setDistributionType(fund.getDistributionType());
-//        distribution.setValue(fund.getValue().doubleValue());
-//
-//        if (fund.getExpenseClassId() != null) {
-//          distribution.setExpenseClassId(fund.getExpenseClassId().toString());
-//        }
-//
-//        fundDistributions.add(distribution);
-//      }
-
-      poLine.setFundDistribution(fundDistributions);
+    if (CollectionUtils.isEmpty(mosaicOrder.getFundDistribution())) {
+      var convertedFunds = mosaicOrder.getFundDistribution()
+        .stream()
+        .map(mosaicFund ->
+          new FundDistribution()
+            .withFundId(mosaicFund.getFundId())
+            .withDistributionType(FundDistribution.DistributionType.valueOf(mosaicFund.getDistributionType().toString()))
+            .withValue(mosaicFund.getValue()))
+        .toList();
+      poLine.setFundDistribution(convertedFunds);
     }
 
     if (mosaicOrder.getMaterialTypeId() != null) {
-      Physical physical = poLine.getPhysical() != null ? poLine.getPhysical() : new Physical();
-      physical.setMaterialType(mosaicOrder.getMaterialTypeId());
-      poLine.setPhysical(physical);
-    }
-
-    if (isNotBlank(mosaicOrder.getAcquisitionUnitId())) {
-      order.setAcqUnitIds(singletonList(mosaicOrder.getAcquisitionUnitId()));
-    }
-
-    if (mosaicOrder.getMaterialTypeId() != null) {
-      Physical physical =  new Physical();
-      physical.setMaterialSupplier(mosaicOrder.getMaterialTypeId());
+      var physical = new Physical()
+        .withMaterialType(mosaicOrder.getMaterialTypeId());
       poLine.setPhysical(physical);
     }
 
     if (mosaicOrder.getAccessProvider() != null) {
-      var eresource = new Eresource();
-      eresource.setAccessProvider(mosaicOrder.getAccessProvider());
+      var eresource = new Eresource()
+        .withAccessProvider(mosaicOrder.getAccessProvider());
       poLine.setEresource(eresource);
     }
   }
