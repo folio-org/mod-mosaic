@@ -139,13 +139,15 @@ public class MosaicOrderConverter {
       poLine.setCost(cost);
     }
 
-    if (isNotBlank(mosaicOrder.getAuthor())) {
-      Contributor contributor = new Contributor();
-      contributor.setContributor(mosaicOrder.getAuthor());
-//      contributor.setContributorNameTypeId();
-
-      List<Contributor> contributors = singletonList(contributor);
-      poLine.setContributors(contributors);
+    if (CollectionUtils.isNotEmpty(mosaicOrder.getContributors())) {
+      var convertedContributors = mosaicOrder.getContributors()
+        .stream()
+        .map(mosaicContributor ->
+          new Contributor()
+            .withContributor(mosaicContributor.getContributor())
+            .withContributorNameTypeId(mosaicContributor.getContributorNameTypeId()))
+        .toList();
+      poLine.setContributors(convertedContributors);
     }
 
     if (isNotBlank(mosaicOrder.getPublicationDate())) {
