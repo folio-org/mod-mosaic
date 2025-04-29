@@ -22,10 +22,8 @@ paths:
     post:
       summary: Create a new order in FOLIO
       operationId: createMosaicOrder
-      parameters:
-        - $ref: "#/components/parameters/templateId"
       requestBody:
-        $ref: "#/components/requestBodies/MosaicOrderBody"
+        $ref: "#/components/requestBodies/MosaicOrderRequest"
       responses:
         '201':
           description: Order successfully created, returns the POL number
@@ -99,8 +97,12 @@ components:
       $ref: "./schemas/models.yaml#/MosaicValidation"
     MosaicOrder:
       $ref: "./schemas/models.yaml#/MosaicOrder"
+    MosaicOrderRequest:
+      $ref: "./schemas/models.yaml#/MosaicOrderRequest"
     MosaicConfiguration:
       $ref: "./schemas/models.yaml#/MosaicConfiguration"
+    OrderTemplate:
+      $ref: "./schemas/models.yaml#/OrderTemplate"
     errors:
       $ref: "./schemas/common.yaml#/Errors"
     error:
@@ -109,23 +111,15 @@ components:
       $ref: "./schemas/common.yaml#/Parameters"
     parameter:
       $ref: "./schemas/common.yaml#/Parameter"
-  parameters:
-    templateId:
-      in: query
-      name: templateId
-      schema:
-        type: string
-        format: uuid
-      required: false
-      description: The ID of the template
+
   requestBodies:
-    MosaicOrderBody:
+    MosaicOrderRequest:
       description: Mosaic Order object
       required: true
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/MosaicOrder"
+            $ref: "#/components/schemas/MosaicOrderRequest"
     MosaicConfigurationBody:
       description: Mosaic configuration object
       required: true

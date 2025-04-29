@@ -3,9 +3,9 @@ package org.folio.mosaic.service;
 import java.util.UUID;
 
 import org.folio.mosaic.domain.entity.MosaicConfigurationEntity;
+import org.folio.mosaic.domain.mapper.MosaicConfigurationMapper;
 import org.folio.mosaic.exception.ResourceAlreadyExistException;
 import org.folio.mosaic.exception.ResourceNotFoundException;
-import org.folio.mosaic.domain.mapper.MosaicConfigurationMapper;
 import org.folio.mosaic.repository.ConfigurationRepository;
 import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
 import org.springframework.stereotype.Service;

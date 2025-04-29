@@ -1,11 +1,9 @@
 package org.folio.mosaic.service;
 
-import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.folio.mosaic.client.OrdersClient;
-import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.mosaic.MosaicOrderRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,16 +13,24 @@ public class OrdersService {
 
   private final OrdersClient ordersClient;
   private final ConfigurationService configurationService;
+  private final MosaicOrderConverter orderConverter;
 
-  public String createOrder(UUID templateId, CompositePurchaseOrder compositePurchaseOrder) {
-    log.info("createOrder:: Creating mosaic order with number: {}", compositePurchaseOrder.getPoNumber());
+  /**
+   * Creates an order using the new MosaicOrderRequest format.
+   * This method handles mapping the request to a CompositePurchaseOrder, applying
+   * template values, and creating the order in FOLIO.
+   */
+  public String createOrder(MosaicOrderRequest orderRequest) {
+    var requestOrderTemplateId = orderRequest.getOrderTemplateId();
+    var mosaicOrder = orderRequest.getMosaicOrder();
+    log.info("createOrder:: Creating mosaic order with title: {} and orderTemplateId: {}", mosaicOrder.getTitle(), requestOrderTemplateId);
 
-    var orderTemplateId = templateId != null
-      ? templateId.toString()
+    String orderTemplateId = requestOrderTemplateId != null
+      ? requestOrderTemplateId
       : configurationService.getConfiguration().getDefaultTemplateId();
 
     var orderTemplate = ordersClient.getOrderTemplateById(orderTemplateId);
-    // TODO: Merge the order template with the composite purchase order
+    var compositePurchaseOrder = orderConverter.convertToCompositePurchaseOrder(mosaicOrder, orderTemplate);
 
     var createdOrder = ordersClient.createOrder(compositePurchaseOrder);
     return createdOrder.getPoLines().getFirst().getPoLineNumber();

@@ -24,7 +24,21 @@ MosaicOrder:
       type: boolean
       default: true
 
+MosaicOrderRequest:
+  type: object
+  properties:
+    placeholder:
+      type: boolean
+      default: true
+
 MosaicConfiguration:
+  type: object
+  properties:
+    placeholder:
+      type: boolean
+      default: true
+
+OrderTemplate:
   type: object
   properties:
     placeholder:

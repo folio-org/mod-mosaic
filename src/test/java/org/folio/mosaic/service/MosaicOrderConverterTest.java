@@ -1,0 +1,410 @@
+package org.folio.mosaic.service;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+import org.folio.mosaic.exception.ResourceNotFoundException;
+import org.folio.mosaic.support.CopilotGenerated;
+import org.folio.rest.acq.model.mosaic.Contributor;
+import org.folio.rest.acq.model.mosaic.CustomFields;
+import org.folio.rest.acq.model.mosaic.Details;
+import org.folio.rest.acq.model.mosaic.FundDistribution;
+import org.folio.rest.acq.model.mosaic.Location;
+import org.folio.rest.acq.model.mosaic.MosaicOrder;
+import org.folio.rest.acq.model.mosaic.ProductIdentifier;
+import org.folio.rest.acq.model.mosaic.ReferenceNumberItem;
+import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.orders.OrderFormat;
+import org.folio.rest.acq.model.orders.PoLine;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@CopilotGenerated
+@ExtendWith(MockitoExtension.class)
+class MosaicOrderConverterTest {
+
+  @InjectMocks
+  private MosaicOrderConverter converter;
+
+  @Test
+  void testConvertToCompositePurchaseOrderWithNullTemplate() {
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Test Book")
+      .withContributors(List.of(new Contributor().withContributor("Test Author")))
+      .withPublicationDate("2023")
+      .withEdition("First Edition");
+
+    // Expect exception when template is null
+    assertThrows(ResourceNotFoundException.class,
+      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, null));
+  }
+
+  @Test
+  void testConvertToCompositePurchaseOrderWithTemplate() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder()
+      .withId(templateId)
+      .withOrderType(CompositePurchaseOrder.OrderType.ONE_TIME)
+      .withVendor("vendor-id")
+      .withBillTo("bill-to-id")
+      .withShipTo("ship-to-id");
+
+    var acqUnitIds = new ArrayList<String>();
+    acqUnitIds.add("acq-unit-1");
+    template.setAcqUnitIds(acqUnitIds);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Test Book")
+      .withContributors(List.of(new Contributor().withContributor("Test Author")));
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(templateId, result.getTemplate());
+    assertEquals(CompositePurchaseOrder.OrderType.ONE_TIME, result.getOrderType());
+    assertEquals("vendor-id", result.getVendor());
+    assertEquals("bill-to-id", result.getBillTo());
+    assertEquals("ship-to-id", result.getShipTo());
+    assertEquals(acqUnitIds, result.getAcqUnitIds());
+    assertEquals(1, result.getPoLines().size());
+
+    var poLine = result.getPoLines().getFirst();
+    assertEquals("Test Book", poLine.getTitleOrPackage());
+    assertEquals("Test Author", poLine.getContributors().getFirst().getContributor());
+  }
+
+  @Test
+  void testConvertPhysicalResource() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Physical Book")
+      .withListUnitPrice(29.99)
+      .withQuantityPhysical(3)
+      .withFormat(MosaicOrder.Format.PHYSICAL)
+      .withCurrency("USD")
+      .withMaterialTypeId("material-type-id");
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(1, result.getPoLines().size());
+
+    var poLine = result.getPoLines().getFirst();
+    assertEquals(OrderFormat.PHYSICAL_RESOURCE, poLine.getOrderFormat());
+    assertEquals(29.99, poLine.getCost().getListUnitPrice());
+    assertEquals(3, poLine.getCost().getQuantityPhysical());
+    assertEquals(0, poLine.getCost().getQuantityElectronic());
+    assertEquals("USD", poLine.getCost().getCurrency());
+    assertNotNull(poLine.getPhysical());
+    assertEquals("material-type-id", poLine.getPhysical().getMaterialType());
+  }
+
+  @Test
+  void testConvertElectronicResource() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("E-Book")
+      .withListUnitPriceElectronic(19.99)
+      .withQuantityElectronic(5)
+      .withFormat(MosaicOrder.Format.ELECTRONIC)
+      .withCurrency("EUR")
+      .withUserLimit("10")
+      .withAccessProvider("access-provider-id");
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(1, result.getPoLines().size());
+
+    var poLine = result.getPoLines().getFirst();
+    assertEquals(OrderFormat.ELECTRONIC_RESOURCE, poLine.getOrderFormat());
+    assertEquals(19.99, poLine.getCost().getListUnitPriceElectronic());
+    assertEquals(5, poLine.getCost().getQuantityElectronic());
+    assertEquals(0, poLine.getCost().getQuantityPhysical());
+    assertEquals("EUR", poLine.getCost().getCurrency());
+    assertNotNull(poLine.getEresource());
+    assertEquals("10", poLine.getEresource().getUserLimit());
+    assertEquals("access-provider-id", poLine.getEresource().getAccessProvider());
+  }
+
+  @Test
+  void testConvertMixedResource() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Mixed Resource")
+      .withListUnitPrice(24.99)
+      .withListUnitPriceElectronic(14.99)
+      .withQuantityPhysical(2)
+      .withQuantityElectronic(3)
+      .withFormat(MosaicOrder.Format.P_E_MIX)
+      .withCurrency("GBP");
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(1, result.getPoLines().size());
+
+    var poLine = result.getPoLines().getFirst();
+    assertEquals(OrderFormat.P_E_MIX, poLine.getOrderFormat());
+    assertEquals(24.99, poLine.getCost().getListUnitPrice());
+    assertEquals(14.99, poLine.getCost().getListUnitPriceElectronic());
+    assertEquals(2, poLine.getCost().getQuantityPhysical());
+    assertEquals(3, poLine.getCost().getQuantityElectronic());
+    assertEquals("GBP", poLine.getCost().getCurrency());
+  }
+
+  @Test
+  void testConvertOrderWithDetails() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var productId = new ProductIdentifier()
+      .withProductId("9781234567890")
+      .withProductIdType("ISBN");
+
+    List<ProductIdentifier> productIds = new ArrayList<>();
+    productIds.add(productId);
+
+    var details = new Details()
+      .withIsAcknowledged(true)
+      .withIsBinderyActive(false)
+      .withReceivingNote("Test receiving note")
+      .withSubscriptionFrom(new Date())
+      .withSubscriptionTo(new Date())
+      .withSubscriptionInterval(365)
+      .withProductIds(productIds);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Book with Details")
+      .withDetails(details);
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(1, result.getPoLines().size());
+    var poLine = result.getPoLines().getFirst();
+
+    assertNotNull(poLine.getDetails());
+    assertEquals(true, poLine.getDetails().getIsAcknowledged());
+    assertEquals(false, poLine.getDetails().getIsBinderyActive());
+    assertEquals("Test receiving note", poLine.getDetails().getReceivingNote());
+    assertNotNull(poLine.getDetails().getSubscriptionFrom());
+    assertNotNull(poLine.getDetails().getSubscriptionTo());
+    assertEquals(365, poLine.getDetails().getSubscriptionInterval());
+
+    assertEquals(1, poLine.getDetails().getProductIds().size());
+    assertEquals("9781234567890", poLine.getDetails().getProductIds().getFirst().getProductId());
+    assertEquals("ISBN", poLine.getDetails().getProductIds().getFirst().getProductIdType());
+  }
+
+  @Test
+  void testConvertOrderWithReceivingNote() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Book with Note")
+      .withDetails(new Details().withReceivingNote("Special handling required"));
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(1, result.getPoLines().size());
+
+    var poLine = result.getPoLines().getFirst();
+    assertNotNull(poLine.getDetails());
+    assertEquals("Special handling required", poLine.getDetails().getReceivingNote());
+  }
+
+  @Test
+  void testConvertOrderWithReferenceNumbers() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var vendorId = UUID.randomUUID().toString();
+    var refNumber = new ReferenceNumberItem()
+      .withRefNumber("REF-123")
+      .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER);
+
+    List<ReferenceNumberItem> referenceNumbers = new ArrayList<>();
+    referenceNumbers.add(refNumber);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Book with Ref Numbers")
+      .withVendor(vendorId)
+      .withReferenceNumbers(referenceNumbers);
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(vendorId, result.getVendor());
+    assertEquals(1, result.getPoLines().size());
+
+    var poLine = result.getPoLines().getFirst();
+    assertNotNull(poLine.getVendorDetail());
+    assertEquals(1, poLine.getVendorDetail().getReferenceNumbers().size());
+    assertEquals("REF-123", poLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumber());
+    assertEquals(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER,
+      poLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumberType());
+  }
+
+  @Test
+  void testConvertOrderWithFundDistribution() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var fundDist = new FundDistribution()
+      .withFundId("fund-id-1")
+      .withDistributionType(FundDistribution.DistributionType.PERCENTAGE)
+      .withValue(100.0);
+
+    List<FundDistribution> fundDistributions = new ArrayList<>();
+    fundDistributions.add(fundDist);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Book with Fund")
+      .withFundDistribution(fundDistributions);
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(1, result.getPoLines().size());
+
+    var poLine = result.getPoLines().getFirst();
+    assertEquals(1, poLine.getFundDistribution().size());
+    assertEquals("fund-id-1", poLine.getFundDistribution().getFirst().getFundId());
+    assertEquals(org.folio.rest.acq.model.orders.FundDistribution.DistributionType.PERCENTAGE,
+      poLine.getFundDistribution().getFirst().getDistributionType());
+    assertEquals(100.0, poLine.getFundDistribution().getFirst().getValue());
+  }
+
+  @Test
+  void testConvertOrderWithLocations() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var location = new Location()
+      .withLocationId("location-id-1")
+      .withQuantity(5)
+      .withHoldingId("holding-id-1")
+      .withTenantId("tenant-id-1")
+      .withQuantityPhysical(3)
+      .withQuantityElectronic(2);
+
+    List<Location> locations = new ArrayList<>();
+    locations.add(location);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Book with Locations")
+      .withLocations(locations);
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(1, result.getPoLines().size());
+
+    var poLine = result.getPoLines().getFirst();
+    assertEquals(1, poLine.getLocations().size());
+    assertEquals("location-id-1", poLine.getLocations().getFirst().getLocationId());
+    assertEquals(5, poLine.getLocations().getFirst().getQuantity());
+    assertEquals("holding-id-1", poLine.getLocations().getFirst().getHoldingId());
+    assertEquals("tenant-id-1", poLine.getLocations().getFirst().getTenantId());
+    assertEquals(3, poLine.getLocations().getFirst().getQuantityPhysical());
+    assertEquals(2, poLine.getLocations().getFirst().getQuantityElectronic());
+  }
+
+  @Test
+  void testConvertOrderWithCustomFields() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var customFields = new CustomFields();
+    customFields.withAdditionalProperty("customField1", "value1");
+    customFields.withAdditionalProperty("customField2", "value2");
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Book with Custom Fields")
+      .withCustomFields(customFields);
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertNotNull(result.getCustomFields());
+    assertEquals("value1", result.getCustomFields().getAdditionalProperties().get("customField1"));
+    assertEquals("value2", result.getCustomFields().getAdditionalProperties().get("customField2"));
+  }
+
+  @Test
+  void testConvertOrderWithAllMetadata() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Complete Book")
+      .withContributors(List.of(new Contributor().withContributor("Test Author")))
+      .withRequesterName("John Requester")
+      .withSelectorName("Jane Selector")
+      .withOrderNote("Important note")
+      .withPoLineDescription("Detailed description")
+      .withRenewalNote("Renewal instructions");
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    assertNotNull(result);
+    assertEquals(1, result.getPoLines().size());
+    PoLine poLine = result.getPoLines().getFirst();
+
+    assertEquals("John Requester", poLine.getRequester());
+    assertEquals("Jane Selector", poLine.getSelector());
+    assertEquals("Detailed description", poLine.getPoLineDescription());
+    assertEquals("Renewal instructions", poLine.getRenewalNote());
+
+    assertEquals(1, result.getNotes().size());
+    assertEquals("Important note", result.getNotes().getFirst());
+  }
+
+  @Test
+  void testExceptionMessageWhenTemplateIsNull() {
+    var mosaicOrder = new MosaicOrder().withTitle("Test Book");
+
+    var exception = assertThrows(ResourceNotFoundException.class,
+      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, null));
+
+    assertEquals("Resource of type 'OrderTemplate' is not found", exception.getMessage());
+  }
+
+  @Test
+  void testOverrideTemplateValues() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder()
+      .withId(templateId)
+      .withVendor("template-vendor-id")
+      .withBillTo("template-bill-to-id")
+      .withShipTo("template-ship-to-id");
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Test Book")
+      .withVendor("override-vendor-id")
+      .withBillTo("override-bill-to-id")
+      .withShipTo("override-ship-to-id");
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    // Verify that the values from the MosaicOrder override the template values
+    assertEquals("override-vendor-id", result.getVendor());
+    assertEquals("override-bill-to-id", result.getBillTo());
+    assertEquals("override-ship-to-id", result.getShipTo());
+  }
+}

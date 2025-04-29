@@ -7,16 +7,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
+import feign.FeignException;
+import feign.Request;
+import lombok.val;
 import org.folio.mosaic.service.OrdersService;
 import org.folio.mosaic.support.JsonUtils;
-import org.folio.mosaic.util.error.ErrorUtils;
 import org.folio.mosaic.util.error.ErrorCode;
-import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
-import org.folio.rest.acq.model.orders.PoLine;
+import org.folio.mosaic.util.error.ErrorUtils;
+import org.folio.rest.acq.model.mosaic.MosaicOrder;
+import org.folio.rest.acq.model.mosaic.MosaicOrderRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -27,10 +28,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import feign.FeignException;
-import feign.Request;
-import lombok.val;
 
 @WebMvcTest(OrdersController.class)
 class OrdersControllerTest {
@@ -43,37 +40,37 @@ class OrdersControllerTest {
 
   @Test
   void testCreateOrder() throws Exception {
-    val poLineNumber = "12345";
-    val mosaicOrder = new CompositePurchaseOrder().withPoLines(List.of(new PoLine().withPoLineNumber(poLineNumber)));
-    var templateId = UUID.randomUUID();
+    var poLineNumber = "12345";
+    var mosaicOrder = new MosaicOrder().withTitle("Test Book");
+    var orderRequest = new MosaicOrderRequest().withMosaicOrder(mosaicOrder);
 
-    when(ordersService.createOrder(templateId, mosaicOrder)).thenReturn(poLineNumber);
+    when(ordersService.createOrder(orderRequest)).thenReturn(poLineNumber);
 
-    mockMvc.perform(post("/mosaic/orders?templateId=" + templateId)
+    mockMvc.perform(post("/mosaic/orders")
         .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtils.toJson(mosaicOrder)))
+        .content(JsonUtils.toJson(orderRequest)))
       .andExpect(status().isCreated())
       .andExpect(content().string(poLineNumber));
 
-    verify(ordersService).createOrder(templateId, mosaicOrder);
+    verify(ordersService).createOrder(orderRequest);
   }
 
   @ParameterizedTest
   @MethodSource("createOrderExceptionProvider")
   void testCreateOrderThrowsException(int statusCode, ErrorCode errorCode, Throwable throwable) throws Exception {
-    val mosaicOrder = new CompositePurchaseOrder();
-    val expectedError = ErrorUtils.getErrors(errorCode.toError());
-    var templateId = UUID.randomUUID();
+    var mosaicOrder = new MosaicOrder().withTitle("Test Book");
+    var orderRequest = new MosaicOrderRequest().withMosaicOrder(mosaicOrder);
+    var expectedError = ErrorUtils.getErrors(errorCode.toError());
 
-    when(ordersService.createOrder(templateId, mosaicOrder)).thenThrow(throwable);
+    when(ordersService.createOrder(orderRequest)).thenThrow(throwable);
 
-    mockMvc.perform(post("/mosaic/orders?templateId=" + templateId)
+    mockMvc.perform(post("/mosaic/orders")
         .contentType(MediaType.APPLICATION_JSON)
-        .content(JsonUtils.toJson(mosaicOrder)))
+        .content(JsonUtils.toJson(orderRequest)))
       .andExpect(status().is(statusCode))
       .andExpect(content().json(JsonUtils.toJson(expectedError)));
 
-    verify(ordersService).createOrder(templateId, mosaicOrder);
+    verify(ordersService).createOrder(orderRequest);
   }
 
   private static Stream<Arguments> createOrderExceptionProvider() {
