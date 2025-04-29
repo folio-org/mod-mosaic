@@ -6,6 +6,17 @@
 # Each placeholder model must have the same name as the actual model, and must contain at least
 # one property, so it is not recognized as a simple Object after generating the resource interfaces.
 
+MosaicValidation:
+  type: object
+  properties:
+    status:
+      type: string
+      enum:
+        - SUCCESS
+        - FAILED
+  required:
+    - status
+
 MosaicOrder:
   type: object
   properties:

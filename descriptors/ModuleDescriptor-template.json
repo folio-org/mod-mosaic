@@ -33,6 +33,14 @@
       "version": "1.0",
       "handlers": [
         {
+          "methods": ["GET"],
+          "pathPattern": "/mosaic/validate",
+          "permissionsRequired": [
+            "mosaic.validate.get"
+          ],
+          "modulePermissions": []
+        },
+        {
           "methods": ["POST"],
           "pathPattern": "/mosaic/orders",
           "permissionsRequired": [
@@ -100,9 +108,15 @@
       "displayName": "Mosaic API module - all permissions",
       "description": "All permissions for mosaic module",
       "subPermissions": [
+        "mosaic.validate.get",
         "mosaic.orders.item.post",
         "mosaic.configuration.all"
       ]
+    },
+    {
+      "permissionName": "mosaic.validate.get",
+      "displayName": "validate mosaic",
+      "description": "Validate Mosaic"
     },
     {
       "permissionName": "mosaic.configuration.all",
