@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.rest.acq.model.mosaic.Contributor;
 import org.folio.rest.acq.model.mosaic.CustomFields;
@@ -39,16 +40,9 @@ class MosaicOrderConverterTest {
       .withPublicationDate("2023")
       .withEdition("First Edition");
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
-
-    assertNotNull(result);
-    assertEquals(1, result.getPoLines().size());
-
-    var poLine = result.getPoLines().getFirst();
-    assertEquals("Test Book", poLine.getTitleOrPackage());
-    assertEquals("Test Author", poLine.getContributors().getFirst().getContributor());
-    assertEquals("2023", poLine.getPublicationDate());
-    assertEquals("First Edition", poLine.getEdition());
+    // Expect exception when template is null
+    assertThrows(ResourceNotFoundException.class,
+      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, null));
   }
 
   @Test
@@ -87,6 +81,9 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertPhysicalResource() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var mosaicOrder = new MosaicOrder()
       .withTitle("Physical Book")
       .withListUnitPrice(29.99)
@@ -95,7 +92,7 @@ class MosaicOrderConverterTest {
       .withCurrency("USD")
       .withMaterialTypeId("material-type-id");
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
@@ -112,6 +109,9 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertElectronicResource() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var mosaicOrder = new MosaicOrder()
       .withTitle("E-Book")
       .withListUnitPriceElectronic(19.99)
@@ -121,7 +121,7 @@ class MosaicOrderConverterTest {
       .withUserLimit("10")
       .withAccessProvider("access-provider-id");
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
@@ -139,6 +139,9 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertMixedResource() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var mosaicOrder = new MosaicOrder()
       .withTitle("Mixed Resource")
       .withListUnitPrice(24.99)
@@ -148,7 +151,7 @@ class MosaicOrderConverterTest {
       .withFormat(MosaicOrder.Format.P_E_MIX)
       .withCurrency("GBP");
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
@@ -164,6 +167,9 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithDetails() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var productId = new ProductIdentifier()
       .withProductId("9781234567890")
       .withProductIdType("ISBN");
@@ -184,7 +190,7 @@ class MosaicOrderConverterTest {
       .withTitle("Book with Details")
       .withDetails(details);
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
@@ -205,11 +211,14 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithReceivingNote() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var mosaicOrder = new MosaicOrder()
       .withTitle("Book with Note")
-      .withReceivingNote("Special handling required");
+      .withDetails(new Details().withReceivingNote("Special handling required"));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
@@ -221,6 +230,9 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithReferenceNumbers() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var vendorId = UUID.randomUUID().toString();
     var refNumber = new ReferenceNumberItem()
       .withRefNumber("REF-123")
@@ -234,7 +246,7 @@ class MosaicOrderConverterTest {
       .withVendor(vendorId)
       .withReferenceNumbers(referenceNumbers);
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(vendorId, result.getVendor());
@@ -250,7 +262,9 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithFundDistribution() {
-    // Given
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var fundDist = new FundDistribution()
       .withFundId("fund-id-1")
       .withDistributionType(FundDistribution.DistributionType.PERCENTAGE)
@@ -263,7 +277,7 @@ class MosaicOrderConverterTest {
       .withTitle("Book with Fund")
       .withFundDistribution(fundDistributions);
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
@@ -278,6 +292,9 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithLocations() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var location = new Location()
       .withLocationId("location-id-1")
       .withQuantity(5)
@@ -293,7 +310,7 @@ class MosaicOrderConverterTest {
       .withTitle("Book with Locations")
       .withLocations(locations);
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
@@ -310,6 +327,9 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithCustomFields() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
     var customFields = new CustomFields();
     customFields.withAdditionalProperty("customField1", "value1");
     customFields.withAdditionalProperty("customField2", "value2");
@@ -318,7 +338,7 @@ class MosaicOrderConverterTest {
       .withTitle("Book with Custom Fields")
       .withCustomFields(customFields);
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertNotNull(result.getCustomFields());
@@ -328,16 +348,19 @@ class MosaicOrderConverterTest {
 
   @Test
   void testConvertOrderWithAllMetadata() {
-    MosaicOrder mosaicOrder = new MosaicOrder()
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder().withId(templateId);
+
+    var mosaicOrder = new MosaicOrder()
       .withTitle("Complete Book")
       .withContributors(List.of(new Contributor().withContributor("Test Author")))
       .withRequesterName("John Requester")
       .withSelectorName("Jane Selector")
-      .withPoLineNote("Important note")
+      .withOrderNote("Important note")
       .withPoLineDescription("Detailed description")
       .withRenewalNote("Renewal instructions");
 
-    CompositePurchaseOrder result = converter.convertToCompositePurchaseOrder(mosaicOrder, null);
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
     assertNotNull(result);
     assertEquals(1, result.getPoLines().size());
@@ -350,5 +373,38 @@ class MosaicOrderConverterTest {
 
     assertEquals(1, result.getNotes().size());
     assertEquals("Important note", result.getNotes().getFirst());
+  }
+
+  @Test
+  void testExceptionMessageWhenTemplateIsNull() {
+    var mosaicOrder = new MosaicOrder().withTitle("Test Book");
+
+    var exception = assertThrows(ResourceNotFoundException.class,
+      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, null));
+
+    assertEquals("Resource of type 'OrderTemplate' is not found", exception.getMessage());
+  }
+
+  @Test
+  void testOverrideTemplateValues() {
+    var templateId = UUID.randomUUID().toString();
+    var template = new CompositePurchaseOrder()
+      .withId(templateId)
+      .withVendor("template-vendor-id")
+      .withBillTo("template-bill-to-id")
+      .withShipTo("template-ship-to-id");
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Test Book")
+      .withVendor("override-vendor-id")
+      .withBillTo("override-bill-to-id")
+      .withShipTo("override-ship-to-id");
+
+    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
+
+    // Verify that the values from the MosaicOrder override the template values
+    assertEquals("override-vendor-id", result.getVendor());
+    assertEquals("override-bill-to-id", result.getBillTo());
+    assertEquals("override-ship-to-id", result.getShipTo());
   }
 }

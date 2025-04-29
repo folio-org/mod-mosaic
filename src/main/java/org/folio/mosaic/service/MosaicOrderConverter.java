@@ -5,11 +5,13 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.Contributor;
@@ -20,6 +22,7 @@ import org.folio.rest.acq.model.orders.Eresource;
 import org.folio.rest.acq.model.orders.FundDistribution;
 import org.folio.rest.acq.model.orders.Location;
 import org.folio.rest.acq.model.orders.OrderFormat;
+import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.folio.rest.acq.model.orders.Physical;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.ProductIdentifier;
@@ -37,18 +40,24 @@ public class MosaicOrderConverter {
    * 1. Applies template values if available
    * 2. Override values from the request
    *
-   * @param request  The order request
+   * @param mosaicOrder  The mosaic order from request
    * @param template The order template to use (can be null)
    * @return A CompositePurchaseOrder object ready to be sent to FOLIO
    */
-  public CompositePurchaseOrder convertToCompositePurchaseOrder(MosaicOrder request, CompositePurchaseOrder template) {
+  public CompositePurchaseOrder convertToCompositePurchaseOrder(MosaicOrder mosaicOrder, CompositePurchaseOrder template) {
+    log.debug("convertToCompositePurchaseOrder:: Converting mosaicOrder: {} to compositePurchaseOrder", mosaicOrder.getTitle());
     var order = new CompositePurchaseOrder();
 
-    if (template != null) {
-      order = createOrderFromTemplate(template);
+    if (template == null) {
+      log.warn("convertToCompositePurchaseOrder:: No template found for mosaicOrder: {}", mosaicOrder.getTitle());
+      throw new ResourceNotFoundException(OrderTemplate.class);
     }
 
-    applyOverrides(order, request);
+    log.info("convertToCompositePurchaseOrder:: Using template: {}", template.getId());
+    order = createOrderFromTemplate(template);
+
+    log.info("convertToCompositePurchaseOrder:: Applying overrides from mosaicOrder");
+    applyOverrides(order, mosaicOrder);
 
     return order;
   }
@@ -63,6 +72,7 @@ public class MosaicOrderConverter {
       : CompositePurchaseOrder.OrderType.ONE_TIME;
 
     return new CompositePurchaseOrder()
+      .withId(UUID.randomUUID().toString())
       .withTemplate(template.getId())
       .withOrderType(orderType)
       .withAcqUnitIds(template.getAcqUnitIds())
@@ -82,6 +92,10 @@ public class MosaicOrderConverter {
    * @param mosaicOrder The request containing override values
    */
   private void applyOverrides(CompositePurchaseOrder order, MosaicOrder mosaicOrder) {
+    if (mosaicOrder.getId() != null) {
+      order.setId(mosaicOrder.getId());
+    }
+
     if (mosaicOrder.getVendor() != null) {
       order.setVendor(mosaicOrder.getVendor());
     }
@@ -122,12 +136,6 @@ public class MosaicOrderConverter {
 
     updatePoLineDetails(mosaicOrder, poLine);
 
-    if (isNotBlank(mosaicOrder.getReceivingNote())) {
-      var details = poLine.getDetails() != null ? poLine.getDetails() : new Details();
-      details.setReceivingNote(mosaicOrder.getReceivingNote());
-      poLine.setDetails(details);
-    }
-
     updatePoLineVendor(mosaicOrder, poLine);
 
     if (isNotBlank(mosaicOrder.getUserLimit())) {
@@ -144,8 +152,8 @@ public class MosaicOrderConverter {
       poLine.setSelector(mosaicOrder.getSelectorName());
     }
 
-    if (isNotBlank(mosaicOrder.getPoLineNote())) {
-      order.setNotes(singletonList(mosaicOrder.getPoLineNote()));
+    if (isNotBlank(mosaicOrder.getOrderNote())) {
+      order.setNotes(singletonList(mosaicOrder.getOrderNote()));
     }
 
     if (isNotBlank(mosaicOrder.getPoLineDescription())) {
@@ -163,6 +171,7 @@ public class MosaicOrderConverter {
     if (mosaicOrder.getMaterialTypeId() != null) {
       var physical = poLine.getPhysical() != null ? poLine.getPhysical() : new Physical();
       physical.setMaterialType(mosaicOrder.getMaterialTypeId());
+      physical.setMaterialSupplier(mosaicOrder.getMaterialSupplier());
       poLine.setPhysical(physical);
     }
 

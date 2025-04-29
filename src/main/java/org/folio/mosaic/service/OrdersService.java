@@ -23,7 +23,7 @@ public class OrdersService {
   public String createOrder(MosaicOrderRequest orderRequest) {
     var requestOrderTemplateId = orderRequest.getOrderTemplateId();
     var mosaicOrder = orderRequest.getMosaicOrder();
-    log.info("createOrder:: Creating mosaic order with title: {}", orderRequest.getMosaicOrder().getTitle());
+    log.info("createOrder:: Creating mosaic order with title: {} and orderTemplateId: {}", mosaicOrder.getTitle(), requestOrderTemplateId);
 
     String orderTemplateId = requestOrderTemplateId != null
       ? requestOrderTemplateId
