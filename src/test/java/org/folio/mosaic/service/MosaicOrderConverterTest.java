@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.folio.mosaic.support.CopilotGenerated;
+import org.folio.rest.acq.model.mosaic.Contributor;
 import org.folio.rest.acq.model.mosaic.CustomFields;
 import org.folio.rest.acq.model.mosaic.Details;
 import org.folio.rest.acq.model.mosaic.FundDistribution;
@@ -34,7 +35,7 @@ class MosaicOrderConverterTest {
   void testConvertToCompositePurchaseOrderWithNullTemplate() {
     var mosaicOrder = new MosaicOrder()
       .withTitle("Test Book")
-      .withAuthor("Test Author")
+      .withContributors(List.of(new Contributor().withContributor("Test Author")))
       .withPublicationDate("2023")
       .withEdition("First Edition");
 
@@ -66,7 +67,7 @@ class MosaicOrderConverterTest {
 
     var mosaicOrder = new MosaicOrder()
       .withTitle("Test Book")
-      .withAuthor("Test Author");
+      .withContributors(List.of(new Contributor().withContributor("Test Author")));
 
     var result = converter.convertToCompositePurchaseOrder(mosaicOrder, template);
 
@@ -329,7 +330,7 @@ class MosaicOrderConverterTest {
   void testConvertOrderWithAllMetadata() {
     MosaicOrder mosaicOrder = new MosaicOrder()
       .withTitle("Complete Book")
-      .withAuthor("Test Author")
+      .withContributors(List.of(new Contributor().withContributor("Test Author")))
       .withRequesterName("John Requester")
       .withSelectorName("Jane Selector")
       .withPoLineNote("Important note")

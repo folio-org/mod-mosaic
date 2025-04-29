@@ -109,6 +109,87 @@ public class MosaicOrderConverter {
       poLine.setTitleOrPackage(mosaicOrder.getTitle());
     }
 
+    updatePoLineCost(mosaicOrder, poLine);
+
+    updatePoLineContributors(mosaicOrder, poLine);
+
+    if (isNotBlank(mosaicOrder.getPublicationDate())) {
+      poLine.setPublicationDate(mosaicOrder.getPublicationDate());
+    }
+
+    if (isNotBlank(mosaicOrder.getEdition())) {
+      poLine.setEdition(mosaicOrder.getEdition());
+    }
+
+    updatePoLineDetails(mosaicOrder, poLine);
+
+    if (isNotBlank(mosaicOrder.getReceivingNote())) {
+      var details = poLine.getDetails() != null ? poLine.getDetails() : new Details();
+      details.setReceivingNote(mosaicOrder.getReceivingNote());
+      poLine.setDetails(details);
+    }
+
+    updatePoLineVendor(mosaicOrder, poLine);
+
+    if (isNotBlank(mosaicOrder.getUserLimit())) {
+      var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
+      eresource.setUserLimit(mosaicOrder.getUserLimit());
+      poLine.setEresource(eresource);
+    }
+
+    if (isNotBlank(mosaicOrder.getRequesterName())) {
+      poLine.setRequester(mosaicOrder.getRequesterName());
+    }
+
+    if (isNotBlank(mosaicOrder.getSelectorName())) {
+      poLine.setSelector(mosaicOrder.getSelectorName());
+    }
+
+    if (isNotBlank(mosaicOrder.getPoLineNote())) {
+      order.setNotes(singletonList(mosaicOrder.getPoLineNote()));
+    }
+
+    if (isNotBlank(mosaicOrder.getPoLineDescription())) {
+      poLine.setPoLineDescription(mosaicOrder.getPoLineDescription());
+    }
+
+    if (isNotBlank(mosaicOrder.getRenewalNote())) {
+      poLine.setRenewalNote(mosaicOrder.getRenewalNote());
+    }
+
+    updatePoLineLocations(mosaicOrder, poLine);
+
+    updatePoLineFunds(mosaicOrder, poLine);
+
+    if (mosaicOrder.getMaterialTypeId() != null) {
+      var physical = poLine.getPhysical() != null ? poLine.getPhysical() : new Physical();
+      physical.setMaterialType(mosaicOrder.getMaterialTypeId());
+      poLine.setPhysical(physical);
+    }
+
+    if (mosaicOrder.getAccessProvider() != null) {
+      var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
+      eresource.setAccessProvider(mosaicOrder.getAccessProvider());
+      poLine.setEresource(eresource);
+    }
+
+    order.setPoLines(List.of(poLine));
+  }
+
+  private void updatePoLineContributors(MosaicOrder mosaicOrder, PoLine poLine) {
+    if (CollectionUtils.isNotEmpty(mosaicOrder.getContributors())) {
+      var convertedContributors = mosaicOrder.getContributors()
+        .stream()
+        .map(mosaicContributor ->
+          new Contributor()
+            .withContributor(mosaicContributor.getContributor())
+            .withContributorNameTypeId(mosaicContributor.getContributorNameTypeId()))
+        .toList();
+      poLine.setContributors(convertedContributors);
+    }
+  }
+
+  private void updatePoLineCost(MosaicOrder mosaicOrder, PoLine poLine) {
     if (mosaicOrder.getListUnitPrice() != null || mosaicOrder.getListUnitPriceElectronic() != null) {
       Cost cost = poLine.getCost() != null ? poLine.getCost() : new Cost();
 
@@ -138,26 +219,9 @@ public class MosaicOrderConverter {
 
       poLine.setCost(cost);
     }
+  }
 
-    if (CollectionUtils.isNotEmpty(mosaicOrder.getContributors())) {
-      var convertedContributors = mosaicOrder.getContributors()
-        .stream()
-        .map(mosaicContributor ->
-          new Contributor()
-            .withContributor(mosaicContributor.getContributor())
-            .withContributorNameTypeId(mosaicContributor.getContributorNameTypeId()))
-        .toList();
-      poLine.setContributors(convertedContributors);
-    }
-
-    if (isNotBlank(mosaicOrder.getPublicationDate())) {
-      poLine.setPublicationDate(mosaicOrder.getPublicationDate());
-    }
-
-    if (isNotBlank(mosaicOrder.getEdition())) {
-      poLine.setEdition(mosaicOrder.getEdition());
-    }
-
+  private void updatePoLineDetails(MosaicOrder mosaicOrder, PoLine poLine) {
     if (ObjectUtils.isNotEmpty(mosaicOrder.getDetails())) {
       var mosaicDetails = mosaicOrder.getDetails();
 
@@ -176,18 +240,14 @@ public class MosaicOrderConverter {
           .map(mosaicProductId -> new ProductIdentifier()
             .withProductId(mosaicProductId.getProductId())
             .withProductIdType((mosaicProductId.getProductIdType())))
-          .collect(Collectors.toList()));
+          .toList());
       }
 
       poLine.setDetails(convertedDetails);
     }
+  }
 
-    if (isNotBlank(mosaicOrder.getReceivingNote())) {
-      var details = poLine.getDetails() != null ? poLine.getDetails() : new Details();
-      details.setReceivingNote(mosaicOrder.getReceivingNote());
-      poLine.setDetails(details);
-    }
-
+  private void updatePoLineVendor(MosaicOrder mosaicOrder, PoLine poLine) {
     if (isNotBlank(mosaicOrder.getVendor())) {
       VendorDetail vendorDetail = new VendorDetail();
       List<ReferenceNumberItem> referenceNumbers = new ArrayList<>();
@@ -202,33 +262,9 @@ public class MosaicOrderConverter {
       vendorDetail.setReferenceNumbers(referenceNumbers);
       poLine.setVendorDetail(vendorDetail);
     }
+  }
 
-    if (isNotBlank(mosaicOrder.getUserLimit())) {
-      var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
-      eresource.setUserLimit(mosaicOrder.getUserLimit());
-      poLine.setEresource(eresource);
-    }
-
-    if (isNotBlank(mosaicOrder.getRequesterName())) {
-      poLine.setRequester(mosaicOrder.getRequesterName());
-    }
-
-    if (isNotBlank(mosaicOrder.getSelectorName())) {
-      poLine.setSelector(mosaicOrder.getSelectorName());
-    }
-
-    if (isNotBlank(mosaicOrder.getPoLineNote())) {
-      order.setNotes(singletonList(mosaicOrder.getPoLineNote()));
-    }
-
-    if (isNotBlank(mosaicOrder.getPoLineDescription())) {
-      poLine.setPoLineDescription(mosaicOrder.getPoLineDescription());
-    }
-
-    if (isNotBlank(mosaicOrder.getRenewalNote())) {
-      poLine.setRenewalNote(mosaicOrder.getRenewalNote());
-    }
-
+  private void updatePoLineLocations(MosaicOrder mosaicOrder, PoLine poLine) {
     if (CollectionUtils.isNotEmpty(mosaicOrder.getLocations())) {
       var convertedLocations = mosaicOrder.getLocations()
         .stream()
@@ -243,7 +279,9 @@ public class MosaicOrderConverter {
         .toList();
       poLine.setLocations(convertedLocations);
     }
+  }
 
+  private void updatePoLineFunds(MosaicOrder mosaicOrder, PoLine poLine) {
     if (CollectionUtils.isNotEmpty(mosaicOrder.getFundDistribution())) {
       var convertedFunds = mosaicOrder.getFundDistribution()
         .stream()
@@ -255,19 +293,5 @@ public class MosaicOrderConverter {
         .toList();
       poLine.setFundDistribution(convertedFunds);
     }
-
-    if (mosaicOrder.getMaterialTypeId() != null) {
-      var physical = poLine.getPhysical() != null ? poLine.getPhysical() : new Physical();
-      physical.setMaterialType(mosaicOrder.getMaterialTypeId());
-      poLine.setPhysical(physical);
-    }
-
-    if (mosaicOrder.getAccessProvider() != null) {
-      var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
-      eresource.setAccessProvider(mosaicOrder.getAccessProvider());
-      poLine.setEresource(eresource);
-    }
-
-    order.setPoLines(List.of(poLine));
   }
 }
