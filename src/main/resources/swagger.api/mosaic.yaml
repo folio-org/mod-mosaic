@@ -9,7 +9,7 @@ paths:
   ### Validation ###
   /validate:
     description: Validation API
-    post:
+    get:
       summary: Validate a request coming from edge-orders by checking for a valid API Key and User-attached permissions
       operationId: getValidation
       responses:
