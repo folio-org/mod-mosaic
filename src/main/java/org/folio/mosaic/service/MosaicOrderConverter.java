@@ -115,7 +115,9 @@ public class MosaicOrderConverter {
       order.setCustomFields(convertedCustomFields);
     }
 
-    var poLine = new PoLine();
+    var poLine = new PoLine()
+      .withId(UUID.randomUUID().toString())
+      .withSource(PoLine.Source.API);
 
     if (isNotBlank(mosaicOrder.getTitle())) {
       poLine.setTitleOrPackage(mosaicOrder.getTitle());
