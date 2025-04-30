@@ -153,8 +153,8 @@ public class MosaicOrderConverter {
       poLine.setSelector(mosaicOrder.getSelectorName());
     }
 
-    if (isNotBlank(mosaicOrder.getOrderNote())) {
-      order.setNotes(singletonList(mosaicOrder.getOrderNote()));
+    if (CollectionUtils.isNotEmpty(mosaicOrder.getNotes())) {
+      order.setNotes(mosaicOrder.getNotes());
     }
 
     if (isNotBlank(mosaicOrder.getPoLineDescription())) {
@@ -180,6 +180,10 @@ public class MosaicOrderConverter {
       var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
       eresource.setAccessProvider(mosaicOrder.getAccessProvider());
       poLine.setEresource(eresource);
+    }
+
+    if (isNotBlank(mosaicOrder.getAcquisitionMethod())) {
+      poLine.setAcquisitionMethod(mosaicOrder.getAcquisitionMethod());
     }
 
     order.setPoLines(List.of(poLine));
