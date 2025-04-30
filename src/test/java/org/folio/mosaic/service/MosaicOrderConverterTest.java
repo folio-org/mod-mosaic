@@ -356,7 +356,7 @@ class MosaicOrderConverterTest {
       .withContributors(List.of(new Contributor().withContributor("Test Author")))
       .withRequesterName("John Requester")
       .withSelectorName("Jane Selector")
-      .withOrderNote("Important note")
+      .withNotes(List.of("Important note"))
       .withPoLineDescription("Detailed description")
       .withRenewalNote("Renewal instructions");
 
