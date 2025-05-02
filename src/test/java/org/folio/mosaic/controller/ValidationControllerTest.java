@@ -1,7 +1,7 @@
 
 package org.folio.mosaic.controller;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -22,7 +22,7 @@ class ValidationControllerTest {
   void testGetValidation() throws Exception {
     // Expecting JSON response with status SUCCESS
     var expectedJson = "{\"status\":\"SUCCESS\"}";
-    mockMvc.perform(get("/mosaic/validate"))
+    mockMvc.perform(post("/mosaic/validate"))
       .andExpect(status().isOk())
       .andExpect(content().json(expectedJson));
   }
