@@ -9,5 +9,4 @@ public class FolioMosaicApplication {
   public static void main(String[] args) {
     SpringApplication.run(FolioMosaicApplication.class, args);
   }
-
 }
