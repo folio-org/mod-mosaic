@@ -7,8 +7,10 @@ import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.mosaic.client.OrdersClient;
+import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.rest.acq.model.mosaic.MosaicOrderRequest;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
@@ -30,12 +32,12 @@ public class OrdersService {
    * template values, and creating the order in FOLIO.
    */
   public String createOrder(MosaicOrderRequest orderRequest) {
-    var requestOrderTemplateId = orderRequest.getOrderTemplateId();
+    var requestTemplateId = orderRequest.getOrderTemplateId();
     var mosaicOrder = orderRequest.getMosaicOrder();
 
-    log.info("createOrder:: Creating mosaic order with title: {} and orderTemplateId: {}", mosaicOrder.getTitle(),
-      requestOrderTemplateId);
-    var templatePair = getOrderTemplatePair(requestOrderTemplateId);
+    log.info("createOrder:: Creating mosaic order with title: {} and requestTemplateId: {}", mosaicOrder.getTitle(),
+      requestTemplateId);
+    var templatePair = getOrderTemplatePair(mosaicOrder.getTitle(), requestTemplateId);
     var compositePurchaseOrder = orderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var createdOrder = ordersClient.createOrder(compositePurchaseOrder);
 
@@ -43,11 +45,11 @@ public class OrdersService {
   }
 
   @SneakyThrows
-  private Pair<CompositePurchaseOrder, PoLine> getOrderTemplatePair(String requestOrderTemplateId) {
-    var orderTemplateId = requestOrderTemplateId != null
-      ? requestOrderTemplateId : configurationService.getConfiguration().getDefaultTemplateId();
+  private Pair<CompositePurchaseOrder, PoLine> getOrderTemplatePair(String title, String requestTemplateId) {
+    var templateId = requestTemplateId != null
+      ? requestTemplateId : configurationService.getConfiguration().getDefaultTemplateId();
 
-    var response = ordersClient.getOrderTemplateAsResponse(orderTemplateId);
+    var response = ordersClient.getOrderTemplateAsResponse(templateId);
     try (var inputStream = response.body().asInputStream()) {
       var byteArrayOutputStream = new ByteArrayOutputStream();
       inputStream.transferTo(byteArrayOutputStream);
@@ -55,8 +57,12 @@ public class OrdersService {
       var byteArray = byteArrayOutputStream.toByteArray();
       var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
       var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
+      if (order == null || order.getId() == null) {
+        log.warn("getOrderTemplatePair:: No template found for mosaicOrder: {} with id: {}", title, templateId);
+        throw new ResourceNotFoundException(OrderTemplate.class);
+      }
+
       return Pair.of(order, poLine);
     }
   }
-
 }

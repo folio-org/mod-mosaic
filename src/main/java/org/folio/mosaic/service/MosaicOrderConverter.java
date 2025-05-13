@@ -15,7 +15,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.Contributor;
@@ -26,7 +25,6 @@ import org.folio.rest.acq.model.orders.Eresource;
 import org.folio.rest.acq.model.orders.FundDistribution;
 import org.folio.rest.acq.model.orders.Location;
 import org.folio.rest.acq.model.orders.OrderFormat;
-import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.folio.rest.acq.model.orders.Physical;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.ProductIdentifier;
@@ -50,11 +48,6 @@ public class MosaicOrderConverter {
    */
   public CompositePurchaseOrder convertToCompositePurchaseOrder(MosaicOrder mosaicOrder, Pair<CompositePurchaseOrder, PoLine> templatePair) {
     log.debug("convertToCompositePurchaseOrder:: Converting mosaicOrder: {} to compositePurchaseOrder", mosaicOrder.getTitle());
-
-    if (templatePair == null || templatePair.getKey() == null || templatePair.getValue() == null) {
-      log.warn("convertToCompositePurchaseOrder:: No template found for mosaicOrder: {}", mosaicOrder.getTitle());
-      throw new ResourceNotFoundException(OrderTemplate.class);
-    }
 
     log.info("convertToCompositePurchaseOrder:: Using template: {}", templatePair.getKey().getId());
     var order = createOrderFromTemplatePair(templatePair);
@@ -257,7 +250,7 @@ public class MosaicOrderConverter {
     if (poLine.getOrderFormat() == OrderFormat.ELECTRONIC_RESOURCE && cost.getQuantityElectronic() <= 0) {
       throw new IllegalStateException("POL quantity electronic is 0 or less in both the request and template");
     }
-    if (poLine.getOrderFormat() == OrderFormat.P_E_MIX && cost.getQuantityPhysical() <= 0 && cost.getQuantityElectronic() <= 0) {
+    if (poLine.getOrderFormat() == OrderFormat.P_E_MIX && (cost.getQuantityPhysical() <= 0 || cost.getQuantityElectronic() <= 0)) {
       throw new IllegalStateException("POL quantity P/E Mix is 0 or less in both the request and template");
     }
     if (isBlank(poLine.getTitleOrPackage())) {
