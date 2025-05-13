@@ -152,7 +152,7 @@ public class MosaicOrderConverter {
    * @param order       The purchase order to modify
    * @param mosaicOrder The request containing override values
    */
-  private void applyOverrides(CompositePurchaseOrder order, MosaicOrder mosaicOrder) {
+  public void applyOverrides(CompositePurchaseOrder order, MosaicOrder mosaicOrder) {
     if (mosaicOrder.getId() != null) {
       order.setId(mosaicOrder.getId());
     }
@@ -184,7 +184,7 @@ public class MosaicOrderConverter {
    * @param order       The purchase order to modify
    * @param mosaicOrder The request containing override values
    */
-  private void applyOverridesToPoLine(CompositePurchaseOrder order, MosaicOrder mosaicOrder) {
+  public void applyOverridesToPoLine(CompositePurchaseOrder order, MosaicOrder mosaicOrder) {
     var poLine = order.getPoLines().getFirst();
     if (isNotBlank(mosaicOrder.getTitle())) {
       poLine.setTitleOrPackage(mosaicOrder.getTitle());
@@ -230,17 +230,31 @@ public class MosaicOrderConverter {
     order.setPoLines(List.of(poLine));
   }
 
-  private void validatePoLineRequiredFields(PoLine poLine) {
+  public void validatePoLineRequiredFields(PoLine poLine) {
     var cost = poLine.getCost();
     if (cost == null) {
       throw new IllegalStateException("POL cost is empty in both the request and template");
     }
-    if (isBlank(cost.getCurrency()) || Currency.getInstance(cost.getCurrency()) == null) {
-      throw new IllegalStateException("POL currency empty or invalid in both the request and template");
+    try {
+      if (isBlank(cost.getCurrency()) || Currency.getInstance(cost.getCurrency()) == null) {
+        throw new IllegalStateException("POL currency is empty in both the request and template");
+      }
+    } catch (IllegalArgumentException e) {
+      throw new IllegalStateException("POL currency is invalid in both the request and template", e);
     }
     if (cost.getListUnitPrice() == null || cost.getListUnitPrice() < 0) {
-      throw new IllegalStateException("POL list unit price physical  is empty in both the request and template");
+      throw new IllegalStateException("POL list unit price physical is empty in both the request and template");
     }
+    validatePoLineQuantity(poLine, cost);
+    if (isBlank(poLine.getTitleOrPackage())) {
+      throw new IllegalStateException("POL title or package is empty in both the request and template");
+    }
+    if (CollectionUtils.isEmpty(poLine.getVendorDetail().getReferenceNumbers())) {
+      throw new IllegalStateException("POL vendor reference numbers are empty in both the request and template");
+    }
+  }
+
+  private void validatePoLineQuantity(PoLine poLine, Cost cost) {
     if (cost.getListUnitPriceElectronic() == null || cost.getListUnitPriceElectronic() < 0) {
       throw new IllegalStateException("POL list unit price electronic is empty in both the request and template");
     }
@@ -252,12 +266,6 @@ public class MosaicOrderConverter {
     }
     if (poLine.getOrderFormat() == OrderFormat.P_E_MIX && (cost.getQuantityPhysical() <= 0 || cost.getQuantityElectronic() <= 0)) {
       throw new IllegalStateException("POL quantity P/E Mix is 0 or less in both the request and template");
-    }
-    if (isBlank(poLine.getTitleOrPackage())) {
-      throw new IllegalStateException("POL title or package is empty in both the request and template");
-    }
-    if (CollectionUtils.isEmpty(poLine.getVendorDetail().getReferenceNumbers())) {
-      throw new IllegalStateException("POL vendor reference numbers are empty in both the request and template");
     }
   }
 
