@@ -2,6 +2,7 @@ package org.folio.mosaic.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -15,6 +16,7 @@ import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 @Log4j2
 @Service
@@ -49,7 +51,13 @@ public class OrdersService {
     var templateId = requestTemplateId != null
       ? requestTemplateId : configurationService.getConfiguration().getDefaultTemplateId();
 
-    var response = ordersClient.getOrderTemplateAsResponse(templateId);
+    try (var response = ordersClient.getOrderTemplateAsResponse(templateId)) {
+      return responseToOrderAndPoLineObjects(title, response, templateId);
+    }
+  }
+
+  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(String title, Response response,
+                                                                               String templateId) throws IOException {
     try (var inputStream = response.body().asInputStream()) {
       var byteArrayOutputStream = new ByteArrayOutputStream();
       inputStream.transferTo(byteArrayOutputStream);

@@ -22,14 +22,18 @@ import org.folio.rest.acq.model.orders.OrderFormat;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.VendorDetail;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@ExtendWith(MockitoExtension.class)
 @CopilotGenerated(model = "Claude 3.7 Sonnet Thinking")
-class MosaicOrderConverterTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+class MosaicConverterTest {
 
-  private final MosaicOrderConverter converter = new MosaicOrderConverter();
+  @Autowired
+  private MosaicPoLineConverter mosaicPoLineConverter;
+
+  @Autowired
+  private MosaicOrderConverter mosaicOrderConverter;
 
   @Test
   void testConvertToCompositePurchaseOrderWithTemplate() {
@@ -76,7 +80,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
 
     assertNotNull(result);
     assertEquals(templateId, result.getTemplate());
@@ -128,7 +132,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
 
     assertEquals("new-vendor", result.getVendor());
     assertEquals("new-billto", result.getBillTo());
@@ -174,7 +178,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
 
     var resultPoLine = result.getPoLines().getFirst();
     assertEquals("Cost Override Test", resultPoLine.getTitleOrPackage());
@@ -224,7 +228,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
 
     assertEquals(orderId, result.getId());
     assertEquals("override-vendor", result.getVendor());
@@ -270,7 +274,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
 
     assertNotNull(result.getCustomFields());
     assertEquals("value1", result.getCustomFields().getAdditionalProperties().get("field1"));
@@ -318,7 +322,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertEquals("2023", resultPoLine.getPublicationDate());
@@ -374,7 +378,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertNotNull(resultPoLine.getContributors());
@@ -421,7 +425,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertEquals(OrderFormat.ELECTRONIC_RESOURCE, resultPoLine.getOrderFormat());
@@ -468,7 +472,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertEquals(OrderFormat.P_E_MIX, resultPoLine.getOrderFormat());
@@ -512,7 +516,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertNotNull(resultPoLine.getEresource());
@@ -557,7 +561,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertNotNull(resultPoLine.getPhysical());
@@ -601,7 +605,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertNotNull(resultPoLine.getEresource());
@@ -664,7 +668,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertNotNull(resultPoLine.getDetails());
@@ -730,7 +734,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertNotNull(resultPoLine.getLocations());
@@ -786,7 +790,7 @@ class MosaicOrderConverterTest {
           .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
       ));
 
-    var result = converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var resultPoLine = result.getPoLines().getFirst();
 
     assertNotNull(resultPoLine.getFundDistribution());
@@ -825,7 +829,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL cost is empty in both the request and template", exception.getMessage());
   }
 
@@ -863,7 +867,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL currency is invalid in both the request and template", exception.getMessage());
   }
 
@@ -901,7 +905,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL currency is empty in both the request and template", exception.getMessage());
   }
 
@@ -939,7 +943,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL list unit price physical is empty in both the request and template", exception.getMessage());
   }
 
@@ -977,7 +981,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL list unit price electronic is empty in both the request and template", exception.getMessage());
   }
 
@@ -1015,7 +1019,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL quantity physical is 0 or less in both the request and template", exception.getMessage());
   }
 
@@ -1053,7 +1057,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL quantity electronic is 0 or less in both the request and template", exception.getMessage());
   }
 
@@ -1091,7 +1095,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL quantity P/E Mix is 0 or less in both the request and template", exception.getMessage());
   }
 
@@ -1129,7 +1133,7 @@ class MosaicOrderConverterTest {
       ));
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL title or package is empty in both the request and template", exception.getMessage());
   }
 
@@ -1162,7 +1166,7 @@ class MosaicOrderConverterTest {
       .withReferenceNumbers(List.of());
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
+      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
     assertEquals("POL vendor reference numbers are empty in both the request and template", exception.getMessage());
   }
 
@@ -1188,7 +1192,7 @@ class MosaicOrderConverterTest {
 
     // Method should complete without throwing exceptions since quantities are valid
     // regardless of order format being null
-    converter.validatePoLineRequiredFields(poLine);
+    mosaicPoLineConverter.validatePoLineRequiredFields(poLine);
 
     // Assert order format is still null (validation doesn't modify it)
     assertNull(poLine.getOrderFormat());
@@ -1215,7 +1219,7 @@ class MosaicOrderConverterTest {
     poLine.setVendorDetail(vendorDetail);
 
     // Should complete without exceptions as OTHER format doesn't have quantity requirements
-    converter.validatePoLineRequiredFields(poLine);
+    mosaicPoLineConverter.validatePoLineRequiredFields(poLine);
 
     // Assert order format remains OTHER
     assertEquals(OrderFormat.OTHER, poLine.getOrderFormat());
@@ -1242,7 +1246,7 @@ class MosaicOrderConverterTest {
     poLine.setVendorDetail(vendorDetail);
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.validatePoLineRequiredFields(poLine));
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(poLine));
     assertEquals("POL currency is invalid in both the request and template", exception.getMessage());
   }
 
@@ -1261,7 +1265,7 @@ class MosaicOrderConverterTest {
         .withQuantityElectronic(0));
 
     assertThrows(NullPointerException.class,
-      () -> converter.validatePoLineRequiredFields(poLine));
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(poLine));
     // NullPointerException occurs when trying to access referenceNumbers on null vendorDetail
   }
 
@@ -1283,7 +1287,7 @@ class MosaicOrderConverterTest {
     poLine.setVendorDetail(vendorDetail);
 
     var exception = assertThrows(IllegalStateException.class,
-      () -> converter.validatePoLineRequiredFields(poLine));
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(poLine));
     assertEquals("POL vendor reference numbers are empty in both the request and template", exception.getMessage());
   }
 }

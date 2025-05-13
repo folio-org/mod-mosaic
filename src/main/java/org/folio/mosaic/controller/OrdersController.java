@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/mosaic")
 @RequiredArgsConstructor
 public class OrdersController implements OrdersApi {
+
   private final OrdersService ordersService;
 
   @Override
