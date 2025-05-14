@@ -66,7 +66,7 @@ public class OrdersService {
       var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
       var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
       if (order == null || order.getId() == null) {
-        log.warn("getOrderTemplatePair:: No template found for mosaicOrder: {} with id: {}", title, templateId);
+        log.warn("responseToOrderAndPoLineObjects:: No template found for mosaicOrder: {} with id: {}", title, templateId);
         throw new ResourceNotFoundException(OrderTemplate.class);
       }
 

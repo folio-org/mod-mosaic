@@ -830,7 +830,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL cost is empty in both the request and template", exception.getMessage());
+    assertEquals("POL cost is empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -868,7 +868,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL currency is invalid in both the request and template", exception.getMessage());
+    assertEquals("POL currency is invalid after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -906,7 +906,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL currency is empty in both the request and template", exception.getMessage());
+    assertEquals("POL currency is empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -944,7 +944,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL list unit price physical is empty in both the request and template", exception.getMessage());
+    assertEquals("POL list unit price physical is empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -982,7 +982,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL list unit price electronic is empty in both the request and template", exception.getMessage());
+    assertEquals("POL list unit price electronic is empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1020,7 +1020,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL quantity physical is 0 or less in both the request and template", exception.getMessage());
+    assertEquals("POL quantity physical is 0 or less after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1058,7 +1058,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL quantity electronic is 0 or less in both the request and template", exception.getMessage());
+    assertEquals("POL quantity electronic is 0 or less after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1096,7 +1096,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL quantity P/E Mix is 0 or less in both the request and template", exception.getMessage());
+    assertEquals("POL quantity P/E Mix is 0 or less after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1134,7 +1134,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL title or package is empty in both the request and template", exception.getMessage());
+    assertEquals("POL title or package is empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1167,7 +1167,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL vendor reference numbers are empty in both the request and template", exception.getMessage());
+    assertEquals("POL vendor reference numbers are empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1247,7 +1247,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicPoLineConverter.validatePoLineRequiredFields(poLine));
-    assertEquals("POL currency is invalid in both the request and template", exception.getMessage());
+    assertEquals("POL currency is invalid after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1288,6 +1288,6 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicPoLineConverter.validatePoLineRequiredFields(poLine));
-    assertEquals("POL vendor reference numbers are empty in both the request and template", exception.getMessage());
+    assertEquals("POL vendor reference numbers are empty after the field was overridden from the request", exception.getMessage());
   }
 }
