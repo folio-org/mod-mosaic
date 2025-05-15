@@ -414,7 +414,7 @@ class MosaicConverterTest {
 
     var mosaicOrder = new MosaicOrder()
       .withTitle("Electronic Format Test")
-      .withFormat(MosaicOrder.Format.ELECTRONIC) // Override to electronic
+      .withFormat(MosaicOrder.OrderFormat.ELECTRONIC_RESOURCE) // Override to electronic
       .withListUnitPriceElectronic(15.0)
       .withQuantityElectronic(3)
       .withReferenceNumbers(List.of(
@@ -459,7 +459,7 @@ class MosaicConverterTest {
 
     var mosaicOrder = new MosaicOrder()
       .withTitle("P/E Mix Format Test")
-      .withFormat(MosaicOrder.Format.P_E_MIX) // P/E Mix format
+      .withFormat(MosaicOrder.OrderFormat.P_E_MIX) // P/E Mix format
       .withListUnitPrice(10.0)
       .withListUnitPriceElectronic(15.0)
       .withQuantityPhysical(2)
