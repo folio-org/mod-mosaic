@@ -2,7 +2,6 @@ package org.folio.mosaic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.LocalDate;
@@ -910,196 +909,6 @@ class MosaicConverterTest {
   }
 
   @Test
-  void testValidatePoLineRequiredFieldsThrowsExceptionWhenListUnitPriceIsInvalid() {
-    var templateId = UUID.randomUUID().toString();
-    var orderTemplate = new CompositePurchaseOrder()
-      .withId(templateId);
-
-    var vendorDetail = new VendorDetail();
-    var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
-      .withRefNumber("ref-123")
-      .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
-    vendorDetail.setReferenceNumbers(referenceNumbers);
-
-    var poLineTemplate = new PoLine()
-      .withTitleOrPackage("Default Title")
-      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
-      .withVendorDetail(vendorDetail)
-      .withCost(new Cost()
-        .withListUnitPrice(-1.0)  // Invalid price to trigger validation failure
-        .withListUnitPriceElectronic(1.0)
-        .withCurrency("USD")
-        .withQuantityPhysical(1)
-        .withQuantityElectronic(0));
-
-    var templatePair = Pair.of(orderTemplate, poLineTemplate);
-
-    var mosaicOrder = new MosaicOrder()
-      .withTitle("Validation Test")
-      .withReferenceNumbers(List.of(
-        new ReferenceNumberItem()
-          .withRefNumber("mosaic-ref-123")
-          .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
-      ));
-
-    var exception = assertThrows(IllegalStateException.class,
-      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL list unit price physical is empty after the field was overridden from the request", exception.getMessage());
-  }
-
-  @Test
-  void testValidatePoLineRequiredFieldsThrowsExceptionWhenListUnitPriceElectronicIsInvalid() {
-    var templateId = UUID.randomUUID().toString();
-    var orderTemplate = new CompositePurchaseOrder()
-      .withId(templateId);
-
-    var vendorDetail = new VendorDetail();
-    var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
-      .withRefNumber("ref-123")
-      .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
-    vendorDetail.setReferenceNumbers(referenceNumbers);
-
-    var poLineTemplate = new PoLine()
-      .withTitleOrPackage("Default Title")
-      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
-      .withVendorDetail(vendorDetail)
-      .withCost(new Cost()
-        .withListUnitPrice(1.0)
-        .withListUnitPriceElectronic(-1.0)  // Invalid electronic price
-        .withCurrency("USD")
-        .withQuantityPhysical(1)
-        .withQuantityElectronic(0));
-
-    var templatePair = Pair.of(orderTemplate, poLineTemplate);
-
-    var mosaicOrder = new MosaicOrder()
-      .withTitle("Validation Test")
-      .withReferenceNumbers(List.of(
-        new ReferenceNumberItem()
-          .withRefNumber("mosaic-ref-123")
-          .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
-      ));
-
-    var exception = assertThrows(IllegalStateException.class,
-      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL list unit price electronic is empty after the field was overridden from the request", exception.getMessage());
-  }
-
-  @Test
-  void testValidatePoLineRequiredFieldsThrowsExceptionWhenQuantityPhysicalIsInvalid() {
-    var templateId = UUID.randomUUID().toString();
-    var orderTemplate = new CompositePurchaseOrder()
-      .withId(templateId);
-
-    var vendorDetail = new VendorDetail();
-    var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
-      .withRefNumber("ref-123")
-      .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
-    vendorDetail.setReferenceNumbers(referenceNumbers);
-
-    var poLineTemplate = new PoLine()
-      .withTitleOrPackage("Default Title")
-      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)  // Physical resource
-      .withVendorDetail(vendorDetail)
-      .withCost(new Cost()
-        .withListUnitPrice(1.0)
-        .withListUnitPriceElectronic(1.0)
-        .withCurrency("USD")
-        .withQuantityPhysical(0)  // Invalid quantity for physical resource
-        .withQuantityElectronic(1));
-
-    var templatePair = Pair.of(orderTemplate, poLineTemplate);
-
-    var mosaicOrder = new MosaicOrder()
-      .withTitle("Validation Test")
-      .withReferenceNumbers(List.of(
-        new ReferenceNumberItem()
-          .withRefNumber("mosaic-ref-123")
-          .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
-      ));
-
-    var exception = assertThrows(IllegalStateException.class,
-      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL quantity physical is 0 or less after the field was overridden from the request", exception.getMessage());
-  }
-
-  @Test
-  void testValidatePoLineRequiredFieldsThrowsExceptionWhenQuantityElectronicIsInvalid() {
-    var templateId = UUID.randomUUID().toString();
-    var orderTemplate = new CompositePurchaseOrder()
-      .withId(templateId);
-
-    var vendorDetail = new VendorDetail();
-    var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
-      .withRefNumber("ref-123")
-      .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
-    vendorDetail.setReferenceNumbers(referenceNumbers);
-
-    var poLineTemplate = new PoLine()
-      .withTitleOrPackage("Default Title")
-      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)  // Electronic resource
-      .withVendorDetail(vendorDetail)
-      .withCost(new Cost()
-        .withListUnitPrice(1.0)
-        .withListUnitPriceElectronic(1.0)
-        .withCurrency("USD")
-        .withQuantityPhysical(1)
-        .withQuantityElectronic(0));  // Invalid quantity for electronic resource
-
-    var templatePair = Pair.of(orderTemplate, poLineTemplate);
-
-    var mosaicOrder = new MosaicOrder()
-      .withTitle("Validation Test")
-      .withReferenceNumbers(List.of(
-        new ReferenceNumberItem()
-          .withRefNumber("mosaic-ref-123")
-          .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
-      ));
-
-    var exception = assertThrows(IllegalStateException.class,
-      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL quantity electronic is 0 or less after the field was overridden from the request", exception.getMessage());
-  }
-
-  @Test
-  void testValidatePoLineRequiredFieldsThrowsExceptionWhenPEMixQuantitiesAreInvalid() {
-    var templateId = UUID.randomUUID().toString();
-    var orderTemplate = new CompositePurchaseOrder()
-      .withId(templateId);
-
-    var vendorDetail = new VendorDetail();
-    var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
-      .withRefNumber("ref-123")
-      .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
-    vendorDetail.setReferenceNumbers(referenceNumbers);
-
-    var poLineTemplate = new PoLine()
-      .withTitleOrPackage("Default Title")
-      .withOrderFormat(OrderFormat.P_E_MIX)  // Physical/Electronic Mix
-      .withVendorDetail(vendorDetail)
-      .withCost(new Cost()
-        .withListUnitPrice(1.0)
-        .withListUnitPriceElectronic(1.0)
-        .withCurrency("USD")
-        .withQuantityPhysical(0)  // Invalid physical quantity for P_E_MIX
-        .withQuantityElectronic(1));
-
-    var templatePair = Pair.of(orderTemplate, poLineTemplate);
-
-    var mosaicOrder = new MosaicOrder()
-      .withTitle("Validation Test")
-      .withReferenceNumbers(List.of(
-        new ReferenceNumberItem()
-          .withRefNumber("mosaic-ref-123")
-          .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER)
-      ));
-
-    var exception = assertThrows(IllegalStateException.class,
-      () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL quantity P/E Mix is 0 or less after the field was overridden from the request", exception.getMessage());
-  }
-
-  @Test
   void testValidatePoLineRequiredFieldsThrowsExceptionWhenTitleIsEmpty() {
     var templateId = UUID.randomUUID().toString();
     var orderTemplate = new CompositePurchaseOrder()
@@ -1167,7 +976,7 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair));
-    assertEquals("POL vendor reference numbers are empty after the field was overridden from the request", exception.getMessage());
+    assertEquals("POL vendor detail or reference numbers are empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1190,12 +999,9 @@ class MosaicConverterTest {
     vendorDetail.setReferenceNumbers(referenceNumbers);
     poLine.setVendorDetail(vendorDetail);
 
-    // Method should complete without throwing exceptions since quantities are valid
-    // regardless of order format being null
-    mosaicPoLineConverter.validatePoLineRequiredFields(poLine);
-
-    // Assert order format is still null (validation doesn't modify it)
-    assertNull(poLine.getOrderFormat());
+    var exception = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(poLine));
+    assertEquals("POL order format is empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1264,9 +1070,9 @@ class MosaicConverterTest {
         .withQuantityPhysical(1)
         .withQuantityElectronic(0));
 
-    assertThrows(NullPointerException.class,
+    var exception = assertThrows(IllegalStateException.class,
       () -> mosaicPoLineConverter.validatePoLineRequiredFields(poLine));
-    // NullPointerException occurs when trying to access referenceNumbers on null vendorDetail
+    assertEquals("POL vendor detail or reference numbers are empty after the field was overridden from the request", exception.getMessage());
   }
 
   @Test
@@ -1288,6 +1094,288 @@ class MosaicConverterTest {
 
     var exception = assertThrows(IllegalStateException.class,
       () -> mosaicPoLineConverter.validatePoLineRequiredFields(poLine));
-    assertEquals("POL vendor reference numbers are empty after the field was overridden from the request", exception.getMessage());
+    assertEquals("POL vendor detail or reference numbers are empty after the field was overridden from the request", exception.getMessage());
+  }
+
+  @Test
+  void testValidatePoLineRequiredFields_PhysicalQuantityAndUnitPrice() {
+    // Test case 1: Valid case - physical quantity with matching price
+    var validPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityPhysical(2)
+        .withListUnitPrice(10.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    // Should not throw exception
+    mosaicPoLineConverter.validatePoLineRequiredFields(validPoLine);
+
+    // Test case 2: Physical quantity is zero
+    var invalidZeroQuantityPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityPhysical(0)          // Invalid: quantity cannot be zero
+        .withListUnitPrice(10.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception1 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidZeroQuantityPoLine));
+    assertEquals("POL quantity physical is 0 or less after the field was overridden from the request", exception1.getMessage());
+
+    // Test case 3: Physical quantity is negative
+    var invalidNegativeQuantityPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityPhysical(-1)        // Invalid: quantity cannot be negative
+        .withListUnitPrice(10.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception2 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidNegativeQuantityPoLine));
+    assertEquals("POL quantity physical is 0 or less after the field was overridden from the request", exception2.getMessage());
+
+    // Test case 4: Physical price is zero
+    var invalidZeroPricePoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityPhysical(3)
+        .withListUnitPrice(0.0)         // Invalid: price cannot be zero
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception3 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidZeroPricePoLine));
+    assertEquals("POL list unit price physical is empty after the field was overridden from the request", exception3.getMessage());
+
+    // Test case 5: Physical price is negative
+    var invalidNegativePricePoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityPhysical(3)
+        .withListUnitPrice(-1.0)       // Invalid: price cannot be negative
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception4 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidNegativePricePoLine));
+    assertEquals("POL list unit price physical is empty after the field was overridden from the request", exception4.getMessage());
+  }
+
+  @Test
+  void testValidatePoLineRequiredFields_ElectronicQuantityAndUnitPrice() {
+    // Test case 1: Valid case - electronic quantity with matching price
+    var validPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityElectronic(2)
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    // Should not throw exception
+    mosaicPoLineConverter.validatePoLineRequiredFields(validPoLine);
+
+    // Test case 2: Electronic quantity is zero
+    var invalidZeroQuantityPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityElectronic(0)          // Invalid: quantity cannot be zero
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception1 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidZeroQuantityPoLine));
+    assertEquals("POL quantity electronic is 0 or less after the field was overridden from the request", exception1.getMessage());
+
+    // Test case 3: Electronic quantity is negative
+    var invalidNegativeQuantityPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityElectronic(-1)        // Invalid: quantity cannot be negative
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception2 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidNegativeQuantityPoLine));
+    assertEquals("POL quantity electronic is 0 or less after the field was overridden from the request", exception2.getMessage());
+
+    // Test case 4: Electronic price is null
+    var invalidNullPricePoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityElectronic(1)
+        .withListUnitPriceElectronic(null) // Missing required price
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception3 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidNullPricePoLine));
+    assertEquals("POL list unit price electronic is empty after the field was overridden from the request", exception3.getMessage());
+
+    // Test case 5: Electronic price is zero
+    var invalidZeroPricePoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityElectronic(3)
+        .withListUnitPriceElectronic(0.0)  // Zero price is invalid
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception4 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidZeroPricePoLine));
+    assertEquals("POL list unit price electronic is empty after the field was overridden from the request", exception4.getMessage());
+
+    // Test case 6: Electronic price is negative
+    var invalidNegativePricePoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withQuantityElectronic(3)
+        .withListUnitPriceElectronic(-5.0) // Negative price is invalid
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception5 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidNegativePricePoLine));
+    assertEquals("POL list unit price electronic is empty after the field was overridden from the request", exception5.getMessage());
+  }
+
+  @Test
+  void testValidatePoLineRequiredFields_PEMixQuantityAndUnitPrice() {
+    // Test case 1: Valid case - P/E Mix with both physical and electronic quantities and prices
+    var validPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.P_E_MIX)
+      .withCost(new Cost()
+        .withQuantityPhysical(1)
+        .withQuantityElectronic(2)
+        .withListUnitPrice(10.0)
+        .withListUnitPriceElectronic(15.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    // Should not throw exception
+    mosaicPoLineConverter.validatePoLineRequiredFields(validPoLine);
+
+    // Test case 2: P/E Mix - Physical quantity is zero
+    var invalidZeroPhysicalQuantityPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.P_E_MIX)
+      .withCost(new Cost()
+        .withQuantityPhysical(0)           // Invalid: physical quantity cannot be zero
+        .withQuantityElectronic(2)
+        .withListUnitPrice(10.0)
+        .withListUnitPriceElectronic(15.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception1 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidZeroPhysicalQuantityPoLine));
+    assertEquals("POL quantity physical/quantity electronic is 0 or less after the field was overridden from the request", exception1.getMessage());
+
+    // Test case 3: P/E Mix - Physical quantity is negative
+    var invalidNegativePhysicalQuantityPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.P_E_MIX)
+      .withCost(new Cost()
+        .withQuantityPhysical(-1)          // Invalid: physical quantity cannot be negative
+        .withQuantityElectronic(2)
+        .withListUnitPrice(10.0)
+        .withListUnitPriceElectronic(15.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception2 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidNegativePhysicalQuantityPoLine));
+    assertEquals("POL quantity physical/quantity electronic is 0 or less after the field was overridden from the request", exception2.getMessage());
+
+    // Test case 4: P/E Mix - Electronic quantity is zero
+    var invalidZeroElectronicQuantityPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.P_E_MIX)
+      .withCost(new Cost()
+        .withQuantityPhysical(1)
+        .withQuantityElectronic(0)         // Invalid: electronic quantity cannot be zero
+        .withListUnitPrice(10.0)
+        .withListUnitPriceElectronic(15.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception3 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidZeroElectronicQuantityPoLine));
+    assertEquals("POL quantity physical/quantity electronic is 0 or less after the field was overridden from the request", exception3.getMessage());
+
+    // Test case 5: P/E Mix - Physical price is zero
+    var invalidZeroPhysicalPricePoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.P_E_MIX)
+      .withCost(new Cost()
+        .withQuantityPhysical(1)
+        .withQuantityElectronic(2)
+        .withListUnitPrice(0.0)            // Invalid: physical price cannot be zero
+        .withListUnitPriceElectronic(15.0)
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception4 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidZeroPhysicalPricePoLine));
+    assertEquals("POL list unit price physical/list unit price electronic is empty after the field was overridden from the request", exception4.getMessage());
+
+    // Test case 6: P/E Mix - Electronic price is zero
+    var invalidZeroElectronicPricePoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.P_E_MIX)
+      .withCost(new Cost()
+        .withQuantityPhysical(1)
+        .withQuantityElectronic(2)
+        .withListUnitPrice(10.0)
+        .withListUnitPriceElectronic(0.0)  // Invalid: electronic price cannot be zero
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception5 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidZeroElectronicPricePoLine));
+    assertEquals("POL list unit price physical/list unit price electronic is empty after the field was overridden from the request", exception5.getMessage());
+
+    // Test case 7: P/E Mix - Both prices are negative
+    var invalidNegativePricesPoLine = new PoLine()
+      .withTitleOrPackage("Test Title")
+      .withOrderFormat(OrderFormat.P_E_MIX)
+      .withCost(new Cost()
+        .withQuantityPhysical(1)
+        .withQuantityElectronic(2)
+        .withListUnitPrice(-5.0)           // Invalid: negative price
+        .withListUnitPriceElectronic(-10.0) // Invalid: negative price
+        .withCurrency("USD"))
+      .withVendorDetail(createVendorDetailWithRefNumber());
+
+    var exception6 = assertThrows(IllegalStateException.class,
+      () -> mosaicPoLineConverter.validatePoLineRequiredFields(invalidNegativePricesPoLine));
+    assertEquals("POL list unit price physical/list unit price electronic is empty after the field was overridden from the request", exception6.getMessage());
+  }
+
+  // Helper method to create a valid vendor detail with reference number
+  private VendorDetail createVendorDetailWithRefNumber() {
+    var vendorDetail = new VendorDetail();
+    var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
+      .withRefNumber("ref-123")
+      .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
+    vendorDetail.setReferenceNumbers(referenceNumbers);
+    return vendorDetail;
   }
 }

@@ -35,10 +35,10 @@ import static org.folio.rest.acq.model.mosaic.MosaicOrder.Format.ELECTRONIC;
 public class MosaicPoLineConverter {
 
   /**
-   * Creates the PoLine template
+   * Creates a PoLine from a template
    *
    * @param poLineTemplate Holding poLine template fields
-   * @return A PoLine template object
+   * @return A PoLine object
    */
   public PoLine createPoLineFromTemplate(PoLine poLineTemplate) {
     return new PoLine()
@@ -152,30 +152,55 @@ public class MosaicPoLineConverter {
     } catch (IllegalArgumentException e) {
       throw new IllegalStateException("POL currency is invalid after the field was overridden from the request", e);
     }
-    if (cost.getListUnitPrice() == null || cost.getListUnitPrice() < 0) {
-      throw new IllegalStateException("POL list unit price physical is empty after the field was overridden from the request");
-    }
-    validatePoLineQuantity(poLine, cost);
+    validateCostQuantityAndUnitPrice(poLine.getOrderFormat(), cost);
     if (isBlank(poLine.getTitleOrPackage())) {
       throw new IllegalStateException("POL title or package is empty after the field was overridden from the request");
     }
-    if (CollectionUtils.isEmpty(poLine.getVendorDetail().getReferenceNumbers())) {
-      throw new IllegalStateException("POL vendor reference numbers are empty after the field was overridden from the request");
+    if (poLine.getVendorDetail() == null || CollectionUtils.isEmpty(poLine.getVendorDetail().getReferenceNumbers())) {
+      throw new IllegalStateException("POL vendor detail or reference numbers are empty after the field was overridden from the request");
     }
   }
 
-  private void validatePoLineQuantity(PoLine poLine, Cost cost) {
-    if (cost.getListUnitPriceElectronic() == null || cost.getListUnitPriceElectronic() < 0) {
-      throw new IllegalStateException("POL list unit price electronic is empty after the field was overridden from the request");
+  private void validateCostQuantityAndUnitPrice(OrderFormat format, Cost cost) {
+    if (format == null) {
+      throw new IllegalStateException("POL order format is empty after the field was overridden from the request");
     }
-    if (poLine.getOrderFormat() == OrderFormat.PHYSICAL_RESOURCE && cost.getQuantityPhysical() <= 0) {
+    switch (format) {
+      case PHYSICAL_RESOURCE -> validateCostPhysicalQuantityAndUnitPrice(cost);
+      case ELECTRONIC_RESOURCE -> validateCostElectronicQuantityAndUnitPrice(cost);
+      case P_E_MIX -> validateCostPEMixQuantityAndUnitPrice(cost);
+      default -> {
+        // Order format OTHER is not validated
+      }
+    }
+  }
+
+  private void validateCostPhysicalQuantityAndUnitPrice(Cost cost) {
+    if (cost.getQuantityPhysical() == null || cost.getQuantityPhysical() <= 0) {
       throw new IllegalStateException("POL quantity physical is 0 or less after the field was overridden from the request");
     }
-    if (poLine.getOrderFormat() == OrderFormat.ELECTRONIC_RESOURCE && cost.getQuantityElectronic() <= 0) {
+    if (cost.getListUnitPrice() == null || cost.getListUnitPrice() <= 0) {
+      throw new IllegalStateException("POL list unit price physical is empty after the field was overridden from the request");
+    }
+  }
+
+  private void validateCostElectronicQuantityAndUnitPrice(Cost cost) {
+    if (cost.getQuantityElectronic() == null || cost.getQuantityElectronic() <= 0) {
       throw new IllegalStateException("POL quantity electronic is 0 or less after the field was overridden from the request");
     }
-    if (poLine.getOrderFormat() == OrderFormat.P_E_MIX && (cost.getQuantityPhysical() <= 0 || cost.getQuantityElectronic() <= 0)) {
-      throw new IllegalStateException("POL quantity P/E Mix is 0 or less after the field was overridden from the request");
+    if (cost.getListUnitPriceElectronic() == null || cost.getListUnitPriceElectronic() <= 0) {
+      throw new IllegalStateException("POL list unit price electronic is empty after the field was overridden from the request");
+    }
+  }
+
+  private void validateCostPEMixQuantityAndUnitPrice(Cost cost) {
+    if (cost.getQuantityPhysical() == null || cost.getQuantityElectronic() == null
+      || cost.getQuantityPhysical() <= 0 || cost.getQuantityElectronic() <= 0) {
+      throw new IllegalStateException("POL quantity physical/quantity electronic is 0 or less after the field was overridden from the request");
+    }
+    if (cost.getListUnitPrice() == null || cost.getListUnitPriceElectronic() == null
+      || cost.getListUnitPrice() <= 0 || cost.getListUnitPriceElectronic() <= 0) {
+      throw new IllegalStateException("POL list unit price physical/list unit price electronic is empty after the field was overridden from the request");
     }
   }
 
