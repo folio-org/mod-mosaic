@@ -21,7 +21,6 @@ import org.folio.rest.acq.model.orders.VendorDetail;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,10 +34,10 @@ import static org.folio.rest.acq.model.mosaic.MosaicOrder.Format.ELECTRONIC;
 public class MosaicPoLineConverter {
 
   /**
-   * Creates the PoLine template
+   * Creates a PoLine from a template
    *
    * @param poLineTemplate Holding poLine template fields
-   * @return A PoLine template object
+   * @return A PoLine object
    */
   public PoLine createPoLineFromTemplate(PoLine poLineTemplate) {
     return new PoLine()
@@ -135,48 +134,8 @@ public class MosaicPoLineConverter {
     if (isNotBlank(mosaicOrder.getAcquisitionMethod())) {
       poLine.setAcquisitionMethod(mosaicOrder.getAcquisitionMethod());
     }
-    validatePoLineRequiredFields(poLine);
 
     order.setPoLines(List.of(poLine));
-  }
-
-  public void validatePoLineRequiredFields(PoLine poLine) {
-    var cost = poLine.getCost();
-    if (cost == null) {
-      throw new IllegalStateException("POL cost is empty after the field was overridden from the request");
-    }
-    try {
-      if (isBlank(cost.getCurrency()) || Currency.getInstance(cost.getCurrency()) == null) {
-        throw new IllegalStateException("POL currency is empty after the field was overridden from the request");
-      }
-    } catch (IllegalArgumentException e) {
-      throw new IllegalStateException("POL currency is invalid after the field was overridden from the request", e);
-    }
-    if (cost.getListUnitPrice() == null || cost.getListUnitPrice() < 0) {
-      throw new IllegalStateException("POL list unit price physical is empty after the field was overridden from the request");
-    }
-    validatePoLineQuantity(poLine, cost);
-    if (isBlank(poLine.getTitleOrPackage())) {
-      throw new IllegalStateException("POL title or package is empty after the field was overridden from the request");
-    }
-    if (CollectionUtils.isEmpty(poLine.getVendorDetail().getReferenceNumbers())) {
-      throw new IllegalStateException("POL vendor reference numbers are empty after the field was overridden from the request");
-    }
-  }
-
-  private void validatePoLineQuantity(PoLine poLine, Cost cost) {
-    if (cost.getListUnitPriceElectronic() == null || cost.getListUnitPriceElectronic() < 0) {
-      throw new IllegalStateException("POL list unit price electronic is empty after the field was overridden from the request");
-    }
-    if (poLine.getOrderFormat() == OrderFormat.PHYSICAL_RESOURCE && cost.getQuantityPhysical() <= 0) {
-      throw new IllegalStateException("POL quantity physical is 0 or less after the field was overridden from the request");
-    }
-    if (poLine.getOrderFormat() == OrderFormat.ELECTRONIC_RESOURCE && cost.getQuantityElectronic() <= 0) {
-      throw new IllegalStateException("POL quantity electronic is 0 or less after the field was overridden from the request");
-    }
-    if (poLine.getOrderFormat() == OrderFormat.P_E_MIX && (cost.getQuantityPhysical() <= 0 || cost.getQuantityElectronic() <= 0)) {
-      throw new IllegalStateException("POL quantity P/E Mix is 0 or less after the field was overridden from the request");
-    }
   }
 
   private void updatePoLineUserLimits(MosaicOrder mosaicOrder, PoLine poLine) {

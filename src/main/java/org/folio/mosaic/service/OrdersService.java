@@ -6,6 +6,7 @@ import feign.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.mosaic.client.OrdersClient;
 import org.folio.mosaic.exception.ResourceNotFoundException;
@@ -48,7 +49,7 @@ public class OrdersService {
 
   @SneakyThrows
   private Pair<CompositePurchaseOrder, PoLine> getOrderTemplatePair(String title, String requestTemplateId) {
-    var templateId = requestTemplateId != null
+    var templateId = StringUtils.isNotBlank(requestTemplateId)
       ? requestTemplateId : configurationService.getConfiguration().getDefaultTemplateId();
 
     try (var response = ordersClient.getOrderTemplateAsResponse(templateId)) {
@@ -66,7 +67,7 @@ public class OrdersService {
       var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
       var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
       if (order == null || order.getId() == null) {
-        log.warn("responseToOrderAndPoLineObjects:: No template found for mosaicOrder: {} with id: {}", title, templateId);
+        log.warn("responseToOrderAndPoLineObjects:: No template or default template was found for mosaicOrder: {} with id: {}", title, templateId);
         throw new ResourceNotFoundException(OrderTemplate.class);
       }
 

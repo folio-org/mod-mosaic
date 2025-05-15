@@ -44,10 +44,10 @@ public class MosaicOrderConverter {
   }
 
   /**
-   * Creates the CompositePurchaseOrder template with a poLine
+   * Creates a CompositePurchaseOrder with an included PoLine from a template
    *
    * @param templatePair Holding order and poLine template fields
-   * @return A CompositePurchaseOrder template object with the poLine
+   * @return A CompositePurchaseOrder object with an included PoLine
    */
   private CompositePurchaseOrder createOrderFromTemplatePair(Pair<CompositePurchaseOrder, PoLine> templatePair) {
     log.debug("createOrderFromTemplatePair:: Creating order from template: {}", templatePair.getKey().getId());
