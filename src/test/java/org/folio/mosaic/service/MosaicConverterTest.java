@@ -1,6 +1,7 @@
 package org.folio.mosaic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.time.LocalDate;
@@ -8,6 +9,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.mosaic.support.CopilotGenerated;
@@ -20,6 +22,9 @@ import org.folio.rest.acq.model.orders.OrderFormat;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.VendorDetail;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -88,6 +93,57 @@ class MosaicConverterTest {
     var resultPoLine = result.getPoLines().getFirst();
     assertEquals("Overridden Title", resultPoLine.getTitleOrPackage());
     assertEquals(List.of("unit-override"), result.getAcqUnitIds());
+  }
+
+  @ParameterizedTest
+  @MethodSource("testApplyOverridesWithWorkflowStatusArgs")
+  void testApplyOverridesWithWorkflowStatus(MosaicOrder.WorkflowStatus mosaicStatus,
+                                            CompositePurchaseOrder.WorkflowStatus expectedStatus,
+                                            boolean shouldOverride) {
+    // Given
+    var templateId = UUID.randomUUID().toString();
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(templateId)
+      .withWorkflowStatus(CompositePurchaseOrder.WorkflowStatus.PENDING);
+
+    var poLineTemplate = new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
+      .withCost(new Cost()
+        .withListUnitPrice(1.0)
+        .withCurrency("USD")
+        .withQuantityPhysical(1));
+
+    var templatePair = Pair.of(orderTemplate, poLineTemplate);
+
+    // Create a MosaicOrder with the provided workflow status from parameter
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Workflow Status Test")
+      .withWorkflowStatus(mosaicStatus);
+
+    // When
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+
+    // Then
+    assertEquals(expectedStatus, result.getWorkflowStatus());
+
+    if (shouldOverride) {
+      // Verify the status was overridden
+      assertNotEquals(CompositePurchaseOrder.WorkflowStatus.PENDING, result.getWorkflowStatus());
+    } else {
+      // Verify the status was NOT overridden (kept template's value)
+      assertEquals(CompositePurchaseOrder.WorkflowStatus.PENDING, result.getWorkflowStatus());
+    }
+  }
+
+  // Method to provide all possible workflow status values, plus null case
+  static Stream<Arguments> testApplyOverridesWithWorkflowStatusArgs() {
+    return Stream.of(
+      Arguments.of(MosaicOrder.WorkflowStatus.PENDING, CompositePurchaseOrder.WorkflowStatus.PENDING, false),
+      Arguments.of(MosaicOrder.WorkflowStatus.OPEN, CompositePurchaseOrder.WorkflowStatus.OPEN, true),
+      Arguments.of(MosaicOrder.WorkflowStatus.CLOSED, CompositePurchaseOrder.WorkflowStatus.CLOSED, true),
+      Arguments.of(null, CompositePurchaseOrder.WorkflowStatus.PENDING, false)
+    );
   }
 
   @Test

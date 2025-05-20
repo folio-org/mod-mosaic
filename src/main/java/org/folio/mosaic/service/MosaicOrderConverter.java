@@ -103,6 +103,10 @@ public class MosaicOrderConverter {
     if (mosaicOrder.getVendor() != null) {
       order.setVendor(mosaicOrder.getVendor());
     }
+    if (mosaicOrder.getWorkflowStatus() != null) {
+      var workflowStatus = mosaicOrder.getWorkflowStatus().name();
+      order.setWorkflowStatus(CompositePurchaseOrder.WorkflowStatus.valueOf(workflowStatus));
+    }
     if (mosaicOrder.getBillTo() != null) {
       order.setBillTo(mosaicOrder.getBillTo());
     }
