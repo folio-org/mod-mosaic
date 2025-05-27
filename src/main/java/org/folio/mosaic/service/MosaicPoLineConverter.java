@@ -9,11 +9,9 @@ import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.Contributor;
 import org.folio.rest.acq.model.orders.Cost;
 import org.folio.rest.acq.model.orders.Details;
-import org.folio.rest.acq.model.orders.Eresource;
 import org.folio.rest.acq.model.orders.FundDistribution;
 import org.folio.rest.acq.model.orders.Location;
 import org.folio.rest.acq.model.orders.OrderFormat;
-import org.folio.rest.acq.model.orders.Physical;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.ProductIdentifier;
 import org.folio.rest.acq.model.orders.ReferenceNumberItem;
@@ -33,6 +31,9 @@ import static org.folio.rest.acq.model.mosaic.MosaicOrder.OrderFormat.P_E_MIX;
 @Service
 @RequiredArgsConstructor
 public class MosaicPoLineConverter {
+
+  private final PhysicalMapper physicalMapper;
+  private final ElectronicMapper electronicMapper;
 
   /**
    * Creates a PoLine from a template
@@ -99,19 +100,12 @@ public class MosaicPoLineConverter {
     if (isNotBlank(mosaicOrder.getTitle())) {
       poLine.setTitleOrPackage(mosaicOrder.getTitle());
     }
-    updatePoLineCost(mosaicOrder, poLine);
-    updatePoLineContributors(mosaicOrder, poLine);
-
     if (isNotBlank(mosaicOrder.getPublicationDate())) {
       poLine.setPublicationDate(mosaicOrder.getPublicationDate());
     }
     if (isNotBlank(mosaicOrder.getEdition())) {
       poLine.setEdition(mosaicOrder.getEdition());
     }
-    updatePoLineDetails(mosaicOrder, poLine);
-    updatePoLineVendor(mosaicOrder, poLine);
-    updatePoLineUserLimits(mosaicOrder, poLine);
-
     if (isNotBlank(mosaicOrder.getRequesterName())) {
       poLine.setRequester(mosaicOrder.getRequesterName());
     }
@@ -127,44 +121,58 @@ public class MosaicPoLineConverter {
     if (isNotBlank(mosaicOrder.getRenewalNote())) {
       poLine.setRenewalNote(mosaicOrder.getRenewalNote());
     }
-    updatePoLineLocations(mosaicOrder, poLine);
-    updatePoLineFunds(mosaicOrder, poLine);
-    updatePoLineMaterialTypeId(mosaicOrder, poLine);
-    updatePoLineAccessProvider(mosaicOrder, poLine);
-
     if (isNotBlank(mosaicOrder.getAcquisitionMethod())) {
       poLine.setAcquisitionMethod(mosaicOrder.getAcquisitionMethod());
     }
 
+    updatePoLineOrderFormat(mosaicOrder, poLine);
+    physicalMapper.updatePoLinePhysical(mosaicOrder, poLine);
+    electronicMapper.updatePoLineEResource(mosaicOrder, poLine);
+    updatePoLineCost(mosaicOrder, poLine);
+    updatePoLineContributors(mosaicOrder, poLine);
+    updatePoLineDetails(mosaicOrder, poLine);
+    updatePoLineVendor(mosaicOrder, poLine);
+    updatePoLineLocations(mosaicOrder, poLine);
+    updatePoLineFunds(mosaicOrder, poLine);
+
     order.setPoLines(List.of(poLine));
   }
 
-  private void updatePoLineUserLimits(MosaicOrder mosaicOrder, PoLine poLine) {
-    if (isBlank(mosaicOrder.getUserLimit())) {
+  private void updatePoLineOrderFormat(MosaicOrder mosaicOrder, PoLine poLine) {
+    if (ObjectUtils.isEmpty(mosaicOrder.getFormat())) {
       return;
     }
-    var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
-    eresource.setUserLimit(mosaicOrder.getUserLimit());
-    poLine.setEresource(eresource);
+    var orderFormat = mosaicOrder.getFormat().name();
+    poLine.setOrderFormat(OrderFormat.valueOf(orderFormat));
   }
 
-  private void updatePoLineMaterialTypeId(MosaicOrder mosaicOrder, PoLine poLine) {
-    if (isBlank(mosaicOrder.getMaterialTypeId())) {
+  private void updatePoLineCost(MosaicOrder mosaicOrder, PoLine poLine) {
+    if (ObjectUtils.isEmpty(mosaicOrder.getListUnitPrice()) && ObjectUtils.isEmpty(mosaicOrder.getListUnitPriceElectronic())) {
       return;
     }
-    var physical = poLine.getPhysical() != null ? poLine.getPhysical() : new Physical();
-    physical.setMaterialType(mosaicOrder.getMaterialTypeId());
-    physical.setMaterialSupplier(mosaicOrder.getMaterialSupplier());
-    poLine.setPhysical(physical);
-  }
+    var cost = poLine.getCost() != null ? poLine.getCost() : new Cost();
+    var orderFormat = mosaicOrder.getFormat();
 
-  private void updatePoLineAccessProvider(MosaicOrder mosaicOrder, PoLine poLine) {
-    if (isBlank(mosaicOrder.getAccessProvider())) {
-      return;
+    if (orderFormat == ELECTRONIC_RESOURCE && mosaicOrder.getListUnitPriceElectronic() != null) {
+      cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
+      cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
+      cost.setQuantityPhysical(0);
+    } else if (orderFormat == P_E_MIX) {
+      cost.setListUnitPrice(mosaicOrder.getListUnitPrice());
+      cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
+      cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());
+      cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
+    } else {
+      cost.setListUnitPrice(mosaicOrder.getListUnitPrice());
+      cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());
+      cost.setQuantityElectronic(0);
     }
-    var eresource = poLine.getEresource() != null ? poLine.getEresource() : new Eresource();
-    eresource.setAccessProvider(mosaicOrder.getAccessProvider());
-    poLine.setEresource(eresource);
+
+    if (isNotBlank(mosaicOrder.getCurrency())) {
+      cost.setCurrency(mosaicOrder.getCurrency());
+    }
+
+    poLine.setCost(cost);
   }
 
   private void updatePoLineContributors(MosaicOrder mosaicOrder, PoLine poLine) {
@@ -178,39 +186,8 @@ public class MosaicPoLineConverter {
           .withContributor(mosaicContributor.getContributor())
           .withContributorNameTypeId(mosaicContributor.getContributorNameTypeId()))
       .toList();
+
     poLine.setContributors(convertedContributors);
-  }
-
-  private void updatePoLineCost(MosaicOrder mosaicOrder, PoLine poLine) {
-    if (mosaicOrder.getListUnitPrice() == null && mosaicOrder.getListUnitPriceElectronic() == null) {
-      return;
-    }
-    var cost = poLine.getCost() != null ? poLine.getCost() : new Cost();
-    var format = mosaicOrder.getFormat();
-
-    if (format == ELECTRONIC_RESOURCE && mosaicOrder.getListUnitPriceElectronic() != null) {
-      cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
-      cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
-      cost.setQuantityPhysical(0);
-      poLine.setOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
-    } else if (format == P_E_MIX) {
-      cost.setListUnitPrice(mosaicOrder.getListUnitPrice());
-      cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
-      cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());
-      cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
-      poLine.setOrderFormat(OrderFormat.P_E_MIX);
-    } else {
-      cost.setListUnitPrice(mosaicOrder.getListUnitPrice());
-      cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());
-      cost.setQuantityElectronic(0);
-      poLine.setOrderFormat(OrderFormat.PHYSICAL_RESOURCE);
-    }
-
-    if (isNotBlank(mosaicOrder.getCurrency())) {
-      cost.setCurrency(mosaicOrder.getCurrency());
-    }
-
-    poLine.setCost(cost);
   }
 
   private void updatePoLineDetails(MosaicOrder mosaicOrder, PoLine poLine) {
@@ -253,6 +230,7 @@ public class MosaicPoLineConverter {
     }
 
     vendorDetail.setReferenceNumbers(referenceNumbers);
+
     poLine.setVendorDetail(vendorDetail);
   }
 
@@ -270,6 +248,7 @@ public class MosaicPoLineConverter {
           .withQuantityPhysical(mosaicLocation.getQuantityPhysical())
           .withQuantityElectronic(mosaicLocation.getQuantityElectronic()))
       .toList();
+
     poLine.setLocations(convertedLocations);
   }
 
@@ -284,6 +263,7 @@ public class MosaicPoLineConverter {
           .withDistributionType(FundDistribution.DistributionType.fromValue(mosaicFund.getDistributionType().toString()))
           .withValue(mosaicFund.getValue()))
       .toList();
+
     poLine.setFundDistribution(convertedFunds);
   }
 }
