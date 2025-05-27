@@ -727,6 +727,32 @@ class MosaicConverterTest {
     assertEquals(100.0, resultPoLine.getFundDistribution().getFirst().getValue());
   }
 
+  @Test
+  void testCheckinItemsOverride() {
+    // Case 1: Override false to true
+    var templateWithFalseCheckinItems = createPoLineTemplate(false);
+    var mosaicOrderWithTrueCheckinItems = new MosaicOrder()
+      .withTitle("CheckinItems Test - False to True")
+      .withCheckinItems(true);
+
+    testCheckinItemsOverride(templateWithFalseCheckinItems, mosaicOrderWithTrueCheckinItems, true);
+
+    // Case 2: Override true to false
+    var templateWithTrueCheckinItems = createPoLineTemplate(true);
+    var mosaicOrderWithFalseCheckinItems = new MosaicOrder()
+      .withTitle("CheckinItems Test - True to False")
+      .withCheckinItems(false);
+
+    testCheckinItemsOverride(templateWithTrueCheckinItems, mosaicOrderWithFalseCheckinItems, false);
+
+    // Case 3: No override (null in MosaicOrder)
+    var templateWithDefaultCheckinItems = createPoLineTemplate(false);
+    var mosaicOrderWithNullCheckinItems = new MosaicOrder()
+      .withTitle("CheckinItems Test - No Override, null in MosaicOrder");
+
+    testCheckinItemsOverride(templateWithDefaultCheckinItems, mosaicOrderWithNullCheckinItems, false);
+  }
+
   // Physical
 
   @Test
@@ -1204,5 +1230,48 @@ class MosaicConverterTest {
     assertNotNull(poLine.getEresource().getMaterialType());
     assertEquals(org.folio.rest.acq.model.orders.Eresource.CreateInventory.INSTANCE,
       poLine.getEresource().getCreateInventory());
+  }
+
+  private PoLine createPoLineTemplate(boolean checkinItemsValue) {
+    var vendorDetail = new VendorDetail();
+    var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
+      .withRefNumber("ref-123")
+      .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
+    vendorDetail.setReferenceNumbers(referenceNumbers);
+
+    return new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
+      .withVendorDetail(vendorDetail)
+      .withCost(new Cost()
+        .withListUnitPrice(10.0)
+        .withCurrency("USD")
+        .withQuantityPhysical(1)
+        .withQuantityElectronic(0))
+      .withCheckinItems(checkinItemsValue);
+  }
+
+  private void testCheckinItemsOverride(PoLine poLineTemplate, MosaicOrder mosaicOrder, boolean expectedValue) {
+    var templateId = UUID.randomUUID().toString();
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(templateId);
+
+    var templatePair = Pair.of(orderTemplate, poLineTemplate);
+
+    // Convert to CompositePurchaseOrder
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var resultPoLine = result.getPoLines().getFirst();
+
+    // Verify that checkinItems value matches expected
+    assertNotNull(resultPoLine);
+    assertEquals(expectedValue, resultPoLine.getCheckinItems());
+
+    // For cases where we're actually overriding, verify the value changed
+    if (mosaicOrder.getCheckinItems() != null) {
+      assertEquals(mosaicOrder.getCheckinItems(), resultPoLine.getCheckinItems());
+    } else {
+      // For null case, verify template value was preserved
+      assertEquals(poLineTemplate.getCheckinItems(), resultPoLine.getCheckinItems());
+    }
   }
 }

@@ -124,6 +124,9 @@ public class MosaicPoLineConverter {
     if (isNotBlank(mosaicOrder.getAcquisitionMethod())) {
       poLine.setAcquisitionMethod(mosaicOrder.getAcquisitionMethod());
     }
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getCheckinItems())) {
+      poLine.setCheckinItems(mosaicOrder.getCheckinItems());
+    }
 
     updatePoLineOrderFormat(mosaicOrder, poLine);
     physicalMapper.updatePoLinePhysical(mosaicOrder, poLine);
