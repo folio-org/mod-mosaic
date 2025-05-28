@@ -284,8 +284,7 @@ public class MosaicPoLineConverter {
           .withCode(mosaicFund.getCode())
           .withDistributionType(FundDistribution.DistributionType.fromValue(mosaicFund.getDistributionType().toString()))
           .withValue(mosaicFund.getValue())
-          .withExpenseClassId(mosaicFund.getExpenseClassId())
-          .withCode(mosaicFund.getCode()))
+          .withExpenseClassId(mosaicFund.getExpenseClassId()))
       .toList();
     poLine.setFundDistribution(convertedFunds);
   }
