@@ -700,12 +700,15 @@ class MosaicConverterTest {
     var templatePair = Pair.of(orderTemplate, poLineTemplate);
 
     var fundId = UUID.randomUUID().toString();
+    var expenseClassId = UUID.randomUUID().toString();
 
     var funds = List.of(
       new org.folio.rest.acq.model.mosaic.FundDistribution()
         .withFundId(fundId)
+        .withCode("FUND-123")
         .withDistributionType(org.folio.rest.acq.model.mosaic.FundDistribution.DistributionType.PERCENTAGE)
         .withValue(100.0)
+        .withExpenseClassId(expenseClassId)
     );
 
     var mosaicOrder = new MosaicOrder()
@@ -723,8 +726,10 @@ class MosaicConverterTest {
     assertNotNull(resultPoLine.getFundDistribution());
     assertEquals(1, resultPoLine.getFundDistribution().size());
     assertEquals(fundId, resultPoLine.getFundDistribution().getFirst().getFundId());
+    assertEquals("FUND-123", resultPoLine.getFundDistribution().getFirst().getCode());
     assertEquals(FundDistribution.DistributionType.PERCENTAGE, resultPoLine.getFundDistribution().getFirst().getDistributionType());
     assertEquals(100.0, resultPoLine.getFundDistribution().getFirst().getValue());
+    assertEquals(expenseClassId, resultPoLine.getFundDistribution().getFirst().getExpenseClassId());
   }
 
   @Test
