@@ -100,6 +100,9 @@ public class MosaicOrderConverter {
     if (mosaicOrder.getId() != null) {
       order.setId(mosaicOrder.getId());
     }
+    if (mosaicOrder.getAssignedTo() != null) {
+      order.setAssignedTo(mosaicOrder.getAssignedTo());
+    }
     if (mosaicOrder.getVendor() != null) {
       order.setVendor(mosaicOrder.getVendor());
     }

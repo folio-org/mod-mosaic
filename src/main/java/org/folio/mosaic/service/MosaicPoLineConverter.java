@@ -118,6 +118,9 @@ public class MosaicPoLineConverter {
     if (isNotBlank(mosaicOrder.getPoLineDescription())) {
       poLine.setPoLineDescription(mosaicOrder.getPoLineDescription());
     }
+    if (isNotBlank(mosaicOrder.getInternalNote())) {
+      poLine.setDescription(mosaicOrder.getInternalNote());
+    }
     if (isNotBlank(mosaicOrder.getRenewalNote())) {
       poLine.setRenewalNote(mosaicOrder.getRenewalNote());
     }
