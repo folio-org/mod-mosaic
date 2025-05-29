@@ -76,6 +76,7 @@ class MosaicConverterTest {
 
     var mosaicOrder = new MosaicOrder()
       .withTitle("Overridden Title")
+      .withAssignedTo("override-assignedto")
       .withVendor("override-vendor")
       .withBillTo("override-billto")
       .withShipTo("override-shipto")
@@ -90,6 +91,7 @@ class MosaicConverterTest {
 
     assertNotNull(result);
     assertEquals(templateId, result.getTemplate());
+    assertEquals("override-assignedto", result.getAssignedTo());
     assertEquals("override-vendor", result.getVendor());
     assertEquals("override-billto", result.getBillTo());
     assertEquals("override-shipto", result.getShipTo());
@@ -371,6 +373,7 @@ class MosaicConverterTest {
       .withSelectorName("Test Selector")
       .withNotes(List.of("Note 1", "Note 2"))
       .withPoLineDescription("Test PoLine Description")
+      .withInternalNote("Test Internal Note")
       .withRenewalNote("Test Renewal Note")
       .withAcquisitionMethod("Purchase")
       .withReferenceNumbers(List.of(
@@ -388,6 +391,7 @@ class MosaicConverterTest {
     assertEquals("Test Selector", resultPoLine.getSelector());
     assertEquals(List.of("Note 1", "Note 2"), result.getNotes());
     assertEquals("Test PoLine Description", resultPoLine.getPoLineDescription());
+    assertEquals("Test Internal Note", resultPoLine.getDescription());
     assertEquals("Test Renewal Note", resultPoLine.getRenewalNote());
     assertEquals("Purchase", resultPoLine.getAcquisitionMethod());
   }
