@@ -1241,6 +1241,45 @@ class MosaicConverterTest {
       poLine.getEresource().getCreateInventory());
   }
 
+  @Test
+  void testUpdatePoLineCost_withNullOrderFormat() {
+    // Setup test data
+    var templateId = UUID.randomUUID().toString();
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(templateId);
+
+    var poLineTemplate = new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(null)  // Explicitly set order format to null
+      .withCost(new Cost()
+        .withListUnitPrice(10.0)
+        .withCurrency("USD")
+        .withQuantityPhysical(1)
+        .withQuantityElectronic(0));
+
+    var templatePair = Pair.of(orderTemplate, poLineTemplate);
+
+    // Create MosaicOrder with cost override values
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Cost Test")
+      .withFormat(null)  // Explicitly set format to null
+      .withListUnitPrice(20.0)
+      .withQuantityPhysical(2)
+      .withCurrency("EUR");
+
+    // Convert to CompositePurchaseOrder
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var resultPoLine = result.getPoLines().getFirst();
+
+    // Verify cost values were properly set despite null order format
+    assertNotNull(resultPoLine.getCost());
+    assertEquals(20.0, resultPoLine.getCost().getListUnitPrice());
+    assertEquals(2, resultPoLine.getCost().getQuantityPhysical());
+    assertEquals(0, resultPoLine.getCost().getQuantityElectronic());
+    assertEquals("EUR", resultPoLine.getCost().getCurrency());
+    assertNull(resultPoLine.getCost().getListUnitPriceElectronic());
+  }
+
   private PoLine createPoLineTemplate(boolean checkinItemsValue) {
     var vendorDetail = new VendorDetail();
     var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
