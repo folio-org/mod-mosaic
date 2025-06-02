@@ -24,8 +24,6 @@ import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.folio.rest.acq.model.mosaic.MosaicOrder.OrderFormat.ELECTRONIC_RESOURCE;
-import static org.folio.rest.acq.model.mosaic.MosaicOrder.OrderFormat.P_E_MIX;
 
 @Log4j2
 @Service
@@ -156,14 +154,14 @@ public class MosaicPoLineConverter {
     if (ObjectUtils.isEmpty(mosaicOrder.getListUnitPrice()) && ObjectUtils.isEmpty(mosaicOrder.getListUnitPriceElectronic())) {
       return;
     }
-    var cost = poLine.getCost() != null ? poLine.getCost() : new Cost();
-    var orderFormat = mosaicOrder.getFormat();
+    var cost = ObjectUtils.isNotEmpty(poLine.getCost()) ? poLine.getCost() : new Cost();
+    var orderFormat = poLine.getOrderFormat();
 
-    if (orderFormat == ELECTRONIC_RESOURCE && mosaicOrder.getListUnitPriceElectronic() != null) {
+    if (orderFormat == OrderFormat.ELECTRONIC_RESOURCE && ObjectUtils.isNotEmpty(mosaicOrder.getListUnitPriceElectronic())) {
       cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
       cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
       cost.setQuantityPhysical(0);
-    } else if (orderFormat == P_E_MIX) {
+    } else if (orderFormat == OrderFormat.P_E_MIX) {
       cost.setListUnitPrice(mosaicOrder.getListUnitPrice());
       cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
       cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());

@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
@@ -53,7 +54,7 @@ public class MosaicOrderConverter {
     log.debug("createOrderFromTemplatePair:: Creating order from template: {}", templatePair.getKey().getId());
 
     var orderTemplate = templatePair.getKey();
-    var orderType = orderTemplate.getOrderType() != null
+    var orderType = ObjectUtils.isNotEmpty(orderTemplate.getOrderType())
       ? orderTemplate.getOrderType() : CompositePurchaseOrder.OrderType.ONE_TIME;
     var poLine = mosaicPoLineConverter.createPoLineFromTemplate(templatePair.getValue());
 
@@ -97,29 +98,29 @@ public class MosaicOrderConverter {
    * @param mosaicOrder The request containing override values
    */
   public void applyOverrides(CompositePurchaseOrder order, MosaicOrder mosaicOrder) {
-    if (mosaicOrder.getId() != null) {
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getId())) {
       order.setId(mosaicOrder.getId());
     }
-    if (mosaicOrder.getAssignedTo() != null) {
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getAssignedTo())) {
       order.setAssignedTo(mosaicOrder.getAssignedTo());
     }
-    if (mosaicOrder.getVendor() != null) {
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getVendor())) {
       order.setVendor(mosaicOrder.getVendor());
     }
-    if (mosaicOrder.getWorkflowStatus() != null) {
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getWorkflowStatus())) {
       var workflowStatus = mosaicOrder.getWorkflowStatus().name();
       order.setWorkflowStatus(CompositePurchaseOrder.WorkflowStatus.valueOf(workflowStatus));
     }
-    if (mosaicOrder.getBillTo() != null) {
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getBillTo())) {
       order.setBillTo(mosaicOrder.getBillTo());
     }
-    if (mosaicOrder.getShipTo() != null) {
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getShipTo())) {
       order.setShipTo(mosaicOrder.getShipTo());
     }
     if (CollectionUtils.isNotEmpty(mosaicOrder.getAcqUnitIds())) {
       order.setAcqUnitIds(mosaicOrder.getAcqUnitIds());
     }
-    if (mosaicOrder.getCustomFields() != null) {
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getCustomFields())) {
       var convertedCustomFields = new CustomFields();
       mosaicOrder.getCustomFields().getAdditionalProperties().forEach(convertedCustomFields::withAdditionalProperty);
       order.setCustomFields(convertedCustomFields);
