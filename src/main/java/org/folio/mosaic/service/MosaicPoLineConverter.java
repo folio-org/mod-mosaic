@@ -24,6 +24,8 @@ import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.folio.mosaic.util.error.CustomFieldsUtil.getCustomFieldsByEntityType;
+import static org.folio.rest.acq.model.mosaic.MosaicCustomFields.EntityType.PO_LINE;
 
 @Log4j2
 @Service
@@ -127,6 +129,10 @@ public class MosaicPoLineConverter {
     }
     if (ObjectUtils.isNotEmpty(mosaicOrder.getCheckinItems())) {
       poLine.setCheckinItems(mosaicOrder.getCheckinItems());
+    }
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getCustomFields())) {
+      var customFields = getCustomFieldsByEntityType(mosaicOrder, PO_LINE);
+      poLine.setCustomFields(customFields);
     }
 
     updatePoLineOrderFormat(mosaicOrder, poLine);

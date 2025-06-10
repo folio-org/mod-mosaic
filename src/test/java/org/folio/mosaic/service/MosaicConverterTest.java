@@ -1,5 +1,7 @@
 package org.folio.mosaic.service;
 
+import static org.folio.rest.acq.model.mosaic.MosaicCustomFields.EntityType.PO_LINE;
+import static org.folio.rest.acq.model.mosaic.MosaicCustomFields.EntityType.PURCHASE_ORDER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -15,11 +17,13 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.rest.acq.model.mosaic.Eresource;
+import org.folio.rest.acq.model.mosaic.MosaicCustomFields;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.mosaic.Physical;
 import org.folio.rest.acq.model.mosaic.ReferenceNumberItem;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.Cost;
+import org.folio.rest.acq.model.orders.CustomFields;
 import org.folio.rest.acq.model.orders.FundDistribution;
 import org.folio.rest.acq.model.orders.OrderFormat;
 import org.folio.rest.acq.model.orders.PoLine;
@@ -296,10 +300,11 @@ class MosaicConverterTest {
   }
 
   @Test
-  void testOverrideCustomFields() {
+  void testOverrideOrderCustomFields() {
     var templateId = UUID.randomUUID().toString();
     var orderTemplate = new CompositePurchaseOrder()
-      .withId(templateId);
+      .withId(templateId)
+      .withCustomFields(new CustomFields().withAdditionalProperty("field0", "value0"));
 
     var vendorDetail = new VendorDetail();
     var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
@@ -316,17 +321,16 @@ class MosaicConverterTest {
         .withListUnitPriceElectronic(1.0)
         .withCurrency("USD")
         .withQuantityPhysical(1)
-        .withQuantityElectronic(0));
+        .withQuantityElectronic(0))
+      .withCustomFields(new CustomFields().withAdditionalProperty("field0", "value0"));
 
     var templatePair = Pair.of(orderTemplate, poLineTemplate);
 
-    var customFields = new org.folio.rest.acq.model.mosaic.CustomFields();
-    customFields.setAdditionalProperty("field1", "value1");
-    customFields.setAdditionalProperty("field2", "value2");
-
     var mosaicOrder = new MosaicOrder()
       .withTitle("Custom Fields Test")
-      .withCustomFields(customFields)
+      .withCustomFields(List.of(
+        new MosaicCustomFields().withRefId("field1").withEntityType(PURCHASE_ORDER).withValue("value1"),
+        new MosaicCustomFields().withRefId("field2").withEntityType(PO_LINE).withValue("value2")))
       .withReferenceNumbers(List.of(
         new ReferenceNumberItem()
           .withRefNumber("mosaic-ref-123")
@@ -335,9 +339,19 @@ class MosaicConverterTest {
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
 
-    assertNotNull(result.getCustomFields());
-    assertEquals("value1", result.getCustomFields().getAdditionalProperties().get("field1"));
-    assertEquals("value2", result.getCustomFields().getAdditionalProperties().get("field2"));
+    var poCustomFields = result.getCustomFields();
+    assertNotNull(poCustomFields);
+    assertNull(poCustomFields.getAdditionalProperties().get("field0"));
+    assertEquals("value1", poCustomFields.getAdditionalProperties().get("field1"));
+    assertNull(poCustomFields.getAdditionalProperties().get("field2"));
+
+    assertNotNull(result.getPoLines());
+
+    var poLineCustomFields = result.getPoLines().getFirst().getCustomFields();
+    assertNotNull(poLineCustomFields);
+    assertNull(poLineCustomFields.getAdditionalProperties().get("field0"));
+    assertNull(poLineCustomFields.getAdditionalProperties().get("field1"));
+    assertEquals("value2", poLineCustomFields.getAdditionalProperties().get("field2"));
   }
 
   @Test
