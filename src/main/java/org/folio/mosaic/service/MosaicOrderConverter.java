@@ -1,6 +1,8 @@
 package org.folio.mosaic.service;
 
 import static java.util.Collections.singletonList;
+import static org.folio.mosaic.util.error.CustomFieldsUtil.getCustomFieldsByEntityType;
+import static org.folio.rest.acq.model.mosaic.MosaicCustomFields.EntityType.PURCHASE_ORDER;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -12,7 +14,6 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
-import org.folio.rest.acq.model.orders.CustomFields;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
@@ -121,9 +122,8 @@ public class MosaicOrderConverter {
       order.setAcqUnitIds(mosaicOrder.getAcqUnitIds());
     }
     if (ObjectUtils.isNotEmpty(mosaicOrder.getCustomFields())) {
-      var convertedCustomFields = new CustomFields();
-      mosaicOrder.getCustomFields().getAdditionalProperties().forEach(convertedCustomFields::withAdditionalProperty);
-      order.setCustomFields(convertedCustomFields);
+      var customFields = getCustomFieldsByEntityType(mosaicOrder, PURCHASE_ORDER);
+      order.setCustomFields(customFields);
     }
 
     mosaicPoLineConverter.applyOverridesToPoLine(order, mosaicOrder);
