@@ -329,8 +329,10 @@ class MosaicConverterTest {
     var mosaicOrder = new MosaicOrder()
       .withTitle("Custom Fields Test")
       .withCustomFields(List.of(
-        new MosaicCustomFields().withRefId("field1").withEntityType(PURCHASE_ORDER).withValue("value1"),
-        new MosaicCustomFields().withRefId("field2").withEntityType(PO_LINE).withValue("value2")))
+        new MosaicCustomFields().withRefId("field1").withEntityType(PURCHASE_ORDER).withAdditionalProperty("value", "value1"),
+        new MosaicCustomFields().withRefId("field2").withEntityType(PO_LINE).withAdditionalProperty("value", "value2"),
+        new MosaicCustomFields().withRefId("field3").withEntityType(PO_LINE).withAdditionalProperty("value", true),
+        new MosaicCustomFields().withRefId("field4").withEntityType(PO_LINE).withAdditionalProperty("value", null)))
       .withReferenceNumbers(List.of(
         new ReferenceNumberItem()
           .withRefNumber("mosaic-ref-123")
@@ -352,6 +354,8 @@ class MosaicConverterTest {
     assertNull(poLineCustomFields.getAdditionalProperties().get("field0"));
     assertNull(poLineCustomFields.getAdditionalProperties().get("field1"));
     assertEquals("value2", poLineCustomFields.getAdditionalProperties().get("field2"));
+    assertEquals(true, poLineCustomFields.getAdditionalProperties().get("field3"));
+    assertNull(poLineCustomFields.getAdditionalProperties().get("field4"));
   }
 
   @Test
