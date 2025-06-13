@@ -17,7 +17,7 @@ For the purposes of this form, "store" includes the following:
 - [ ] First name
 - [ ] Last name
 - [ ] Middle name
-- [x] Pseudonym / Alias / Nickname / Username / User ID
+- [ ] Pseudonym / Alias / Nickname / Username / User ID
 - [ ] Gender
 - [ ] Date of birth
 - [ ] Place of birth
