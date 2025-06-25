@@ -1,6 +1,6 @@
 ## Administrative
 * [ ] Listed by the Product Council on [Functionality Evaluated by the PC](https://wiki.folio.org/display/PC/Functionality+Evaluated+by+the+PC) with a positive evaluation result.
-  * -_note: PC process is started (https://folio-org.atlassian.net/browse/PCE-11)
+  * -_note: PC process is started (https://folio-org.atlassian.net/browse/PCE-11)_
 
 ## Shared/Common
 * [x] Uses Apache 2.0 license (2)
