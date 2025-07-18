@@ -1422,8 +1422,6 @@ class MosaicConverterTest {
   }
 
   private void assertBasicFields(PoLine poLineTemplate, PoLine result) {
-    // Basic fields
-    assertNotNull(result);
     assertEquals(poLineTemplate.getTitleOrPackage(), result.getTitleOrPackage());
     assertEquals(poLineTemplate.getEdition(), result.getEdition());
     assertEquals(poLineTemplate.getPublisher(), result.getPublisher());
