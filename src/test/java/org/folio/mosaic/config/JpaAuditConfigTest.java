@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.spring.FolioExecutionContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.AuditorAware;
 
 @ExtendWith(MockitoExtension.class)
+@CopilotGenerated(model = "Claude Sonnet 3.5")
 class JpaAuditConfigTest {
 
   private static final UUID DEFAULT_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
