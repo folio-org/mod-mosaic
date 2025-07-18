@@ -64,6 +64,7 @@ public class MosaicPoLineConverter {
       .withEresource(poLineTemplate.getEresource())
       .withFundDistribution(poLineTemplate.getFundDistribution())
       .withInstanceId(poLineTemplate.getInstanceId())
+      .withSuppressInstanceFromDiscovery(poLineTemplate.getSuppressInstanceFromDiscovery())
       .withIsPackage(poLineTemplate.getIsPackage())
       .withLocations(poLineTemplate.getLocations())
       .withSearchLocationIds(poLineTemplate.getSearchLocationIds())

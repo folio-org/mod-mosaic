@@ -31,12 +31,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <start-class>org.folio.mosaic.FolioMosaicApplication</start-class>
-    <sonar.exclusions>
-      <!-- define sonar exclusions here -->
-      src/main/java/**/*Application.java,
-      src/main/java/**/*Config.java,
-      src/main/java/**/*Exception.java,
-    </sonar.exclusions>
     <argLine />
 
     <!-- Other properties -->
