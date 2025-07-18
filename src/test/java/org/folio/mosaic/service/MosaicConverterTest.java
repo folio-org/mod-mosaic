@@ -1394,18 +1394,10 @@ class MosaicConverterTest {
 
     var result = mosaicPoLineConverter.createPoLineFromTemplate(poLineTemplate);
 
-    // Basic fields
-    assertNotNull(result);
-    assertEquals(poLineTemplate.getTitleOrPackage(), result.getTitleOrPackage());
-    assertEquals(poLineTemplate.getEdition(), result.getEdition());
-    assertEquals(poLineTemplate.getPublisher(), result.getPublisher());
-    assertEquals(poLineTemplate.getPublicationDate(), result.getPublicationDate());
-    assertEquals(poLineTemplate.getOrderFormat(), result.getOrderFormat());
-    assertEquals(poLineTemplate.getSource(), result.getSource());
-    assertEquals(poLineTemplate.getReceiptDate(), result.getReceiptDate());
-    assertEquals(poLineTemplate.getRequester(), result.getRequester());
-    assertEquals(poLineTemplate.getSelector(), result.getSelector());
-    assertEquals(poLineTemplate.getInstanceId(), result.getInstanceId());
+    assertBasicFields(poLineTemplate, result);
+    assertContributors(poLineTemplate, result);
+    assertCost(poLineTemplate, result);
+    assertDetails(poLineTemplate, result);
 
     // Boolean flags
     assertEquals(poLineTemplate.getCheckinItems(), result.getCheckinItems());
@@ -1427,26 +1419,24 @@ class MosaicConverterTest {
     assertEquals(poLineTemplate.getPaymentStatus(), result.getPaymentStatus());
     assertEquals(poLineTemplate.getAcquisitionMethod(), result.getAcquisitionMethod());
     assertEquals(poLineTemplate.getClaimingInterval(), result.getClaimingInterval());
+  }
 
-    // Contributors
-    assertNotNull(result.getContributors());
-    assertEquals(poLineTemplate.getContributors().size(), result.getContributors().size());
-    assertEquals(poLineTemplate.getContributors().getFirst().getContributor(),
-      result.getContributors().getFirst().getContributor());
-    assertEquals(poLineTemplate.getContributors().getFirst().getContributorNameTypeId(),
-      result.getContributors().getFirst().getContributorNameTypeId());
+  private void assertBasicFields(PoLine poLineTemplate, PoLine result) {
+    // Basic fields
+    assertNotNull(result);
+    assertEquals(poLineTemplate.getTitleOrPackage(), result.getTitleOrPackage());
+    assertEquals(poLineTemplate.getEdition(), result.getEdition());
+    assertEquals(poLineTemplate.getPublisher(), result.getPublisher());
+    assertEquals(poLineTemplate.getPublicationDate(), result.getPublicationDate());
+    assertEquals(poLineTemplate.getOrderFormat(), result.getOrderFormat());
+    assertEquals(poLineTemplate.getSource(), result.getSource());
+    assertEquals(poLineTemplate.getReceiptDate(), result.getReceiptDate());
+    assertEquals(poLineTemplate.getRequester(), result.getRequester());
+    assertEquals(poLineTemplate.getSelector(), result.getSelector());
+    assertEquals(poLineTemplate.getInstanceId(), result.getInstanceId());
+  }
 
-    // Cost
-    assertNotNull(result.getCost());
-    assertEquals(poLineTemplate.getCost().getListUnitPrice(), result.getCost().getListUnitPrice());
-    assertEquals(poLineTemplate.getCost().getQuantityPhysical(), result.getCost().getQuantityPhysical());
-    assertEquals(poLineTemplate.getCost().getListUnitPriceElectronic(), result.getCost().getListUnitPriceElectronic());
-    assertEquals(poLineTemplate.getCost().getQuantityElectronic(), result.getCost().getQuantityElectronic());
-    assertEquals(poLineTemplate.getCost().getCurrency(), result.getCost().getCurrency());
-    assertEquals(poLineTemplate.getCost().getDiscountType(), result.getCost().getDiscountType());
-    assertEquals(poLineTemplate.getCost().getDiscount(), result.getCost().getDiscount());
-
-    // Details
+  private void assertDetails(PoLine poLineTemplate, PoLine result) {
     assertNotNull(result.getDetails());
     assertEquals(poLineTemplate.getDetails().getSubscriptionFrom(), result.getDetails().getSubscriptionFrom());
     assertEquals(poLineTemplate.getDetails().getSubscriptionTo(), result.getDetails().getSubscriptionTo());
@@ -1462,5 +1452,25 @@ class MosaicConverterTest {
       result.getDetails().getProductIds().getFirst().getProductIdType());
     assertEquals(poLineTemplate.getDetails().getProductIds().getFirst().getQualifier(),
       result.getDetails().getProductIds().getFirst().getQualifier());
+  }
+
+  private void assertContributors(PoLine poLineTemplate, PoLine result) {
+    assertNotNull(result.getContributors());
+    assertEquals(poLineTemplate.getContributors().size(), result.getContributors().size());
+    assertEquals(poLineTemplate.getContributors().getFirst().getContributor(),
+      result.getContributors().getFirst().getContributor());
+    assertEquals(poLineTemplate.getContributors().getFirst().getContributorNameTypeId(),
+      result.getContributors().getFirst().getContributorNameTypeId());
+  }
+
+  private void assertCost(PoLine poLineTemplate, PoLine result) {
+    assertNotNull(result.getCost());
+    assertEquals(poLineTemplate.getCost().getListUnitPrice(), result.getCost().getListUnitPrice());
+    assertEquals(poLineTemplate.getCost().getQuantityPhysical(), result.getCost().getQuantityPhysical());
+    assertEquals(poLineTemplate.getCost().getListUnitPriceElectronic(), result.getCost().getListUnitPriceElectronic());
+    assertEquals(poLineTemplate.getCost().getQuantityElectronic(), result.getCost().getQuantityElectronic());
+    assertEquals(poLineTemplate.getCost().getCurrency(), result.getCost().getCurrency());
+    assertEquals(poLineTemplate.getCost().getDiscountType(), result.getCost().getDiscountType());
+    assertEquals(poLineTemplate.getCost().getDiscount(), result.getCost().getDiscount());
   }
 }
