@@ -1,10 +1,10 @@
-# Use this file to define placeholder models for the API documentation.
-# These models are not used in the actual API implementation, as they are replaced with the
-# actual models using <schemaMappings> within the `openapi-generator-maven-plugin` of `pom.xml`.
+# Use this file to define models for the API documentation.
+# These models contain the complete property definitions based on the actual acq-models classes
+# but are replaced with the real generated models using <schemaMappings> within the
+# `openapi-generator-maven-plugin` of `pom.xml`.
 #
-# Such placeholders are required for GitHub Actions to pass api-lint checks.
-# Each placeholder model must have the same name as the actual model, and must contain at least
-# one property, so it is not recognized as a simple Object after generating the resource interfaces.
+# The property definitions here mirror the structure of the actual acq-models DTOs to ensure
+# accurate API documentation while maintaining the schema mapping approach for implementation.
 
 MosaicValidation:
   type: object
@@ -20,27 +20,168 @@ MosaicValidation:
 MosaicOrder:
   type: object
   properties:
-    placeholder:
+    id:
+      type: string
+      description: The UUID format string
+    title:
+      type: string
+      description: title of the material
+    assignedTo:
+      type: string
+      description: The UUID format string
+    contributors:
+      type: array
+      items:
+        type: object
+      description: list of contributors to the material
+    publicationDate:
+      type: string
+      description: date (year) of the material's publication
+    edition:
+      type: string
+      description: edition of the material
+    details:
+      type: object
+      description: details about this purchase order line
+    requesterName:
+      type: string
+      description: who requested this purchase order line
+    selectorName:
+      type: string
+      description: who selected this material
+    notes:
+      type: array
+      items:
+        type: string
+      description: free-form notes associated with this mosaic order
+    poLineDescription:
+      type: string
+      description: description for poLine
+    internalNote:
+      type: string
+      description: Internal note for this purchase order line
+    renewalNote:
+      type: string
+      description: Renewal note for this purchase order line
+    referenceNumbers:
+      type: object
+      description: Collection of reference number items
+    listUnitPrice:
+      type: number
+      description: The per-item list price for physical or resources of 'Other' order format
+    listUnitPriceElectronic:
+      type: number
+      description: The e-resource per-item list price
+    currency:
+      type: string
+      description: An ISO currency code
+    quantityPhysical:
+      type: integer
+      description: Quantity of physical items or resources of 'Other' order format
+    quantityElectronic:
+      type: integer
+      description: Quantity of electronic items in this purchase order line
+    locations:
+      type: array
+      items:
+        type: object
+      description: Location records for this purchase order line
+    fundDistribution:
+      type: array
+      items:
+        type: object
+      description: Fund distribution records for this purchase order line
+    acquisitionMethod:
+      type: string
+      description: UUID of the acquisition method for this purchase order line
+    acqUnitIds:
+      type: array
+      items:
+        type: string
+      description: acquisition unit ids associated with this purchase order
+    billTo:
+      type: string
+      description: UUID for the billing address
+    shipTo:
+      type: string
+      description: UUID for the shipping address
+    vendor:
+      type: string
+      description: UUID for the vendor organization
+    workflowStatus:
+      type: string
+      description: the workflow status for this purchase order
+    format:
+      type: string
+      description: Order format (Physical Resource, Electronic Resource, P/E mix, Other)
+    physical:
+      type: object
+      description: details of this purchase order line relating to physical materials
+    eresource:
+      type: object
+      description: eresource-related details of this purchase order line
+    checkinItems:
       type: boolean
-      default: true
+      description: receiving workflow flag
+    customFields:
+      type: array
+      items:
+        type: object
+      description: Mosaic custom fields for either the PO or POL
+    metadata:
+      type: object
+      description: Metadata about creation and changes to records
 
 MosaicOrderRequest:
   type: object
   properties:
-    placeholder:
-      type: boolean
-      default: true
+    orderTemplateId:
+      type: string
+      description: The UUID format string
+    orderData:
+      $ref: '#/MosaicOrder'
+      description: the mosaic order
+  required:
+    - orderData
 
 MosaicConfiguration:
   type: object
   properties:
-    placeholder:
-      type: boolean
-      default: true
+    id:
+      type: string
+      description: The UUID format string
+    defaultTemplateId:
+      type: string
+      description: The UUID format string
+    metadata:
+      type: object
+      description: Metadata about creation and changes to records
+  required:
+    - id
+    - defaultTemplateId
 
 OrderTemplate:
   type: object
   properties:
-    placeholder:
-      type: boolean
-      default: true
+    id:
+      type: string
+      description: The UUID format string
+    templateName:
+      type: string
+      description: The order template name
+    templateCode:
+      type: string
+      description: The order template code
+    templateDescription:
+      type: string
+      description: The order template description
+    hiddenFields:
+      type: object
+      description: Fields for hidden from end user
+    categoryIds:
+      type: array
+      items:
+        type: string
+      description: UUIDs of order template categories
+  required:
+    - templateName

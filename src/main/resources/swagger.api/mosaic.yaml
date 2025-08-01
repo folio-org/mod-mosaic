@@ -10,7 +10,9 @@ paths:
   /validate:
     description: Validation API
     get:
-      summary: Validate a request coming from edge-orders by checking for a valid API Key and User-attached permissions
+      summary: Validate API key connectivity from edge-orders
+      description: Simple validation endpoint called by edge-orders to check API key correctness and verify that it can make calls to other endpoints.
+        This endpoint has no business logic and is used purely for connectivity testing.
       operationId: getValidation
       responses:
         '200':
