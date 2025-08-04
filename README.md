@@ -79,9 +79,6 @@ at the [FOLIO issue tracker](https://dev.folio.org/guidelines/issue-tracker/).
 
 This module's [API documentation](https://dev.folio.org/reference/api/#mod-mosaic).
 
-### Module Documentation
-This module's [Documentation](doc/documentation.md)
-
 ### Code analysis
 
 [SonarQube analysis](https://sonarcloud.io/dashboard?id=org.folio%3Amod-mosaic).
