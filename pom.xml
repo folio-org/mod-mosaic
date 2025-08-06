@@ -48,7 +48,7 @@
 
     <!-- Folio dependencies properties -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <folio-spring-base.version>9.1.0</folio-spring-base.version>
+    <folio-spring-base.version>10.0.0-SNAPSHOT</folio-spring-base.version>
 
     <!-- Other dependencies -->
     <lombok.version>1.18.38</lombok.version>
