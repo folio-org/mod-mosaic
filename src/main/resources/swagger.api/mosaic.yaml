@@ -8,11 +8,12 @@ servers:
 paths:
   ### Validation ###
   /validate:
-    description: Validation API
+    description: Connectivity validation API
     get:
-      summary: Validate API key connectivity from edge-orders
-      description: Simple validation endpoint called by edge-orders to check API key correctness and verify that it can make calls to other endpoints.
-        This endpoint has no business logic and is used purely for connectivity testing.
+      summary: No-op API to validate connectivity
+      description: >
+        Simple endpoint called by edge-orders to check API key correctness and verify that it can make calls to other endpoints.
+        This endpoint has no business logic, always responds with 200 {"status":"SUCCESS"}, and is used purely for connectivity testing.
       operationId: getValidation
       responses:
         '200':
