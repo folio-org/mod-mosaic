@@ -32,6 +32,7 @@
           ],
           "modulePermissions": [
             "orders.order-templates.collection.get",
+            "orders.item.approve",
             "orders.item.post"
           ]
         },
