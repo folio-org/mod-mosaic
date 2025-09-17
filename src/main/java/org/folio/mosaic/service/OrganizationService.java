@@ -1,6 +1,7 @@
 package org.folio.mosaic.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.folio.mosaic.client.OrganizationsClient;
 import org.folio.rest.acq.model.orgs.Organization;
 import org.folio.rest.acq.model.orgs.OrganizationCollection;
@@ -17,7 +18,7 @@ public class OrganizationService {
   }
 
   public Organization findByCode(String organizationCode) {
-    String query = String.format("code=%s", organizationCode);
+    String query = String.format("code==%s", organizationCode);
     OrganizationCollection organizations = organizationsClient.getOrganizations(query);
     if (organizations.getOrganizations().size() == 1) {
       return organizations.getOrganizations().getFirst();

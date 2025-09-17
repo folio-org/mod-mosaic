@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient("organizations")
 public interface OrganizationsClient {
 
-  @GetMapping
+  @GetMapping(value = "/organizations")
   OrganizationCollection getOrganizations(@RequestParam("query") String query);
 
-  @PostMapping
-  Organization createOrganization(Organization organization);
+  @PostMapping(value = "/organizations")
+  void createOrganization(Organization organization);
 }

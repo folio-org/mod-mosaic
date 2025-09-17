@@ -15,7 +15,6 @@
   "approved" : true,
   "acqUnitIds" : [ ],
   "reEncumber" : true,
-  "billTo" : "103c7625-0142-42f9-896e-cb51dd94a322",
   "eresource" : {
     "materialType" : "615b8413-82d5-4203-aa6e-e37984cb5ac3",
     "createInventory" : "Instance, Holding"

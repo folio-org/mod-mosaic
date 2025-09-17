@@ -29,7 +29,7 @@ public class TemplateInitService {
   public void createDefaultTemplateIfNeeded() {
     Pair<CompositePurchaseOrder, PoLine> orderTemplate = ordersService.getOrderTemplateById(DEFAULT_TEMPLATE_ID);
     if (orderTemplate != null) {
-      log.info("Default order template with ID {} already exists, skipping creation", DEFAULT_TEMPLATE_ID);
+      log.info("createDefaultTemplateIfNeeded:: Default order template with ID {} already exists, skipping creation", DEFAULT_TEMPLATE_ID);
       return;
     }
 
@@ -37,13 +37,14 @@ public class TemplateInitService {
       OrderTemplate defaultTemplate = readDefaultOrderTemplate();
       Organization mosaicOrganization = organizationService.findByCode(MOSAIC_ORGANIZATION_CODE);
       if (mosaicOrganization == null) {
+        log.info("createDefaultTemplateIfNeeded:: No default organization with code MOSAIC exists, creating new one");
         mosaicOrganization = readDefaultOrganization();
         organizationService.create(mosaicOrganization);
       }
       defaultTemplate.getAdditionalProperties().put(VENDOR_TEMPLATE_FIELD, mosaicOrganization.getId());
       ordersService.createOrderTemplate(defaultTemplate);
-      log.info("Created default order template with ID: {}", DEFAULT_TEMPLATE_ID);
-    } catch (IOException e) {
+      log.info("createDefaultTemplateIfNeeded:: Created default order template with ID: {}", DEFAULT_TEMPLATE_ID);
+    } catch (Exception e) {
       log.error("Failed to read default order template from file", e);
       throw new TemplateInitializationException("Failed to create default order template", e);
     }

@@ -51,7 +51,6 @@
       "ftpConnMode" : "Active"
     }
   },
-  "interfaces" : [ "825edd79-01b5-4535-aabb-559c96373b7e" ],
   "accounts" : [ {
     "name" : "Cairn University",
     "accountNo" : "M100207",
