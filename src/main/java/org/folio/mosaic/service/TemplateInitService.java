@@ -45,8 +45,8 @@ public class TemplateInitService {
       ordersService.createOrderTemplate(defaultTemplate);
       log.info("createDefaultTemplateIfNeeded:: Created default order template with ID: {}", DEFAULT_TEMPLATE_ID);
     } catch (Exception e) {
-      log.error("Failed to read default order template from file", e);
-      throw new TemplateInitializationException("Failed to create default order template", e);
+      log.error("Failed to setup default order template", e);
+      throw new TemplateInitializationException("Failed to setup default order template", e);
     }
   }
 

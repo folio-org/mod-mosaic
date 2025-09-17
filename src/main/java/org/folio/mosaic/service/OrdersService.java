@@ -63,7 +63,7 @@ public class OrdersService {
   @SneakyThrows
   public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
     try (var response = ordersClient.getOrderTemplateAsResponse(templateId)) {
-      return responseToOrderAndPoLineObjects(response, templateId);
+      return responseToOrderAndPoLineObjects(response);
     }
   }
 
@@ -71,8 +71,7 @@ public class OrdersService {
     ordersClient.createOrderTemplate(orderTemplate);
   }
 
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(Response response,
-                                                                               String templateId) throws IOException {
+  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(Response response) throws IOException {
     try (var inputStream = response.body().asInputStream()) {
       var byteArrayOutputStream = new ByteArrayOutputStream();
       inputStream.transferTo(byteArrayOutputStream);
