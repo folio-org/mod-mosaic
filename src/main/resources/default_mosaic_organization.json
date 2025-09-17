@@ -1,0 +1,67 @@
+{
+  "id" : "3b8c1fab-27f8-4b70-bb52-8fbab185e6a4",
+  "name" : "Mosaic",
+  "code" : "MOSAIC",
+  "exportToAccounting" : true,
+  "status" : "Active",
+  "organizationTypes" : [ ],
+  "language" : "eng",
+  "aliases" : [ {
+    "value" : "EBSCO",
+    "description" : "Parent Company"
+  }, {
+    "value" : "GOBI Library Solutions"
+  } ],
+  "addresses" : [ {
+    "addressLine1" : "10 Estes Street",
+    "city" : "Ipswich",
+    "stateRegion" : "MA",
+    "zipCode" : "01938",
+    "country" : "USA",
+    "isPrimary" : true,
+    "categories" : [ "ab760714-4185-4859-b0dd-3e72f01c5c52" ],
+    "language" : "eng"
+  } ],
+  "phoneNumbers" : [ {
+    "phoneNumber" : "+1 978 356 6500",
+    "categories" : [ "f52ceea4-8e35-404b-9ebd-5c7db6613195" ],
+    "type" : "Office",
+    "isPrimary" : true,
+    "language" : "eng"
+  } ],
+  "emails" : [ ],
+  "urls" : [ ],
+  "contacts" : [ ],
+  "privilegedContacts" : [ ],
+  "agreements" : [ ],
+  "erpCode" : "34523425",
+  "vendorCurrencies" : [ "USD" ],
+  "claimingInterval" : 30,
+  "expectedActivationInterval" : 30,
+  "expectedInvoiceInterval" : 30,
+  "renewalActivationInterval" : 30,
+  "subscriptionInterval" : 30,
+  "expectedReceiptInterval" : 30,
+  "edi" : {
+    "vendorEdiType" : "31B/US-SAN",
+    "libEdiType" : "31B/US-SAN",
+    "ediFtp" : {
+      "ftpFormat" : "SFTP",
+      "ftpMode" : "ASCII",
+      "ftpConnMode" : "Active"
+    }
+  },
+  "interfaces" : [ "825edd79-01b5-4535-aabb-559c96373b7e" ],
+  "accounts" : [ {
+    "name" : "Cairn University",
+    "accountNo" : "M100207",
+    "appSystemNo" : "1234561",
+    "paymentMethod" : "EFT",
+    "accountStatus" : "Active",
+    "libraryCode" : "11111",
+    "libraryEdiCode" : "12345678",
+    "acqUnitIds" : [ ]
+  } ],
+  "isVendor" : true,
+  "isDonor" : false
+}

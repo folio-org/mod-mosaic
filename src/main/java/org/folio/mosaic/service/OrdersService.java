@@ -40,7 +40,7 @@ public class OrdersService {
 
     log.info("createOrder:: Creating mosaic order with title: {} and requestTemplateId: {}", mosaicOrder.getTitle(),
       requestTemplateId);
-    var templatePair = getOrderTemplatePair(mosaicOrder.getTitle(), requestTemplateId);
+    var templatePair = getOrderTemplatePair(requestTemplateId);
     var compositePurchaseOrder = orderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var createdOrder = ordersClient.createOrder(compositePurchaseOrder);
 
@@ -48,16 +48,30 @@ public class OrdersService {
   }
 
   @SneakyThrows
-  private Pair<CompositePurchaseOrder, PoLine> getOrderTemplatePair(String title, String requestTemplateId) {
+  private Pair<CompositePurchaseOrder, PoLine> getOrderTemplatePair(String requestTemplateId) {
     var templateId = StringUtils.isNotBlank(requestTemplateId)
       ? requestTemplateId : configurationService.getConfiguration().getDefaultTemplateId();
 
+    Pair<CompositePurchaseOrder, PoLine> pair = getOrderTemplateById(templateId);
+    if (pair == null) {
+      log.warn("getOrderTemplatePair:: No template or default template was found for mosaicOrder with templateId: {}", templateId);
+      throw new ResourceNotFoundException(OrderTemplate.class);
+    }
+    return pair;
+  }
+
+  @SneakyThrows
+  public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
     try (var response = ordersClient.getOrderTemplateAsResponse(templateId)) {
-      return responseToOrderAndPoLineObjects(title, response, templateId);
+      return responseToOrderAndPoLineObjects(response, templateId);
     }
   }
 
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(String title, Response response,
+  public void createOrderTemplate(OrderTemplate orderTemplate) {
+    ordersClient.createOrderTemplate(orderTemplate);
+  }
+
+  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(Response response,
                                                                                String templateId) throws IOException {
     try (var inputStream = response.body().asInputStream()) {
       var byteArrayOutputStream = new ByteArrayOutputStream();
@@ -67,8 +81,7 @@ public class OrdersService {
       var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
       var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
       if (order == null || order.getId() == null) {
-        log.warn("responseToOrderAndPoLineObjects:: No template or default template was found for mosaicOrder: {} with id: {}", title, templateId);
-        throw new ResourceNotFoundException(OrderTemplate.class);
+        return null;
       }
 
       return Pair.of(order, poLine);

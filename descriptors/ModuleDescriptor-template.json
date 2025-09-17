@@ -31,7 +31,7 @@
             "mosaic.orders.item.post"
           ],
           "modulePermissions": [
-            "orders.order-templates.collection.get",
+            "orders.order-templates.item.get",
             "orders.item.approve",
             "orders.item.post"
           ]
@@ -45,26 +45,10 @@
           "modulePermissions": []
         },
         {
-          "methods": ["POST"],
-          "pathPattern": "/mosaic/configuration",
-          "permissionsRequired": [
-            "mosaic.configuration.item.post"
-          ],
-          "modulePermissions": []
-        },
-        {
           "methods": ["PUT"],
           "pathPattern": "/mosaic/configuration",
           "permissionsRequired": [
             "mosaic.configuration.item.put"
-          ],
-          "modulePermissions": []
-        },
-        {
-          "methods": ["DELETE"],
-          "pathPattern": "/mosaic/configuration",
-          "permissionsRequired": [
-            "mosaic.configuration.item.delete"
           ],
           "modulePermissions": []
         }
@@ -79,6 +63,10 @@
           "methods": ["POST"],
           "pathPattern": "/_/tenant",
           "modulePermissions": [
+            "orders.order-templates.item.get",
+            "orders.order-templates.item.post",
+            "organizations.organizations.collection.get",
+            "organizations.organizations.item.post"
           ]
         }, {
           "methods": ["GET", "DELETE"],
@@ -109,9 +97,7 @@
       "description": "All permissions for mosaic configuration API",
       "subPermissions": [
         "mosaic.configuration.item.get",
-        "mosaic.configuration.item.post",
-        "mosaic.configuration.item.put",
-        "mosaic.configuration.item.delete"
+        "mosaic.configuration.item.put"
       ]
     },
     {
@@ -125,19 +111,9 @@
       "description": "Read Mosaic configuration"
     },
     {
-      "permissionName": "mosaic.configuration.item.post",
-      "displayName": "post mosaic configuration",
-      "description": "Create Mosaic configuration"
-    },
-    {
       "permissionName": "mosaic.configuration.item.put",
       "displayName": "put mosaic configuration",
       "description": "Update Mosaic configuration"
-    },
-    {
-      "permissionName": "mosaic.configuration.item.delete",
-      "displayName": "delete mosaic configuration",
-      "description": "Delete Mosaic configuration"
     }
   ],
   "launchDescriptor": {
