@@ -44,7 +44,7 @@ class OrganizationServiceTest {
   void testFindByCode_WhenOrganizationExists_ShouldReturnOrganization() {
     // Given
     var organizationCode = "MOSAIC";
-    var expectedQuery = "code=MOSAIC";
+    var expectedQuery = "code==MOSAIC";
 
     var organization = new Organization();
     organization.setId("org-456");
@@ -70,7 +70,7 @@ class OrganizationServiceTest {
   void testFindByCode_WhenOrganizationDoesNotExist_ShouldReturnNull() {
     // Given
     var organizationCode = "NON_EXISTENT";
-    var expectedQuery = "code=NON_EXISTENT";
+    var expectedQuery = "code==NON_EXISTENT";
 
     var organizationCollection = new OrganizationCollection();
     organizationCollection.setOrganizations(List.of()); // Empty list
@@ -90,7 +90,7 @@ class OrganizationServiceTest {
   void testFindByCode_WhenMultipleOrganizationsFound_ShouldReturnNull() {
     // Given
     var organizationCode = "DUPLICATE";
-    var expectedQuery = "code=DUPLICATE";
+    var expectedQuery = "code==DUPLICATE";
 
     var organization1 = new Organization();
     organization1.setId("org-111");
@@ -120,7 +120,7 @@ class OrganizationServiceTest {
   void testFindByCode_WithSpecialCharacters_ShouldFormatQueryCorrectly() {
     // Given
     var organizationCode = "ORG_WITH-SPECIAL.CHARS";
-    var expectedQuery = "code=ORG_WITH-SPECIAL.CHARS";
+    var expectedQuery = "code==ORG_WITH-SPECIAL.CHARS";
 
     var organization = new Organization();
     organization.setId("org-special");
