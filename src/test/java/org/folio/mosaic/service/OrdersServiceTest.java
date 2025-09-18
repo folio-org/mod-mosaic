@@ -1,6 +1,7 @@
 package org.folio.mosaic.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -20,6 +21,7 @@ import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.mosaic.MosaicOrderRequest;
 import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,133 +43,165 @@ class OrdersServiceTest {
   @Test
   @SuppressWarnings("unchecked")
   void testCreateOrderProvidedTemplateId() throws Exception {
+    // Given
     var templateId = "templateId";
-    var mosaicOrder = new MosaicOrder();
-    mosaicOrder.setTitle("Test Order");
-    var orderRequest = new MosaicOrderRequest();
-    orderRequest.setOrderTemplateId(templateId);
-    orderRequest.setMosaicOrder(mosaicOrder);
-
-    var response = mock(Response.class);
-    var body = mock(Response.Body.class);
-    when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(response);
-    when(response.body()).thenReturn(body);
-    var dummyBytes = "dummy".getBytes();
-    var inputStream = new ByteArrayInputStream(dummyBytes);
-    when(body.asInputStream()).thenReturn(inputStream);
+    var orderRequest = createOrderRequest(templateId, "Test Order");
 
     var compositeTemplate = new CompositePurchaseOrder();
     compositeTemplate.setId("orderId");
     var poLineTemplate = new PoLine();
     poLineTemplate.setId("poLineId");
 
-    when(objectMapper.readValue(any(byte[].class), any(TypeReference.class)))
-      .thenAnswer(invocation -> {
-        var typeRef = invocation.getArgument(1, TypeReference.class);
-        if (typeRef.getType().getTypeName().contains("CompositePurchaseOrder")) {
-          return compositeTemplate;
-        } else {
-          return poLineTemplate;
-        }
-      });
+    setupMockResponse(templateId, compositeTemplate, poLineTemplate);
 
     var expectedCompositeOrder = new CompositePurchaseOrder();
     var poLine = new PoLine();
     poLine.setPoLineNumber("POL12345");
     expectedCompositeOrder.setPoLines(List.of(poLine));
-    when(orderConverter.convertToCompositePurchaseOrder(eq(mosaicOrder), any())).thenReturn(expectedCompositeOrder);
+    when(orderConverter.convertToCompositePurchaseOrder(eq(orderRequest.getMosaicOrder()), any())).thenReturn(expectedCompositeOrder);
     when(ordersClient.createOrder(expectedCompositeOrder)).thenReturn(expectedCompositeOrder);
 
+    // When
     var result = ordersService.createOrder(orderRequest);
-    assertEquals("POL12345", result);
 
+    // Then
+    assertEquals("POL12345", result);
     verify(ordersClient).getOrderTemplateAsResponse(templateId);
-    verify(orderConverter).convertToCompositePurchaseOrder(eq(mosaicOrder), any());
+    verify(orderConverter).convertToCompositePurchaseOrder(eq(orderRequest.getMosaicOrder()), any());
     verify(ordersClient).createOrder(expectedCompositeOrder);
   }
 
   @Test
   @SuppressWarnings("unchecked")
   void testCreateOrderDefaultTemplate() throws Exception {
+    // Given
     var defaultTemplateId = "defaultTemplate";
-    var mosaicOrder = new MosaicOrder();
-    mosaicOrder.setTitle("Default Order");
-    var orderRequest = new MosaicOrderRequest();
-    orderRequest.setMosaicOrder(mosaicOrder);
+    var orderRequest = createOrderRequest(null, "Default Order"); // null templateId to use default
 
     when(configurationService.getConfiguration()).thenReturn(new MosaicConfiguration().withDefaultTemplateId(defaultTemplateId));
-
-    var response = mock(Response.class);
-    var body = mock(Response.Body.class);
-    when(ordersClient.getOrderTemplateAsResponse(defaultTemplateId)).thenReturn(response);
-    when(response.body()).thenReturn(body);
-    var dummyBytes = "dummy".getBytes();
-    var inputStream = new ByteArrayInputStream(dummyBytes);
-    when(body.asInputStream()).thenReturn(inputStream);
 
     var compositeTemplate = new CompositePurchaseOrder();
     compositeTemplate.setId("orderId");
     var poLineTemplate = new PoLine();
     poLineTemplate.setId("poLineId");
 
-    when(objectMapper.readValue(any(byte[].class), any(TypeReference.class)))
-      .thenAnswer(invocation -> {
-        var typeRef = invocation.getArgument(1, TypeReference.class);
-        if (typeRef.getType().getTypeName().contains("CompositePurchaseOrder")) {
-          return compositeTemplate;
-        } else {
-          return poLineTemplate;
-        }
-      });
+    setupMockResponse(defaultTemplateId, compositeTemplate, poLineTemplate);
 
     var expectedCompositeOrder = new CompositePurchaseOrder();
     var poLine = new PoLine();
     poLine.setPoLineNumber("POL12345");
     expectedCompositeOrder.setPoLines(List.of(poLine));
-    when(orderConverter.convertToCompositePurchaseOrder(eq(mosaicOrder), any())).thenReturn(expectedCompositeOrder);
+    when(orderConverter.convertToCompositePurchaseOrder(eq(orderRequest.getMosaicOrder()), any())).thenReturn(expectedCompositeOrder);
     when(ordersClient.createOrder(expectedCompositeOrder)).thenReturn(expectedCompositeOrder);
 
+    // When
     var result = ordersService.createOrder(orderRequest);
-    assertEquals("POL12345", result);
 
+    // Then
+    assertEquals("POL12345", result);
     verify(configurationService).getConfiguration();
     verify(ordersClient).getOrderTemplateAsResponse(defaultTemplateId);
-    verify(orderConverter).convertToCompositePurchaseOrder(eq(mosaicOrder), any());
+    verify(orderConverter).convertToCompositePurchaseOrder(eq(orderRequest.getMosaicOrder()), any());
     verify(ordersClient).createOrder(expectedCompositeOrder);
   }
 
   @Test
   @SuppressWarnings("unchecked")
   void testCreateOrderThrowsResourceNotFoundException() throws Exception {
+    // Given
     var templateId = "templateId";
-    var mosaicOrder = new MosaicOrder();
-    mosaicOrder.setTitle("Test Order");
-    var orderRequest = new MosaicOrderRequest();
-    orderRequest.setOrderTemplateId(templateId);
-    orderRequest.setMosaicOrder(mosaicOrder);
+    var orderRequest = createOrderRequest(templateId, "Test Order");
 
-    var response = mock(Response.class);
-    var body = mock(Response.Body.class);
-    when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(response);
-    when(response.body()).thenReturn(body);
-    var dummyBytes = "dummy".getBytes();
-    var inputStream = new ByteArrayInputStream(dummyBytes);
-    when(body.asInputStream()).thenReturn(inputStream);
+    // Setup mock to return order without ID (triggers ResourceNotFoundException)
+    var compositeTemplateWithoutId = new CompositePurchaseOrder(); // id is null
+    var poLineTemplate = new PoLine();
+    setupMockResponse(templateId, compositeTemplateWithoutId, poLineTemplate);
 
-    // Return an order without an id to trigger ResourceNotFoundException.
-    when(objectMapper.readValue(any(byte[].class), any(TypeReference.class)))
-      .thenAnswer(invocation -> {
-        var typeRef = invocation.getArgument(1, TypeReference.class);
-        if (typeRef.getType().getTypeName().contains("CompositePurchaseOrder")) {
-          return new CompositePurchaseOrder();
-        } else {
-          return new PoLine();
-        }
-      });
-
+    // When & Then
     assertThrows(ResourceNotFoundException.class, () -> ordersService.createOrder(orderRequest));
 
     verify(ordersClient).getOrderTemplateAsResponse(templateId);
     verify(objectMapper, atLeast(2)).readValue(any(byte[].class), any(TypeReference.class));
+  }
+
+  @Test
+  void testCreateOrderTemplate() {
+    // Given
+    var orderTemplate = new OrderTemplate();
+    orderTemplate.setId("template-123");
+    orderTemplate.setTemplateName("Test Template");
+    orderTemplate.setTemplateDescription("A test template for orders");
+
+    // When
+    ordersService.createOrderTemplate(orderTemplate);
+
+    // Then
+    verify(ordersClient).createOrderTemplate(orderTemplate);
+  }
+
+  @Test
+  void testGetOrderTemplateById_WhenTemplateExists_ShouldReturnTemplate() throws Exception {
+    // Given
+    var templateId = "template-123";
+    var compositeTemplate = new CompositePurchaseOrder();
+    compositeTemplate.setId("order-123");
+    var poLineTemplate = new PoLine();
+    poLineTemplate.setId("poline-123");
+
+    setupMockResponse(templateId, compositeTemplate, poLineTemplate);
+
+    // When
+    var result = ordersService.getOrderTemplateById(templateId);
+
+    // Then
+    assertEquals(compositeTemplate, result.getLeft());
+    assertEquals(poLineTemplate, result.getRight());
+    verify(ordersClient).getOrderTemplateAsResponse(templateId);
+  }
+
+  @Test
+  void testGetOrderTemplateById_WhenTemplateDoesNotExist_ShouldReturnNull() throws Exception {
+    // Given
+    var templateId = "non-existent-template";
+    var compositeTemplateWithoutId = new CompositePurchaseOrder(); // id is null by default
+    var poLineTemplate = new PoLine();
+
+    setupMockResponse(templateId, compositeTemplateWithoutId, poLineTemplate);
+
+    // When
+    var result = ordersService.getOrderTemplateById(templateId);
+
+    // Then
+    assertNull(result);
+    verify(ordersClient).getOrderTemplateAsResponse(templateId);
+  }
+
+  // Helper method to create a standard order request
+  private MosaicOrderRequest createOrderRequest(String templateId, String title) {
+    var mosaicOrder = new MosaicOrder();
+    mosaicOrder.setTitle(title);
+    var orderRequest = new MosaicOrderRequest();
+    orderRequest.setOrderTemplateId(templateId);
+    orderRequest.setMosaicOrder(mosaicOrder);
+    return orderRequest;
+  }
+
+  // Helper method to setup mock response with template objects
+  private void setupMockResponse(String templateId, CompositePurchaseOrder order, PoLine poLine) throws Exception {
+    var response = mock(Response.class);
+    var body = mock(Response.Body.class);
+    when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(response);
+    when(response.body()).thenReturn(body);
+    when(body.asInputStream()).thenReturn(new ByteArrayInputStream("dummy".getBytes()));
+
+    when(objectMapper.readValue(any(byte[].class), any(TypeReference.class)))
+      .thenAnswer(invocation -> {
+        var typeRef = invocation.getArgument(1, TypeReference.class);
+        if (typeRef.getType().getTypeName().contains("CompositePurchaseOrder")) {
+          return order;
+        } else {
+          return poLine;
+        }
+      });
   }
 }

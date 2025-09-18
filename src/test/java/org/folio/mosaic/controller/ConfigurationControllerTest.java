@@ -3,15 +3,12 @@ package org.folio.mosaic.controller;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.folio.mosaic.support.CopilotGenerated;
-import org.folio.mosaic.exception.ResourceAlreadyExistException;
 import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.mosaic.service.ConfigurationService;
 import org.folio.mosaic.support.JsonUtils;
@@ -64,38 +61,6 @@ class ConfigurationControllerTest {
   }
 
   @Test
-  void testSaveConfiguration() throws Exception {
-    val configuration = new MosaicConfiguration();
-    val savedConfiguration = new MosaicConfiguration();
-    when(configurationService.saveConfiguration(configuration)).thenReturn(savedConfiguration);
-
-    mockMvc.perform(post("/mosaic/configuration")
-        .contentType("application/json")
-        .content(JsonUtils.toJson(configuration)))
-      .andExpect(status().isCreated())
-      .andExpect(content().json(JsonUtils.toJson(savedConfiguration)));
-
-    verify(configurationService).saveConfiguration(configuration);
-  }
-
-  @Test
-  void testSaveConfigurationAlreadyExists() throws Exception {
-    val configuration = new MosaicConfiguration();
-    val expectedException = new ResourceAlreadyExistException(MosaicConfiguration.class);
-    val expectedError = ErrorUtils.getErrors(expectedException.getMessage(), ErrorCode.ALREADY_EXISTS_ERROR);
-
-    when(configurationService.saveConfiguration(configuration)).thenThrow(expectedException);
-
-    mockMvc.perform(post("/mosaic/configuration")
-        .contentType("application/json")
-        .content(JsonUtils.toJson(configuration)))
-      .andExpect(status().isConflict())
-      .andExpect(content().json(JsonUtils.toJson(expectedError)));
-
-    verify(configurationService).saveConfiguration(configuration);
-  }
-
-  @Test
   void testUpdateConfiguration() throws Exception {
     val configuration = new MosaicConfiguration();
 
@@ -123,13 +88,4 @@ class ConfigurationControllerTest {
 
     verify(configurationService).updateConfiguration(configuration);
   }
-
-  @Test
-  void testDeleteConfiguration() throws Exception {
-    mockMvc.perform(delete("/mosaic/configuration"))
-      .andExpect(status().isNoContent());
-
-    verify(configurationService).deleteConfiguration();
-  }
-
 }

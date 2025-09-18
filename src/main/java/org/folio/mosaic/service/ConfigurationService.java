@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import org.folio.mosaic.domain.entity.MosaicConfigurationEntity;
 import org.folio.mosaic.domain.mapper.MosaicConfigurationMapper;
-import org.folio.mosaic.exception.ResourceAlreadyExistException;
 import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.mosaic.repository.ConfigurationRepository;
 import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
@@ -28,24 +27,10 @@ public class ConfigurationService {
   }
 
   @Transactional
-  public MosaicConfiguration saveConfiguration(MosaicConfiguration configuration) {
-    validateConfigurationNotExists();
-    if (configuration.getId() == null) {
-      configuration.setId(UUID.randomUUID().toString());
-    }
-    val entity = configurationRepository.save(mapper.toEntity(configuration));
-    return mapper.toDto(entity);
-  }
-
-  @Transactional
   public void updateConfiguration(MosaicConfiguration configuration) {
     val existingConfiguration = getConfigurationEntity();
     existingConfiguration.setDefaultTemplateId(UUID.fromString(configuration.getDefaultTemplateId()));
     configurationRepository.save(existingConfiguration);
-  }
-
-  public void deleteConfiguration() {
-    configurationRepository.deleteAll();
   }
 
   private MosaicConfigurationEntity getConfigurationEntity() {
@@ -53,11 +38,4 @@ public class ConfigurationService {
       .findFirst()
       .orElseThrow(() -> new ResourceNotFoundException(MosaicConfigurationEntity.class));
   }
-
-  private void validateConfigurationNotExists() {
-    if (configurationRepository.count() != 0) {
-      throw new ResourceAlreadyExistException(MosaicConfigurationEntity.class);
-    }
-  }
-
 }

@@ -2,6 +2,7 @@ package org.folio.mosaic.client;
 
 import feign.Response;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,4 +17,7 @@ public interface OrdersClient {
 
   @GetMapping(value = "/order-templates/{templateId}")
   Response getOrderTemplateAsResponse(@PathVariable String templateId);
+
+  @PostMapping("/order-templates")
+  void createOrderTemplate(OrderTemplate template);
 }

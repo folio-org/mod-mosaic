@@ -21,4 +21,13 @@
     </createTable>
   </changeSet>
 
+  <changeSet id="MODMO-19" author="serhii_nosko">
+    <insert tableName="mosaic_configuration">
+      <column name="id" value="94a2606d-72ef-4b25-a121-b8da4ef81884"/>
+      <column name="default_template_id" value="2e1bbcf9-dbef-45d6-b496-cff85a0a6d80"/>
+      <column name="created_by" value="00000000-0000-0000-0000-000000000000"/>
+      <column name="updated_by" value="00000000-0000-0000-0000-000000000000"/>
+    </insert>
+  </changeSet>
+
 </databaseChangeLog>

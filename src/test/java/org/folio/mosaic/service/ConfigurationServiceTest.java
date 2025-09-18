@@ -12,7 +12,6 @@ import java.util.UUID;
 import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.mosaic.domain.entity.MosaicConfigurationEntity;
 import org.folio.mosaic.domain.mapper.MosaicConfigurationMapper;
-import org.folio.mosaic.exception.ResourceAlreadyExistException;
 import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.mosaic.repository.ConfigurationRepository;
 import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
@@ -57,37 +56,6 @@ class ConfigurationServiceTest {
   }
 
   @Test
-  void testSaveConfiguration() {
-    MosaicConfiguration configuration = new MosaicConfiguration();
-    MosaicConfigurationEntity entity = new MosaicConfigurationEntity();
-    MosaicConfigurationEntity savedEntity = new MosaicConfigurationEntity();
-    MosaicConfiguration dto = new MosaicConfiguration();
-
-    when(configurationRepository.count()).thenReturn(0L);
-    when(mapper.toEntity(configuration)).thenReturn(entity);
-    when(configurationRepository.save(entity)).thenReturn(savedEntity);
-    when(mapper.toDto(savedEntity)).thenReturn(dto);
-
-    MosaicConfiguration result = configurationService.saveConfiguration(configuration);
-
-    assertEquals(dto, result);
-    verify(configurationRepository).count();
-    verify(configurationRepository).save(entity);
-    verify(mapper).toEntity(configuration);
-    verify(mapper).toDto(savedEntity);
-  }
-
-  @Test
-  void testSaveConfigurationAlreadyExists() {
-    when(configurationRepository.count()).thenReturn(1L);
-
-    MosaicConfiguration configuration = new MosaicConfiguration();
-
-    assertThrows(ResourceAlreadyExistException.class, () -> configurationService.saveConfiguration(configuration));
-    verify(configurationRepository).count();
-  }
-
-  @Test
   void testUpdateConfiguration() {
     MosaicConfiguration configuration = new MosaicConfiguration();
     configuration.setDefaultTemplateId(UUID.randomUUID().toString());
@@ -111,12 +79,4 @@ class ConfigurationServiceTest {
     assertThrows(ResourceNotFoundException.class, () -> configurationService.updateConfiguration(configuration));
     verify(configurationRepository).findAll();
   }
-
-  @Test
-  void testDeleteConfiguration() {
-    configurationService.deleteConfiguration();
-
-    verify(configurationRepository).deleteAll();
-  }
-
 }
