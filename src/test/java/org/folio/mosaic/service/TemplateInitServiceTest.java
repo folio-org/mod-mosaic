@@ -13,9 +13,9 @@ import java.io.InputStream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.mosaic.exception.TemplateInitializationException;
 import org.folio.mosaic.support.CopilotGenerated;
+import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.OrderTemplate;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orgs.Organization;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +35,7 @@ class TemplateInitServiceTest {
   @Test
   void testCreateDefaultTemplateIfNeeded_WhenTemplateExists_ShouldSkipCreation() {
     // Given
-    var existingTemplate = Pair.of(new CompositePurchaseOrder(), new PoLine());
+    var existingTemplate = Pair.of(new CompositePurchaseOrder(), new CompositePoLine());
     when(ordersService.getOrderTemplateById(TemplateInitService.DEFAULT_TEMPLATE_ID))
         .thenReturn(existingTemplate);
 

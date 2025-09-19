@@ -5,14 +5,14 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
+import org.folio.rest.acq.model.orders.CompositePoLine;
+import org.folio.rest.acq.model.orders.CompositePoLine.OrderFormat;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.Contributor;
 import org.folio.rest.acq.model.orders.Cost;
 import org.folio.rest.acq.model.orders.Details;
 import org.folio.rest.acq.model.orders.FundDistribution;
 import org.folio.rest.acq.model.orders.Location;
-import org.folio.rest.acq.model.orders.OrderFormat;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.ProductIdentifier;
 import org.folio.rest.acq.model.orders.ReferenceNumberItem;
 import org.folio.rest.acq.model.orders.VendorDetail;
@@ -41,8 +41,8 @@ public class MosaicPoLineConverter {
    * @param poLineTemplate Holding poLine template fields
    * @return A PoLine object
    */
-  public PoLine createPoLineFromTemplate(PoLine poLineTemplate) {
-    return new PoLine()
+  public CompositePoLine createPoLineFromTemplate(CompositePoLine poLineTemplate) {
+    return new CompositePoLine()
       .withId(UUID.randomUUID().toString())
       .withEdition(poLineTemplate.getEdition())
       .withCheckinItems(poLineTemplate.getCheckinItems())
@@ -64,7 +64,6 @@ public class MosaicPoLineConverter {
       .withEresource(poLineTemplate.getEresource())
       .withFundDistribution(poLineTemplate.getFundDistribution())
       .withInstanceId(poLineTemplate.getInstanceId())
-      .withSuppressInstanceFromDiscovery(poLineTemplate.getSuppressInstanceFromDiscovery())
       .withIsPackage(poLineTemplate.getIsPackage())
       .withLocations(poLineTemplate.getLocations())
       .withSearchLocationIds(poLineTemplate.getSearchLocationIds())
@@ -82,7 +81,7 @@ public class MosaicPoLineConverter {
       .withRequester(poLineTemplate.getRequester())
       .withRush(poLineTemplate.getRush())
       .withSelector(poLineTemplate.getSelector())
-      .withSource(PoLine.Source.API)
+      .withSource(CompositePoLine.Source.API)
       .withTags(poLineTemplate.getTags())
       .withTitleOrPackage(poLineTemplate.getTitleOrPackage())
       .withVendorDetail(poLineTemplate.getVendorDetail())
@@ -97,7 +96,7 @@ public class MosaicPoLineConverter {
    * @param mosaicOrder The request containing override values
    */
   public void applyOverridesToPoLine(CompositePurchaseOrder order, MosaicOrder mosaicOrder) {
-    var poLine = order.getPoLines().getFirst();
+    var poLine = order.getCompositePoLines().getFirst();
     if (isNotBlank(mosaicOrder.getTitle())) {
       poLine.setTitleOrPackage(mosaicOrder.getTitle());
     }
@@ -146,10 +145,10 @@ public class MosaicPoLineConverter {
     updatePoLineLocations(mosaicOrder, poLine);
     updatePoLineFunds(mosaicOrder, poLine);
 
-    order.setPoLines(List.of(poLine));
+    order.setCompositePoLines(List.of(poLine));
   }
 
-  private void updatePoLineOrderFormat(MosaicOrder mosaicOrder, PoLine poLine) {
+  private void updatePoLineOrderFormat(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (ObjectUtils.isEmpty(mosaicOrder.getFormat())) {
       return;
     }
@@ -157,7 +156,7 @@ public class MosaicPoLineConverter {
     poLine.setOrderFormat(OrderFormat.valueOf(orderFormat));
   }
 
-  private void updatePoLineCost(MosaicOrder mosaicOrder, PoLine poLine) {
+  private void updatePoLineCost(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (ObjectUtils.isEmpty(mosaicOrder.getListUnitPrice()) && ObjectUtils.isEmpty(mosaicOrder.getListUnitPriceElectronic())) {
       return;
     }
@@ -186,7 +185,7 @@ public class MosaicPoLineConverter {
     poLine.setCost(cost);
   }
 
-  private void updatePoLineContributors(MosaicOrder mosaicOrder, PoLine poLine) {
+  private void updatePoLineContributors(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (CollectionUtils.isEmpty(mosaicOrder.getContributors())) {
       return;
     }
@@ -201,7 +200,7 @@ public class MosaicPoLineConverter {
     poLine.setContributors(convertedContributors);
   }
 
-  private void updatePoLineDetails(MosaicOrder mosaicOrder, PoLine poLine) {
+  private void updatePoLineDetails(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (ObjectUtils.isEmpty(mosaicOrder.getDetails())) {
       return;
     }
@@ -226,7 +225,7 @@ public class MosaicPoLineConverter {
     poLine.setDetails(convertedDetails);
   }
 
-  private void updatePoLineVendor(MosaicOrder mosaicOrder, PoLine poLine) {
+  private void updatePoLineVendor(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (isBlank(mosaicOrder.getVendor())) {
       return;
     }
@@ -245,7 +244,7 @@ public class MosaicPoLineConverter {
     poLine.setVendorDetail(vendorDetail);
   }
 
-  private void updatePoLineLocations(MosaicOrder mosaicOrder, PoLine poLine) {
+  private void updatePoLineLocations(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (CollectionUtils.isEmpty(mosaicOrder.getLocations())) {
       return;
     }
@@ -263,7 +262,7 @@ public class MosaicPoLineConverter {
     poLine.setLocations(convertedLocations);
   }
 
-  private void updatePoLineFunds(MosaicOrder mosaicOrder, PoLine poLine) {
+  private void updatePoLineFunds(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (CollectionUtils.isEmpty(mosaicOrder.getFundDistribution())) {
       return;
     }

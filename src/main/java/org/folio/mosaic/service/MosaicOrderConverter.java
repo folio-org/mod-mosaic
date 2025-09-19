@@ -13,8 +13,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
+import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
 @Log4j2
@@ -33,7 +33,7 @@ public class MosaicOrderConverter {
    * @param templatePair The order template pair to use
    * @return A CompositePurchaseOrder object ready to be sent to FOLIO
    */
-  public CompositePurchaseOrder convertToCompositePurchaseOrder(MosaicOrder mosaicOrder, Pair<CompositePurchaseOrder, PoLine> templatePair) {
+  public CompositePurchaseOrder convertToCompositePurchaseOrder(MosaicOrder mosaicOrder, Pair<CompositePurchaseOrder, CompositePoLine> templatePair) {
     log.debug("convertToCompositePurchaseOrder:: Converting mosaicOrder: {} to compositePurchaseOrder", mosaicOrder.getTitle());
 
     log.info("convertToCompositePurchaseOrder:: Using template: {}", templatePair.getKey().getId());
@@ -51,7 +51,7 @@ public class MosaicOrderConverter {
    * @param templatePair Holding order and poLine template fields
    * @return A CompositePurchaseOrder object with an included PoLine
    */
-  private CompositePurchaseOrder createOrderFromTemplatePair(Pair<CompositePurchaseOrder, PoLine> templatePair) {
+  private CompositePurchaseOrder createOrderFromTemplatePair(Pair<CompositePurchaseOrder, CompositePoLine> templatePair) {
     log.debug("createOrderFromTemplatePair:: Creating order from template: {}", templatePair.getKey().getId());
 
     var orderTemplate = templatePair.getKey();
@@ -84,7 +84,7 @@ public class MosaicOrderConverter {
       .withTotalItems(orderTemplate.getTotalItems())
       .withVendor(orderTemplate.getVendor())
       .withWorkflowStatus(orderTemplate.getWorkflowStatus())
-      .withPoLines(new ArrayList<>(singletonList(poLine)))
+      .withCompositePoLines(new ArrayList<>(singletonList(poLine)))
       .withAcqUnitIds(orderTemplate.getAcqUnitIds())
       .withNextPolNumber(orderTemplate.getNextPolNumber())
       .withTags(orderTemplate.getTags())

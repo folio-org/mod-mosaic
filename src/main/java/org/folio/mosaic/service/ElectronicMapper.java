@@ -2,8 +2,8 @@ package org.folio.mosaic.service;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
+import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.Eresource;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Component;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -11,7 +11,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Component
 public class ElectronicMapper {
 
-  public void updatePoLineEResource(MosaicOrder mosaicOrder, PoLine poLine) {
+  public void updatePoLineEResource(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (ObjectUtils.isEmpty(mosaicOrder.getEresource())) {
       return;
     }
@@ -48,7 +48,7 @@ public class ElectronicMapper {
   }
 
   private void updatePoLineUserLimits(MosaicOrder mosaicOrder, Eresource eresource) {
-    if (isBlank(mosaicOrder.getEresource().getUserLimit())) {
+    if (ObjectUtils.isEmpty(mosaicOrder.getEresource().getUserLimit())) {
       return;
     }
     eresource.setUserLimit(mosaicOrder.getEresource().getUserLimit());

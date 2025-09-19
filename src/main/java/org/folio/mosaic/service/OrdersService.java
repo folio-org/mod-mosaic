@@ -11,9 +11,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.folio.mosaic.client.OrdersClient;
 import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.rest.acq.model.mosaic.MosaicOrderRequest;
+import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.OrderTemplate;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -44,15 +44,15 @@ public class OrdersService {
     var compositePurchaseOrder = orderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
     var createdOrder = ordersClient.createOrder(compositePurchaseOrder);
 
-    return createdOrder.getPoLines().getFirst().getPoLineNumber();
+    return createdOrder.getCompositePoLines().getFirst().getPoLineNumber();
   }
 
   @SneakyThrows
-  private Pair<CompositePurchaseOrder, PoLine> getOrderTemplatePair(String requestTemplateId) {
+  private Pair<CompositePurchaseOrder, CompositePoLine> getOrderTemplatePair(String requestTemplateId) {
     var templateId = StringUtils.isNotBlank(requestTemplateId)
       ? requestTemplateId : configurationService.getConfiguration().getDefaultTemplateId();
 
-    Pair<CompositePurchaseOrder, PoLine> pair = getOrderTemplateById(templateId);
+    Pair<CompositePurchaseOrder, CompositePoLine> pair = getOrderTemplateById(templateId);
     if (pair == null) {
       log.warn("getOrderTemplatePair:: No template or default template was found for mosaicOrder with templateId: {}", templateId);
       throw new ResourceNotFoundException(OrderTemplate.class);
@@ -61,7 +61,7 @@ public class OrdersService {
   }
 
   @SneakyThrows
-  public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
+  public Pair<CompositePurchaseOrder, CompositePoLine> getOrderTemplateById(String templateId) {
     try (var response = ordersClient.getOrderTemplateAsResponse(templateId)) {
       return responseToOrderAndPoLineObjects(response);
     }
@@ -71,14 +71,14 @@ public class OrdersService {
     ordersClient.createOrderTemplate(orderTemplate);
   }
 
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(Response response) throws IOException {
+  private Pair<CompositePurchaseOrder, CompositePoLine> responseToOrderAndPoLineObjects(Response response) throws IOException {
     try (var inputStream = response.body().asInputStream()) {
       var byteArrayOutputStream = new ByteArrayOutputStream();
       inputStream.transferTo(byteArrayOutputStream);
 
       var byteArray = byteArrayOutputStream.toByteArray();
       var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
-      var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
+      var poLine = objectMapper.readValue(byteArray, new TypeReference<CompositePoLine>() {});
       if (order == null || order.getId() == null) {
         return null;
       }

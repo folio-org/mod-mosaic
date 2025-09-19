@@ -2,8 +2,8 @@ package org.folio.mosaic.service;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
+import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.Physical;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Component;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -11,7 +11,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Component
 public class PhysicalMapper {
 
-  public void updatePoLinePhysical(MosaicOrder mosaicOrder, PoLine poLine) {
+  public void updatePoLinePhysical(MosaicOrder mosaicOrder, CompositePoLine poLine) {
     if (ObjectUtils.isEmpty(mosaicOrder.getPhysical())) {
       return;
     }

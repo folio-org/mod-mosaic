@@ -20,9 +20,9 @@ import org.folio.mosaic.support.CopilotGenerated;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.mosaic.MosaicOrderRequest;
 import org.folio.rest.acq.model.mosaic.MosaicConfiguration;
+import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.OrderTemplate;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,15 +49,15 @@ class OrdersServiceTest {
 
     var compositeTemplate = new CompositePurchaseOrder();
     compositeTemplate.setId("orderId");
-    var poLineTemplate = new PoLine();
+    var poLineTemplate = new CompositePoLine();
     poLineTemplate.setId("poLineId");
 
     setupMockResponse(templateId, compositeTemplate, poLineTemplate);
 
     var expectedCompositeOrder = new CompositePurchaseOrder();
-    var poLine = new PoLine();
+    var poLine = new CompositePoLine();
     poLine.setPoLineNumber("POL12345");
-    expectedCompositeOrder.setPoLines(List.of(poLine));
+    expectedCompositeOrder.setCompositePoLines(List.of(poLine));
     when(orderConverter.convertToCompositePurchaseOrder(eq(orderRequest.getMosaicOrder()), any())).thenReturn(expectedCompositeOrder);
     when(ordersClient.createOrder(expectedCompositeOrder)).thenReturn(expectedCompositeOrder);
 
@@ -82,15 +82,15 @@ class OrdersServiceTest {
 
     var compositeTemplate = new CompositePurchaseOrder();
     compositeTemplate.setId("orderId");
-    var poLineTemplate = new PoLine();
+    var poLineTemplate = new CompositePoLine();
     poLineTemplate.setId("poLineId");
 
     setupMockResponse(defaultTemplateId, compositeTemplate, poLineTemplate);
 
     var expectedCompositeOrder = new CompositePurchaseOrder();
-    var poLine = new PoLine();
+    var poLine = new CompositePoLine();
     poLine.setPoLineNumber("POL12345");
-    expectedCompositeOrder.setPoLines(List.of(poLine));
+    expectedCompositeOrder.setCompositePoLines(List.of(poLine));
     when(orderConverter.convertToCompositePurchaseOrder(eq(orderRequest.getMosaicOrder()), any())).thenReturn(expectedCompositeOrder);
     when(ordersClient.createOrder(expectedCompositeOrder)).thenReturn(expectedCompositeOrder);
 
@@ -114,7 +114,7 @@ class OrdersServiceTest {
 
     // Setup mock to return order without ID (triggers ResourceNotFoundException)
     var compositeTemplateWithoutId = new CompositePurchaseOrder(); // id is null
-    var poLineTemplate = new PoLine();
+    var poLineTemplate = new CompositePoLine();
     setupMockResponse(templateId, compositeTemplateWithoutId, poLineTemplate);
 
     // When & Then
@@ -145,7 +145,7 @@ class OrdersServiceTest {
     var templateId = "template-123";
     var compositeTemplate = new CompositePurchaseOrder();
     compositeTemplate.setId("order-123");
-    var poLineTemplate = new PoLine();
+    var poLineTemplate = new CompositePoLine();
     poLineTemplate.setId("poline-123");
 
     setupMockResponse(templateId, compositeTemplate, poLineTemplate);
@@ -164,7 +164,7 @@ class OrdersServiceTest {
     // Given
     var templateId = "non-existent-template";
     var compositeTemplateWithoutId = new CompositePurchaseOrder(); // id is null by default
-    var poLineTemplate = new PoLine();
+    var poLineTemplate = new CompositePoLine();
 
     setupMockResponse(templateId, compositeTemplateWithoutId, poLineTemplate);
 
@@ -187,7 +187,7 @@ class OrdersServiceTest {
   }
 
   // Helper method to setup mock response with template objects
-  private void setupMockResponse(String templateId, CompositePurchaseOrder order, PoLine poLine) throws Exception {
+  private void setupMockResponse(String templateId, CompositePurchaseOrder order, CompositePoLine poLine) throws Exception {
     var response = mock(Response.class);
     var body = mock(Response.Body.class);
     when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(response);

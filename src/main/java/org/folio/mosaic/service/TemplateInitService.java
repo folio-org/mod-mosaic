@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.mosaic.exception.TemplateInitializationException;
+import org.folio.rest.acq.model.orders.CompositePoLine;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.OrderTemplate;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orgs.Organization;
 import org.springframework.core.io.ClassPathResource;
 
@@ -27,7 +27,7 @@ public class TemplateInitService {
   private final ObjectMapper objectMapper;
 
   public void createDefaultTemplateIfNeeded() {
-    Pair<CompositePurchaseOrder, PoLine> orderTemplate = ordersService.getOrderTemplateById(DEFAULT_TEMPLATE_ID);
+    Pair<CompositePurchaseOrder, CompositePoLine> orderTemplate = ordersService.getOrderTemplateById(DEFAULT_TEMPLATE_ID);
     if (orderTemplate != null) {
       log.info("createDefaultTemplateIfNeeded:: Default order template with ID {} already exists, skipping creation", DEFAULT_TEMPLATE_ID);
       return;

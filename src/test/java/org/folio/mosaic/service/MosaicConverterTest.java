@@ -21,12 +21,12 @@ import org.folio.rest.acq.model.mosaic.MosaicCustomFields;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.mosaic.Physical;
 import org.folio.rest.acq.model.mosaic.ReferenceNumberItem;
+import org.folio.rest.acq.model.orders.CompositePoLine;
+import org.folio.rest.acq.model.orders.CompositePoLine.OrderFormat;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.Cost;
 import org.folio.rest.acq.model.orders.CustomFields;
 import org.folio.rest.acq.model.orders.FundDistribution;
-import org.folio.rest.acq.model.orders.OrderFormat;
-import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.VendorDetail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -64,7 +64,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withEdition("First Edition")
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
@@ -99,7 +99,7 @@ class MosaicConverterTest {
     assertEquals("override-vendor", result.getVendor());
     assertEquals("override-billto", result.getBillTo());
     assertEquals("override-shipto", result.getShipTo());
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
     assertEquals("Overridden Title", resultPoLine.getTitleOrPackage());
     assertEquals(List.of("unit-override"), result.getAcqUnitIds());
   }
@@ -115,7 +115,7 @@ class MosaicConverterTest {
       .withId(templateId)
       .withWorkflowStatus(CompositePurchaseOrder.WorkflowStatus.PENDING);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withCost(new Cost()
@@ -171,7 +171,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -200,7 +200,7 @@ class MosaicConverterTest {
     assertEquals("new-vendor", result.getVendor());
     assertEquals("new-billto", result.getBillTo());
     assertEquals("new-shipto", result.getShipTo());
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
     assertEquals("New Title", resultPoLine.getTitleOrPackage());
   }
 
@@ -217,7 +217,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -243,7 +243,7 @@ class MosaicConverterTest {
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
 
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
     assertEquals("Cost Override Test", resultPoLine.getTitleOrPackage());
     assertEquals("EUR", resultPoLine.getCost().getCurrency());
     assertEquals(10.0, resultPoLine.getCost().getListUnitPrice());
@@ -266,7 +266,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -312,7 +312,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -347,9 +347,9 @@ class MosaicConverterTest {
     assertEquals("value1", poCustomFields.getAdditionalProperties().get("field1"));
     assertNull(poCustomFields.getAdditionalProperties().get("field2"));
 
-    assertNotNull(result.getPoLines());
+    assertNotNull(result.getCompositePoLines());
 
-    var poLineCustomFields = result.getPoLines().getFirst().getCustomFields();
+    var poLineCustomFields = result.getCompositePoLines().getFirst().getCustomFields();
     assertNotNull(poLineCustomFields);
     assertNull(poLineCustomFields.getAdditionalProperties().get("field0"));
     assertNull(poLineCustomFields.getAdditionalProperties().get("field1"));
@@ -370,7 +370,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -401,7 +401,7 @@ class MosaicConverterTest {
       ));
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     assertEquals("2023", resultPoLine.getPublicationDate());
     assertEquals("Second Edition", resultPoLine.getEdition());
@@ -426,7 +426,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -458,7 +458,7 @@ class MosaicConverterTest {
       ));
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     assertNotNull(resultPoLine.getContributors());
     assertEquals(2, resultPoLine.getContributors().size());
@@ -480,7 +480,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE) // Default is physical
       .withVendorDetail(vendorDetail)
@@ -505,7 +505,7 @@ class MosaicConverterTest {
       ));
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     assertEquals(OrderFormat.ELECTRONIC_RESOURCE, resultPoLine.getOrderFormat());
     assertEquals(15.0, resultPoLine.getCost().getListUnitPriceElectronic());
@@ -525,7 +525,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -552,7 +552,7 @@ class MosaicConverterTest {
       ));
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     assertEquals(OrderFormat.P_E_MIX, resultPoLine.getOrderFormat());
     assertEquals(10.0, resultPoLine.getCost().getListUnitPrice());
@@ -573,7 +573,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -618,7 +618,7 @@ class MosaicConverterTest {
       ));
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     assertNotNull(resultPoLine.getDetails());
     assertEquals(true, resultPoLine.getDetails().getIsAcknowledged());
@@ -648,7 +648,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -684,7 +684,7 @@ class MosaicConverterTest {
       ));
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     assertNotNull(resultPoLine.getLocations());
     assertEquals(1, resultPoLine.getLocations().size());
@@ -708,7 +708,7 @@ class MosaicConverterTest {
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -743,7 +743,7 @@ class MosaicConverterTest {
       ));
 
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     assertNotNull(resultPoLine.getFundDistribution());
     assertEquals(1, resultPoLine.getFundDistribution().size());
@@ -785,7 +785,7 @@ class MosaicConverterTest {
   @Test
   void testPhysicalMapper_updatePoLinePhysical_complete() {
     // Setup test data with all physical fields
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Complete Physical Test")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE);
 
@@ -814,7 +814,7 @@ class MosaicConverterTest {
   @Test
   void testPhysicalMapper_updatePoLinePhysical_withNullPhysical() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Null Physical Test")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE);
 
@@ -838,7 +838,7 @@ class MosaicConverterTest {
       .withMaterialType(existingMaterialType)
       .withCreateInventory(org.folio.rest.acq.model.orders.Physical.CreateInventory.INSTANCE);
 
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Existing Physical Test")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withPhysical(existingPhysical);
@@ -866,7 +866,7 @@ class MosaicConverterTest {
   @Test
   void testPhysicalMapper_updateCreateInventory() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("CreateInventory Test")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE);
 
@@ -891,7 +891,7 @@ class MosaicConverterTest {
   @Test
   void testPhysicalMapper_updateMaterialType() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("MaterialType Test")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE);
 
@@ -917,7 +917,7 @@ class MosaicConverterTest {
   @Test
   void testPhysicalMapper_updateMaterialSupplier() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("MaterialSupplier Test")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE);
 
@@ -943,7 +943,7 @@ class MosaicConverterTest {
   @Test
   void testPhysicalMapper_withEmptyPhysical() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Empty Physical Test")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE);
 
@@ -968,7 +968,7 @@ class MosaicConverterTest {
   @Test
   void testCreatePoLineFromTemplate_withElectronicResource() {
     // Setup test data with an electronic resource format
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Electronic Resource Title")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
       .withVendorDetail(new VendorDetail())
@@ -990,13 +990,13 @@ class MosaicConverterTest {
   @Test
   void testElectronicMapper_updatePoLineEResource_complete() {
     // Setup test data with all electronic fields
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Complete Electronic Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
 
     var accessProvider = UUID.randomUUID().toString();
     var materialTypeId = UUID.randomUUID().toString();
-    var userLimit = "10";
+    var userLimit = 10;
 
     var mosaicOrder = new MosaicOrder()
       .withTitle("Complete Electronic Mapping Test")
@@ -1022,7 +1022,7 @@ class MosaicConverterTest {
   @Test
   void testElectronicMapper_updatePoLineEResource_withNullEresource() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Null Electronic Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
 
@@ -1046,14 +1046,14 @@ class MosaicConverterTest {
       .withAccessProvider(existingAccessProvider)
       .withCreateInventory(org.folio.rest.acq.model.orders.Eresource.CreateInventory.INSTANCE);
 
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Existing Electronic Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
       .withEresource(existingEresource);
 
     // New values to override
     var newMaterialType = UUID.randomUUID().toString();
-    var userLimit = "5";
+    var userLimit = 5;
 
     var mosaicOrder = new MosaicOrder()
       .withTitle("Existing Electronic Test")
@@ -1077,7 +1077,7 @@ class MosaicConverterTest {
   @Test
   void testElectronicMapper_updateCreateInventory() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("CreateInventory Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
 
@@ -1103,7 +1103,7 @@ class MosaicConverterTest {
   @Test
   void testElectronicMapper_updateMaterialType() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("MaterialType Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
 
@@ -1130,7 +1130,7 @@ class MosaicConverterTest {
   @Test
   void testElectronicMapper_updateAccessProvider() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("AccessProvider Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
 
@@ -1157,11 +1157,11 @@ class MosaicConverterTest {
   @Test
   void testElectronicMapper_updateUserLimit() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("UserLimit Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
 
-    var userLimit = "15";
+    var userLimit = 15;
 
     // Create a MosaicOrder with only userLimit
     var mosaicOrder = new MosaicOrder()
@@ -1184,7 +1184,7 @@ class MosaicConverterTest {
   @Test
   void testElectronicMapper_withEmptyEresource() {
     // Setup test data
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Empty Electronic Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
 
@@ -1215,7 +1215,7 @@ class MosaicConverterTest {
     };
 
     for (var inventoryValue : createInventoryValues) {
-      var poLine = new PoLine()
+      var poLine = new CompositePoLine()
         .withTitleOrPackage("CreateInventory Value Test")
         .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE);
 
@@ -1236,7 +1236,7 @@ class MosaicConverterTest {
   @Test
   void testElectronicMapper_withNullCreateInventory() {
     // Setup test data with null createInventory
-    var poLine = new PoLine()
+    var poLine = new CompositePoLine()
       .withTitleOrPackage("Null CreateInventory Test")
       .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
       .withEresource(new org.folio.rest.acq.model.orders.Eresource()
@@ -1266,7 +1266,7 @@ class MosaicConverterTest {
     var orderTemplate = new CompositePurchaseOrder()
       .withId(templateId);
 
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(null)  // Explicitly set order format to null
       .withCost(new Cost()
@@ -1287,7 +1287,7 @@ class MosaicConverterTest {
 
     // Convert to CompositePurchaseOrder
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     // Verify cost values were properly set despite null order format
     assertNotNull(resultPoLine.getCost());
@@ -1298,14 +1298,14 @@ class MosaicConverterTest {
     assertNull(resultPoLine.getCost().getListUnitPriceElectronic());
   }
 
-  private PoLine createPoLineTemplate(boolean checkinItemsValue) {
+  private CompositePoLine createPoLineTemplate(boolean checkinItemsValue) {
     var vendorDetail = new VendorDetail();
     var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
       .withRefNumber("ref-123")
       .withRefNumberType(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_CONTINUATION_REFERENCE_NUMBER));
     vendorDetail.setReferenceNumbers(referenceNumbers);
 
-    return new PoLine()
+    return new CompositePoLine()
       .withTitleOrPackage("Default Title")
       .withOrderFormat(OrderFormat.PHYSICAL_RESOURCE)
       .withVendorDetail(vendorDetail)
@@ -1317,7 +1317,7 @@ class MosaicConverterTest {
       .withCheckinItems(checkinItemsValue);
   }
 
-  private void testCheckinItemsOverride(PoLine poLineTemplate, MosaicOrder mosaicOrder, boolean expectedValue) {
+  private void testCheckinItemsOverride(CompositePoLine poLineTemplate, MosaicOrder mosaicOrder, boolean expectedValue) {
     var templateId = UUID.randomUUID().toString();
     var orderTemplate = new CompositePurchaseOrder()
       .withId(templateId);
@@ -1326,7 +1326,7 @@ class MosaicConverterTest {
 
     // Convert to CompositePurchaseOrder
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
-    var resultPoLine = result.getPoLines().getFirst();
+    var resultPoLine = result.getCompositePoLines().getFirst();
 
     // Verify that checkinItems value matches expected
     assertNotNull(resultPoLine);
@@ -1343,26 +1343,25 @@ class MosaicConverterTest {
 
   @Test
   void testCreatePoLineFromTemplate_shouldCopyAllFields() {
-    var poLineTemplate = new PoLine()
+    var poLineTemplate = new CompositePoLine()
       .withId(UUID.randomUUID().toString())
       .withTitleOrPackage("Default Title")
       .withEdition("First Edition")
       .withPublisher("Test Publisher")
       .withPublicationDate("2025")
       .withOrderFormat(OrderFormat.P_E_MIX)
-      .withSource(PoLine.Source.API)
+      .withSource(CompositePoLine.Source.API)
       .withReceiptDate(Date.from(LocalDate.of(2025, 7, 18).atStartOfDay(ZoneId.systemDefault()).toInstant()))
       .withRequester("Test Requester")
       .withSelector("Test Selector")
       .withInstanceId(UUID.randomUUID().toString())
       .withCheckinItems(true)
-      .withSuppressInstanceFromDiscovery(true)
       .withIsPackage(false)
       .withDescription("Internal note")
       .withPoLineDescription("PO Line description")
       .withDonorOrganizationIds(List.of(UUID.randomUUID().toString()))
-      .withReceiptStatus(PoLine.ReceiptStatus.AWAITING_RECEIPT)
-      .withPaymentStatus(PoLine.PaymentStatus.AWAITING_PAYMENT)
+      .withReceiptStatus(CompositePoLine.ReceiptStatus.AWAITING_RECEIPT)
+      .withPaymentStatus(CompositePoLine.PaymentStatus.AWAITING_PAYMENT)
       .withAcquisitionMethod("Purchase")
       .withRenewalNote("Test renewal note")
       .withRush(true)
@@ -1401,7 +1400,6 @@ class MosaicConverterTest {
 
     // Boolean flags
     assertEquals(poLineTemplate.getCheckinItems(), result.getCheckinItems());
-    assertEquals(poLineTemplate.getSuppressInstanceFromDiscovery(), result.getSuppressInstanceFromDiscovery());
     assertEquals(poLineTemplate.getIsPackage(), result.getIsPackage());
     assertEquals(poLineTemplate.getRush(), result.getRush());
     assertEquals(poLineTemplate.getClaimingActive(), result.getClaimingActive());
@@ -1421,7 +1419,7 @@ class MosaicConverterTest {
     assertEquals(poLineTemplate.getClaimingInterval(), result.getClaimingInterval());
   }
 
-  private void assertBasicFields(PoLine poLineTemplate, PoLine result) {
+  private void assertBasicFields(CompositePoLine poLineTemplate, CompositePoLine result) {
     assertEquals(poLineTemplate.getTitleOrPackage(), result.getTitleOrPackage());
     assertEquals(poLineTemplate.getEdition(), result.getEdition());
     assertEquals(poLineTemplate.getPublisher(), result.getPublisher());
@@ -1434,7 +1432,7 @@ class MosaicConverterTest {
     assertEquals(poLineTemplate.getInstanceId(), result.getInstanceId());
   }
 
-  private void assertDetails(PoLine poLineTemplate, PoLine result) {
+  private void assertDetails(CompositePoLine poLineTemplate, CompositePoLine  result) {
     assertNotNull(result.getDetails());
     assertEquals(poLineTemplate.getDetails().getSubscriptionFrom(), result.getDetails().getSubscriptionFrom());
     assertEquals(poLineTemplate.getDetails().getSubscriptionTo(), result.getDetails().getSubscriptionTo());
@@ -1452,7 +1450,7 @@ class MosaicConverterTest {
       result.getDetails().getProductIds().getFirst().getQualifier());
   }
 
-  private void assertContributors(PoLine poLineTemplate, PoLine result) {
+  private void assertContributors(CompositePoLine poLineTemplate, CompositePoLine result) {
     assertNotNull(result.getContributors());
     assertEquals(poLineTemplate.getContributors().size(), result.getContributors().size());
     assertEquals(poLineTemplate.getContributors().getFirst().getContributor(),
@@ -1461,7 +1459,7 @@ class MosaicConverterTest {
       result.getContributors().getFirst().getContributorNameTypeId());
   }
 
-  private void assertCost(PoLine poLineTemplate, PoLine result) {
+  private void assertCost(CompositePoLine poLineTemplate, CompositePoLine result) {
     assertNotNull(result.getCost());
     assertEquals(poLineTemplate.getCost().getListUnitPrice(), result.getCost().getListUnitPrice());
     assertEquals(poLineTemplate.getCost().getQuantityPhysical(), result.getCost().getQuantityPhysical());
