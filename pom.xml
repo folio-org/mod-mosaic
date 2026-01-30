@@ -43,7 +43,7 @@
     <!-- OpenAPI generator -->
     <openapi-generator.file>${project.basedir}/src/main/resources/swagger.api/mosaic.yaml</openapi-generator.file>
     <openapi-generator.output>${generated-sources.dir}</openapi-generator.output>
-    <openapi-generator.version>7.16.0</openapi-generator.version>
+    <openapi-generator.version>7.19.0</openapi-generator.version>
     <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
 
     <!-- Folio dependencies properties -->
@@ -55,12 +55,12 @@
     <mapstruct.version>1.6.3</mapstruct.version>
 
     <!-- Maven plugin dependencies -->
-    <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-    <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+    <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
+    <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
     <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
     <copy-rename-maven-plugin.version>1.0.1</copy-rename-maven-plugin.version>
-    <exec-maven-plugin.version>3.6.1</exec-maven-plugin.version>
+    <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
   </properties>
 
   <dependencies>
