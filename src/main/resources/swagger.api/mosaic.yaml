@@ -70,6 +70,18 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
+  ### Configuration generation API ###
+  /template:
+    description: Template API
+    post:
+      summary: Generate default configuration template
+      operationId: generateDefaultTemplate
+      responses:
+        '201':
+          description: Default order template generated successfully
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
 components:
   schemas:
     MosaicValidation:
