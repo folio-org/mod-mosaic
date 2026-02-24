@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @CopilotGenerated(partiallyGenerated = true, model = "Claude Opus 4.6")
 @WebMvcTest(TemplateController.class)
 @Import(TemplateControllerTest.TestConfig.class)
-public class TemplateControllerTest {
+class TemplateControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
