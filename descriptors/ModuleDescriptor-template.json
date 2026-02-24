@@ -55,6 +55,19 @@
             "mosaic.configuration.item.put"
           ],
           "modulePermissions": []
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/mosaic/template",
+          "permissionsRequired": [
+            "mosaic.template.item.post"
+          ],
+          "modulePermissions": [
+            "orders.order-templates.item.get",
+            "orders.order-templates.item.post",
+            "organizations.organizations.collection.get",
+            "organizations.organizations.item.post"
+          ]
         }
       ]
     },
@@ -65,13 +78,7 @@
       "handlers": [
         {
           "methods": ["POST"],
-          "pathPattern": "/_/tenant",
-          "modulePermissions": [
-            "orders.order-templates.item.get",
-            "orders.order-templates.item.post",
-            "organizations.organizations.collection.get",
-            "organizations.organizations.item.post"
-          ]
+          "pathPattern": "/_/tenant"
         }, {
           "methods": ["GET", "DELETE"],
           "pathPattern": "/_/tenant/{id}"
@@ -87,7 +94,8 @@
       "subPermissions": [
         "mosaic.validate.get",
         "mosaic.orders.item.post",
-        "mosaic.configuration.all"
+        "mosaic.configuration.all",
+        "mosaic.template.item.post"
       ]
     },
     {
@@ -118,6 +126,11 @@
       "permissionName": "mosaic.configuration.item.put",
       "displayName": "put mosaic configuration",
       "description": "Update Mosaic configuration"
+    },
+    {
+      "permissionName": "mosaic.template.item.post",
+      "displayName": "post mosaic template",
+      "description": "Generate default Mosaic order template"
     }
   ],
   "launchDescriptor": {
