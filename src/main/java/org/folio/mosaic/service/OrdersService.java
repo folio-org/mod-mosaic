@@ -1,8 +1,7 @@
 package org.folio.mosaic.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.Response;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Log4j2
 @Service
@@ -62,8 +62,8 @@ public class OrdersService {
 
   @SneakyThrows
   public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
-    try (var response = ordersClient.getOrderTemplateAsResponse(templateId)) {
-      return responseToOrderAndPoLineObjects(response);
+    try (var inputStream = ordersClient.getOrderTemplateAsResponse(templateId)) {
+      return responseToOrderAndPoLineObjects(inputStream);
     }
   }
 
@@ -71,19 +71,17 @@ public class OrdersService {
     ordersClient.createOrderTemplate(orderTemplate);
   }
 
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(Response response) throws IOException {
-    try (var inputStream = response.body().asInputStream()) {
-      var byteArrayOutputStream = new ByteArrayOutputStream();
-      inputStream.transferTo(byteArrayOutputStream);
+  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(InputStream inputStream) throws IOException {
+    var byteArrayOutputStream = new ByteArrayOutputStream();
+    inputStream.transferTo(byteArrayOutputStream);
 
-      var byteArray = byteArrayOutputStream.toByteArray();
-      var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
-      var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
-      if (order == null || order.getId() == null) {
-        return null;
-      }
-
-      return Pair.of(order, poLine);
+    var byteArray = byteArrayOutputStream.toByteArray();
+    var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
+    var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
+    if (order == null || order.getId() == null) {
+      return null;
     }
+
+    return Pair.of(order, poLine);
   }
 }

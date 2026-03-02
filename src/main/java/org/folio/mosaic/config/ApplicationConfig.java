@@ -1,28 +1,24 @@
 package org.folio.mosaic.config;
 
-import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 @Configuration
-@EnableFeignClients("org.folio.mosaic.client")
 public class ApplicationConfig {
 
-  @Primary
   @Bean
-  public ObjectMapper objectMapper() {
-    final ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.findAndRegisterModules()
+  public JsonMapperBuilderCustomizer jsonMapperBuilderCustomizer() {
+    return builder -> builder
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-      .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    return objectMapper;
+      .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+      .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+      .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_NULL));
   }
 
 }

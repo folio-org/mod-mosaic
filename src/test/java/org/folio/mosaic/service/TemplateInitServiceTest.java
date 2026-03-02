@@ -7,7 +7,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.exc.JacksonIOException;
+import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.lang3.tuple.Pair;
@@ -115,7 +116,7 @@ class TemplateInitServiceTest {
         .thenReturn(null);
 
     when(objectMapper.readValue(any(InputStream.class), eq(OrderTemplate.class)))
-        .thenThrow(new IOException("File not found"));
+        .thenThrow(JacksonIOException.construct(new IOException("File not found")));
 
     // When & Then
     assertThrows(TemplateInitializationException.class,
@@ -138,7 +139,7 @@ class TemplateInitServiceTest {
     when(organizationService.findByCode(TemplateInitService.MOSAIC_ORGANIZATION_CODE))
         .thenReturn(null);
     when(objectMapper.readValue(any(InputStream.class), eq(Organization.class)))
-        .thenThrow(new IOException("Organization file not found"));
+        .thenThrow(JacksonIOException.construct(new IOException("Organization file not found")));
 
     // When & Then
     assertThrows(TemplateInitializationException.class,
