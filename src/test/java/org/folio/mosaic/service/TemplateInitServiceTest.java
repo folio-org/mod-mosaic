@@ -50,7 +50,7 @@ class TemplateInitServiceTest {
   }
 
   @Test
-  void testCreateDefaultTemplateIfNeeded_WhenTemplateDoesNotExist_AndOrganizationExists_ShouldCreateTemplate() throws IOException {
+  void testCreateDefaultTemplateIfNeeded_WhenTemplateDoesNotExist_AndOrganizationExists_ShouldCreateTemplate() {
     // Given
     when(ordersService.getOrderTemplateById(TemplateInitService.DEFAULT_TEMPLATE_ID))
         .thenReturn(null);
@@ -79,7 +79,7 @@ class TemplateInitServiceTest {
   }
 
   @Test
-  void testCreateDefaultTemplateIfNeeded_WhenTemplateDoesNotExist_AndOrganizationDoesNotExist_ShouldCreateBoth() throws IOException {
+  void testCreateDefaultTemplateIfNeeded_WhenTemplateDoesNotExist_AndOrganizationDoesNotExist_ShouldCreateBoth() {
     // Given
     when(ordersService.getOrderTemplateById(TemplateInitService.DEFAULT_TEMPLATE_ID))
         .thenReturn(null);
@@ -110,7 +110,7 @@ class TemplateInitServiceTest {
   }
 
   @Test
-  void testCreateDefaultTemplateIfNeeded_WhenIOExceptionOccurs_ShouldThrowTemplateInitializationException() throws IOException {
+  void testCreateDefaultTemplateIfNeeded_WhenIOExceptionOccurs_ShouldThrowTemplateInitializationException() {
     // Given
     when(ordersService.getOrderTemplateById(TemplateInitService.DEFAULT_TEMPLATE_ID))
         .thenReturn(null);
@@ -127,7 +127,7 @@ class TemplateInitServiceTest {
   }
 
   @Test
-  void testCreateDefaultTemplateIfNeeded_WhenOrganizationIOExceptionOccurs_ShouldThrowTemplateInitializationException() throws IOException {
+  void testCreateDefaultTemplateIfNeeded_WhenOrganizationIOExceptionOccurs_ShouldThrowTemplateInitializationException() {
     // Given
     when(ordersService.getOrderTemplateById(TemplateInitService.DEFAULT_TEMPLATE_ID))
         .thenReturn(null);
