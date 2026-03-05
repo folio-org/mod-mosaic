@@ -43,7 +43,7 @@
     <!-- OpenAPI generator -->
     <openapi-generator.file>${project.basedir}/src/main/resources/swagger.api/mosaic.yaml</openapi-generator.file>
     <openapi-generator.output>${generated-sources.dir}</openapi-generator.output>
-    <openapi-generator.version>7.16.0</openapi-generator.version>
+    <openapi-generator.version>7.20.0</openapi-generator.version>
     <springdoc-openapi-ui.version>1.8.0</springdoc-openapi-ui.version>
 
     <!-- Folio dependencies properties -->
@@ -294,8 +294,10 @@
               <configOptions>
                 <dateLibrary>java</dateLibrary>
                 <interfaceOnly>true</interfaceOnly>
-                <useSpringBoot3>true</useSpringBoot3>
+                <useSpringBoot4>true</useSpringBoot4>
+                <useJackson3>true</useJackson3>
                 <serializableModel>true</serializableModel>
+                <openApiNullable>false</openApiNullable>
               </configOptions>
             </configuration>
           </execution>
