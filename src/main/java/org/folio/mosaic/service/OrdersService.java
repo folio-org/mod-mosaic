@@ -62,7 +62,7 @@ public class OrdersService {
   public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
     return ordersClient.getOrderTemplateAsResponse(templateId)
       .map(this::responseToOrderAndPoLineObjects)
-      .orElseThrow(() -> new ResourceNotFoundException(OrderTemplate.class, templateId));
+      .orElse(null);
   }
 
   public void createOrderTemplate(OrderTemplate orderTemplate) {
