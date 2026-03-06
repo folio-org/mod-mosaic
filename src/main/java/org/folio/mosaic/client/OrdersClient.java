@@ -1,6 +1,7 @@
 package org.folio.mosaic.client;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.OrderTemplate;
@@ -17,7 +18,7 @@ public interface OrdersClient {
   CompositePurchaseOrder createOrder(@RequestBody CompositePurchaseOrder poLine);
 
   @GetExchange(value = "/order-templates/{templateId}")
-  InputStream getOrderTemplateAsResponse(@PathVariable String templateId);
+  Optional<InputStream> getOrderTemplateAsResponse(@PathVariable String templateId);
 
   @PostExchange("/order-templates")
   void createOrderTemplate(OrderTemplate template);

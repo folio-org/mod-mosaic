@@ -16,7 +16,6 @@ import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 @Log4j2
@@ -60,28 +59,30 @@ public class OrdersService {
     return pair;
   }
 
-  @SneakyThrows
   public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
-    try (var inputStream = ordersClient.getOrderTemplateAsResponse(templateId)) {
-      return responseToOrderAndPoLineObjects(inputStream);
-    }
+    return ordersClient.getOrderTemplateAsResponse(templateId)
+      .map(this::responseToOrderAndPoLineObjects)
+      .orElseThrow(() -> new ResourceNotFoundException(OrderTemplate.class, templateId));
   }
 
   public void createOrderTemplate(OrderTemplate orderTemplate) {
     ordersClient.createOrderTemplate(orderTemplate);
   }
 
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(InputStream inputStream) throws IOException {
-    var byteArrayOutputStream = new ByteArrayOutputStream();
-    inputStream.transferTo(byteArrayOutputStream);
+  @SneakyThrows
+  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(InputStream inputStream) {
+    try (inputStream) {
+      var byteArrayOutputStream = new ByteArrayOutputStream();
+      inputStream.transferTo(byteArrayOutputStream);
 
-    var byteArray = byteArrayOutputStream.toByteArray();
-    var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
-    var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
-    if (order == null || order.getId() == null) {
-      return null;
+      var byteArray = byteArrayOutputStream.toByteArray();
+      var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
+      var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
+      if (order == null || order.getId() == null) {
+        return null;
+      }
+
+      return Pair.of(order, poLine);
     }
-
-    return Pair.of(order, poLine);
   }
 }
