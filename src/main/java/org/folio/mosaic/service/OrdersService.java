@@ -1,8 +1,7 @@
 package org.folio.mosaic.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.Response;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -17,7 +16,7 @@ import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.InputStream;
 
 @Log4j2
 @Service
@@ -60,19 +59,19 @@ public class OrdersService {
     return pair;
   }
 
-  @SneakyThrows
   public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
-    try (var response = ordersClient.getOrderTemplateAsResponse(templateId)) {
-      return responseToOrderAndPoLineObjects(response);
-    }
+    return ordersClient.getOrderTemplateAsResponse(templateId)
+      .map(this::responseToOrderAndPoLineObjects)
+      .orElse(null);
   }
 
   public void createOrderTemplate(OrderTemplate orderTemplate) {
     ordersClient.createOrderTemplate(orderTemplate);
   }
 
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(Response response) throws IOException {
-    try (var inputStream = response.body().asInputStream()) {
+  @SneakyThrows
+  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(InputStream inputStream) {
+    try (inputStream) {
       var byteArrayOutputStream = new ByteArrayOutputStream();
       inputStream.transferTo(byteArrayOutputStream);
 

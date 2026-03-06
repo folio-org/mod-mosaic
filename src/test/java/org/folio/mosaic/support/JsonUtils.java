@@ -10,10 +10,10 @@ import org.apache.commons.io.IOUtils;
 import org.folio.mosaic.FolioMosaicApplication;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
@@ -23,11 +23,11 @@ import lombok.extern.log4j.Log4j2;
 @UtilityClass
 public class JsonUtils {
 
-  private static final JsonMapper MAPPER = JsonMapper.builder()
-    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+  private static final ObjectMapper MAPPER = JsonMapper.builder()
+    .configure(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    .serializationInclusion(JsonInclude.Include.NON_NULL)
-    .addModule(new JavaTimeModule())
+    .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+    .changeDefaultPropertyInclusion(incl -> incl.withContentInclusion(JsonInclude.Include.NON_NULL))
     .build();
 
   @SneakyThrows

@@ -6,14 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Optional;
+
 import org.folio.mosaic.client.OrdersClient;
 import org.folio.mosaic.exception.ResourceNotFoundException;
 import org.folio.mosaic.support.CopilotGenerated;
@@ -28,7 +29,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import feign.Response;
 
 @ExtendWith(MockitoExtension.class)
 @CopilotGenerated(model = "Claude 3.7 Sonnet Thinking")
@@ -188,11 +188,8 @@ class OrdersServiceTest {
 
   // Helper method to setup mock response with template objects
   private void setupMockResponse(String templateId, CompositePurchaseOrder order, PoLine poLine) throws Exception {
-    var response = mock(Response.class);
-    var body = mock(Response.Body.class);
-    when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(response);
-    when(response.body()).thenReturn(body);
-    when(body.asInputStream()).thenReturn(new ByteArrayInputStream("dummy".getBytes()));
+    var inputStream = new ByteArrayInputStream("dummy".getBytes());
+    when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(Optional.of(inputStream));
 
     when(objectMapper.readValue(any(byte[].class), any(TypeReference.class)))
       .thenAnswer(invocation -> {

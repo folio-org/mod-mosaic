@@ -1,23 +1,25 @@
 package org.folio.mosaic.client;
 
-import feign.Response;
+import java.io.InputStream;
+import java.util.Optional;
+
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.OrderTemplate;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.HttpExchange;
+import org.springframework.web.service.annotation.PostExchange;
 
-@FeignClient("orders")
+@HttpExchange("orders")
 public interface OrdersClient {
 
-  @PostMapping(value = "/composite-orders")
+  @PostExchange(value = "/composite-orders")
   CompositePurchaseOrder createOrder(@RequestBody CompositePurchaseOrder poLine);
 
-  @GetMapping(value = "/order-templates/{templateId}")
-  Response getOrderTemplateAsResponse(@PathVariable String templateId);
+  @GetExchange(value = "/order-templates/{templateId}")
+  Optional<InputStream> getOrderTemplateAsResponse(@PathVariable String templateId);
 
-  @PostMapping("/order-templates")
+  @PostExchange("/order-templates")
   void createOrderTemplate(OrderTemplate template);
 }

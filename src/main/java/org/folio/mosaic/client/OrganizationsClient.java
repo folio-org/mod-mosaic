@@ -2,17 +2,17 @@ package org.folio.mosaic.client;
 
 import org.folio.rest.acq.model.orgs.Organization;
 import org.folio.rest.acq.model.orgs.OrganizationCollection;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.HttpExchange;
+import org.springframework.web.service.annotation.PostExchange;
 
-@FeignClient("organizations")
+@HttpExchange("organizations")
 public interface OrganizationsClient {
 
-  @GetMapping(value = "/organizations")
+  @GetExchange(value = "/organizations")
   OrganizationCollection getOrganizations(@RequestParam("query") String query);
 
-  @PostMapping(value = "/organizations")
+  @PostExchange(value = "/organizations")
   void createOrganization(Organization organization);
 }
