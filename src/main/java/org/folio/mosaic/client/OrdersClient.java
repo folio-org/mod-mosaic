@@ -21,5 +21,5 @@ public interface OrdersClient {
   Optional<InputStream> getOrderTemplateAsResponse(@PathVariable String templateId);
 
   @PostExchange("/order-templates")
-  void createOrderTemplate(OrderTemplate template);
+  void createOrderTemplate(@RequestBody OrderTemplate template);
 }
