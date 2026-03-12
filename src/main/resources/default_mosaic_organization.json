@@ -51,16 +51,7 @@
       "ftpConnMode" : "Active"
     }
   },
-  "accounts" : [ {
-    "name" : "Cairn University",
-    "accountNo" : "M100207",
-    "appSystemNo" : "1234561",
-    "paymentMethod" : "EFT",
-    "accountStatus" : "Active",
-    "libraryCode" : "11111",
-    "libraryEdiCode" : "12345678",
-    "acqUnitIds" : [ ]
-  } ],
+  "accounts" : [ ],
   "isVendor" : true,
   "isDonor" : false
 }
