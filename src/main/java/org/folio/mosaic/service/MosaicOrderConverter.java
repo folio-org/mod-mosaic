@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.folio.rest.acq.model.mosaic.MosaicOrder;
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
+import org.folio.rest.acq.model.orders.Ongoing;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,10 @@ public class MosaicOrderConverter {
     var orderTemplate = templatePair.getKey();
     var orderType = ObjectUtils.isNotEmpty(orderTemplate.getOrderType())
       ? orderTemplate.getOrderType() : CompositePurchaseOrder.OrderType.ONE_TIME;
+    var ongoing = orderTemplate.getOngoing();
+    if (orderType == CompositePurchaseOrder.OrderType.ONGOING && ObjectUtils.isEmpty(ongoing)) {
+      ongoing = new Ongoing();
+    }
     var poLine = mosaicPoLineConverter.createPoLineFromTemplate(templatePair.getValue());
 
     return new CompositePurchaseOrder()
@@ -74,7 +79,7 @@ public class MosaicOrderConverter {
       .withPoNumberSuffix(orderTemplate.getPoNumberSuffix())
       .withOrderType(orderType)
       .withReEncumber(orderTemplate.getReEncumber())
-      .withOngoing(orderTemplate.getOngoing())
+      .withOngoing(ongoing)
       .withShipTo(orderTemplate.getShipTo())
       .withTemplate(orderTemplate.getId())
       .withTotalCredited(orderTemplate.getTotalCredited())

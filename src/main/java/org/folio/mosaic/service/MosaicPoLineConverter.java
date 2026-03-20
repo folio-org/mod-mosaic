@@ -166,16 +166,24 @@ public class MosaicPoLineConverter {
 
     if (orderFormat == OrderFormat.ELECTRONIC_RESOURCE && ObjectUtils.isNotEmpty(mosaicOrder.getListUnitPriceElectronic())) {
       cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
-      cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
+      if (ObjectUtils.isNotEmpty(mosaicOrder.getQuantityElectronic())) {
+        cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
+      }
       cost.setQuantityPhysical(0);
     } else if (orderFormat == OrderFormat.P_E_MIX) {
       cost.setListUnitPrice(mosaicOrder.getListUnitPrice());
       cost.setListUnitPriceElectronic(mosaicOrder.getListUnitPriceElectronic());
-      cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());
-      cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
+      if (ObjectUtils.isNotEmpty(mosaicOrder.getQuantityPhysical())) {
+        cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());
+      }
+      if (ObjectUtils.isNotEmpty(mosaicOrder.getQuantityElectronic())) {
+        cost.setQuantityElectronic(mosaicOrder.getQuantityElectronic());
+      }
     } else {
       cost.setListUnitPrice(mosaicOrder.getListUnitPrice());
-      cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());
+      if (ObjectUtils.isNotEmpty(mosaicOrder.getQuantityPhysical())) {
+        cost.setQuantityPhysical(mosaicOrder.getQuantityPhysical());
+      }
       cost.setQuantityElectronic(0);
     }
 
