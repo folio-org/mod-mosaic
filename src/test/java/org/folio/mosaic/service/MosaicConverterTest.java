@@ -1298,6 +1298,66 @@ class MosaicConverterTest {
     assertNull(resultPoLine.getCost().getListUnitPriceElectronic());
   }
 
+
+
+  @Test
+  void testElectronicQuantityPreservedFromTemplateWhenNotInRequest() {
+    var templateId = UUID.randomUUID().toString();
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(templateId);
+
+    var poLineTemplate = new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD")
+        .withQuantityElectronic(1)
+        .withQuantityPhysical(0));
+
+    var templatePair = Pair.of(orderTemplate, poLineTemplate);
+
+    // Request provides price but NOT quantityElectronic
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Advanced Database Systems")
+      .withListUnitPriceElectronic(88.88);
+
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+    var resultPoLine = result.getPoLines().getFirst();
+
+    assertEquals(OrderFormat.ELECTRONIC_RESOURCE, resultPoLine.getOrderFormat());
+    assertEquals(88.88, resultPoLine.getCost().getListUnitPriceElectronic());
+    assertEquals(1, resultPoLine.getCost().getQuantityElectronic());
+    assertEquals(0, resultPoLine.getCost().getQuantityPhysical());
+  }
+
+  @Test
+  void testOngoingOrderTypeWithoutOngoingFieldSetsDefault() {
+    var templateId = UUID.randomUUID().toString();
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(templateId)
+      .withOrderType(CompositePurchaseOrder.OrderType.ONGOING)
+      .withVendor("test-vendor");
+
+    var poLineTemplate = new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD")
+        .withQuantityElectronic(1));
+
+    var templatePair = Pair.of(orderTemplate, poLineTemplate);
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Ongoing Order Test");
+
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, templatePair);
+
+    assertEquals(CompositePurchaseOrder.OrderType.ONGOING, result.getOrderType());
+    assertNotNull(result.getOngoing());
+  }
+
   private PoLine createPoLineTemplate(boolean checkinItemsValue) {
     var vendorDetail = new VendorDetail();
     var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
