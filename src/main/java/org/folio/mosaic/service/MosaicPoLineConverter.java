@@ -10,12 +10,12 @@ import org.folio.rest.acq.model.orders.Contributor;
 import org.folio.rest.acq.model.orders.Cost;
 import org.folio.rest.acq.model.orders.Details;
 import org.folio.rest.acq.model.orders.FundDistribution;
-import org.folio.rest.acq.model.orders.Location;
 import org.folio.rest.acq.model.orders.OrderFormat;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.folio.rest.acq.model.orders.ProductIdentifier;
 import org.folio.rest.acq.model.orders.ReferenceNumberItem;
 import org.folio.rest.acq.model.orders.VendorDetail;
+import org.folio.rest.jaxrs.model.acq.Location;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
