@@ -665,7 +665,7 @@ class MosaicConverterTest {
     var holdingId = UUID.randomUUID().toString();
 
     var locations = List.of(
-      new org.folio.rest.acq.model.mosaic.Location()
+      new org.folio.rest.jaxrs.model.acq.Location()
         .withLocationId(locationId)
         .withQuantity(2)
         .withHoldingId(holdingId)
