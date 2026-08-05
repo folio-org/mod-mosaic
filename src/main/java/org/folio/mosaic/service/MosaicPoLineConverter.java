@@ -192,7 +192,9 @@ public class MosaicPoLineConverter {
     }
     if (ObjectUtils.isNotEmpty(mosaicOrder.getDiscount())) {
       cost.setDiscount(mosaicOrder.getDiscount());
-      cost.setDiscountType(Cost.DiscountType.fromValue(mosaicOrder.getDiscountType().toString()));
+      if (ObjectUtils.isNotEmpty(mosaicOrder.getDiscountType())) {
+        cost.setDiscountType(Cost.DiscountType.fromValue(mosaicOrder.getDiscountType().toString()));
+      }
     }
 
     poLine.setCost(cost);
