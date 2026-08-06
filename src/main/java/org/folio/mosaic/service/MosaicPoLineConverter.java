@@ -181,6 +181,9 @@ public class MosaicPoLineConverter {
     if (isNotBlank(mosaicOrder.getCurrency())) {
       cost.setCurrency(mosaicOrder.getCurrency());
     }
+    if (ObjectUtils.isNotEmpty(mosaicOrder.getAdditionalCost())) {
+      cost.setAdditionalCost(mosaicOrder.getAdditionalCost());
+    }
     if (ObjectUtils.isNotEmpty(mosaicOrder.getDiscount())) {
       cost.setDiscount(mosaicOrder.getDiscount());
       if (ObjectUtils.isNotEmpty(mosaicOrder.getDiscountType())) {

@@ -1352,6 +1352,56 @@ class MosaicConverterTest {
     assertEquals(Cost.DiscountType.AMOUNT, resultCost.getDiscountType());
   }
 
+  @Test
+  void testAdditionalCostOverrideFromRequest() {
+    var orderTemplate = new CompositePurchaseOrder().withId(UUID.randomUUID().toString());
+
+    var poLineTemplate = new CompositePoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withListUnitPriceElectronic(153.00)
+        .withCurrency("GBP")
+        .withQuantityElectronic(1)
+        .withQuantityPhysical(0));
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Applied Petroleum Geomechanics")
+      .withListUnitPriceElectronic(153.00)
+      .withCurrency("GBP")
+      .withQuantityElectronic(1)
+      .withAdditionalCost(12.50);
+
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, Pair.of(orderTemplate, poLineTemplate));
+    var resultCost = result.getCompositePoLines().getFirst().getCost();
+
+    assertEquals(12.50, resultCost.getAdditionalCost());
+  }
+
+  @Test
+  void testAdditionalCostFromTemplatePreservedWhenNotInRequest() {
+    var orderTemplate = new CompositePurchaseOrder().withId(UUID.randomUUID().toString());
+
+    var poLineTemplate = new CompositePoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withListUnitPriceElectronic(100.0)
+        .withCurrency("USD")
+        .withQuantityElectronic(1)
+        .withAdditionalCost(5.0));
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Cost override with no additional cost field")
+      .withListUnitPriceElectronic(200.0);
+
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, Pair.of(orderTemplate, poLineTemplate));
+    var resultCost = result.getCompositePoLines().getFirst().getCost();
+
+    assertEquals(200.0, resultCost.getListUnitPriceElectronic());
+    assertEquals(5.0, resultCost.getAdditionalCost());
+  }
+
   private CompositePoLine createPoLineTemplate(boolean checkinItemsValue) {
     var vendorDetail = new VendorDetail();
     var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
