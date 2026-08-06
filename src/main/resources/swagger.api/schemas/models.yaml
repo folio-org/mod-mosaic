@@ -81,6 +81,9 @@ MosaicOrder:
     quantityElectronic:
       type: integer
       description: Quantity of electronic items in this purchase order line
+    additionalCost:
+      type: number
+      description: Lump sum that is added to the total estimated price - not affected by discount
     discount:
       type: number
       description: Percentage (0 to 100) or amount (positive number) that is subtracted from the list price time quantities calculation before additional cost
