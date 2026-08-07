@@ -1,4 +1,12 @@
-## 1.1.0 - Released (Trillium R2 2025)
+## 1.1.1 - Released (Trillium R1 2026)
+This release focused on adding discount functionality to Mosaic orders integration.
+
+[Full Changelog](https://github.com/folio-org/mod-mosaic/compare/v1.1.0...v1.1.1)
+
+### Stories
+* [MODMO-33](https://folio-org.atlassian.net/browse/MODMO-33) - Add discount functionality to Mosaic orders integration
+
+## 1.1.0 - Released (Trillium R1 2026)
 This release focused on upgrading to Spring Boot 4.0 / Spring 7.0, enhancements for Mosaic integration, and adding the "Generate Integration Templates" endpoint.
 
 [Full Changelog](https://github.com/folio-org/mod-mosaic/compare/v1.0.0...v1.1.0)
