@@ -1,5 +1,11 @@
 ## 1.1.0 - Unreleased
 
+## 1.0.1 - Released (Sunflower R1 2025 Service Patch)
+
+### Stories
+
+* [MODMO-32](https://issues.folio.org/browse/MODMO-32) - Support discount, discountType and additionalCost on MosaicOrder API requests
+
 ## 1.0.0 - Released (Sunflower R1 2025)
 Initial release for Mosaic integration.
 
