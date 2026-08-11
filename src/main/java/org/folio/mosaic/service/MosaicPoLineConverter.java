@@ -246,9 +246,12 @@ public class MosaicPoLineConverter {
       return;
     }
     var referenceNumbers = mosaicOrder.getReferenceNumbers().stream()
-      .map(mosaicRefNumber -> new ReferenceNumberItem()
-        .withRefNumber(mosaicRefNumber.getRefNumber())
-        .withRefNumberType(ReferenceNumberItem.RefNumberType.fromValue(mosaicRefNumber.getRefNumberType().toString())))
+      .map(mosaicRefNumber -> {
+        var type = mosaicRefNumber.getRefNumberType();
+        return new ReferenceNumberItem()
+          .withRefNumber(mosaicRefNumber.getRefNumber())
+          .withRefNumberType(type == null ? null : ReferenceNumberItem.RefNumberType.fromValue(type.toString()));
+      })
       .toList();
 
     var vendorDetail = ObjectUtils.isNotEmpty(poLine.getVendorDetail())

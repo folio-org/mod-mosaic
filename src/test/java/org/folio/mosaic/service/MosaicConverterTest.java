@@ -1462,47 +1462,15 @@ class MosaicConverterTest {
     assertNotNull(result.getOngoing());
   }
 
-  @Test
-  void testReferenceNumbersMappedWhenVendorOnlyInTemplate() {
-    // Reproduces the bug where refNumbers were dropped if the request omitted vendor
-    // and relied on the template to supply it.
-    var orderTemplate = new CompositePurchaseOrder()
-      .withId(UUID.randomUUID().toString())
-      .withVendor("template-vendor");
-
-    var poLineTemplate = new PoLine()
-      .withTitleOrPackage("Default Title")
-      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
-      .withCost(new Cost()
-        .withListUnitPriceElectronic(10.0)
-        .withCurrency("USD")
-        .withQuantityElectronic(1));
-
-    var mosaicOrder = new MosaicOrder()
-      .withTitle("Vendor from template")
-      .withReferenceNumbers(List.of(
-        new ReferenceNumberItem()
-          .withRefNumber("O-Q8G-Q9C")
-          .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_ORDER_REFERENCE_NUMBER)));
-
-    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, Pair.of(orderTemplate, poLineTemplate));
-    var resultPoLine = result.getPoLines().getFirst();
-
-    assertEquals("template-vendor", result.getVendor());
-    assertNotNull(resultPoLine.getVendorDetail());
-    assertEquals(1, resultPoLine.getVendorDetail().getReferenceNumbers().size());
-    assertEquals("O-Q8G-Q9C", resultPoLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumber());
-    assertEquals(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_ORDER_REFERENCE_NUMBER,
-      resultPoLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumberType());
-  }
-
-  @Test
-  void testReferenceNumbersMergedIntoTemplateVendorDetailPreservingOtherFields() {
-    var templateVendorDetail = new VendorDetail()
-      .withVendorAccount("account-1")
-      .withInstructions("Handle with care")
-      .withNoteFromVendor("Note from template");
-
+  @ParameterizedTest
+  @MethodSource("testReferenceNumbersMappedWhenVendorOnlyInTemplateArgs")
+  void testReferenceNumbersMappedWhenVendorOnlyInTemplate(VendorDetail templateVendorDetail,
+                                                          String expectedVendorAccount,
+                                                          String expectedInstructions,
+                                                          String expectedNoteFromVendor) {
+    // Reproduces the bug: when the request omits vendor and inherits it from the template,
+    // referenceNumbers must still be mapped onto the PO line. When the template already
+    // carries a VendorDetail, its other fields must survive the merge.
     var orderTemplate = new CompositePurchaseOrder()
       .withId(UUID.randomUUID().toString())
       .withVendor("template-vendor");
@@ -1517,7 +1485,7 @@ class MosaicConverterTest {
         .withQuantityElectronic(1));
 
     var mosaicOrder = new MosaicOrder()
-      .withTitle("Merge into template vendor detail")
+      .withTitle("Vendor from template")
       .withReferenceNumbers(List.of(
         new ReferenceNumberItem()
           .withRefNumber("O-Q8G-Q9C")
@@ -1526,12 +1494,29 @@ class MosaicConverterTest {
     var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, Pair.of(orderTemplate, poLineTemplate));
     var resultVendorDetail = result.getPoLines().getFirst().getVendorDetail();
 
+    assertEquals("template-vendor", result.getVendor());
     assertNotNull(resultVendorDetail);
-    assertEquals("account-1", resultVendorDetail.getVendorAccount());
-    assertEquals("Handle with care", resultVendorDetail.getInstructions());
-    assertEquals("Note from template", resultVendorDetail.getNoteFromVendor());
     assertEquals(1, resultVendorDetail.getReferenceNumbers().size());
     assertEquals("O-Q8G-Q9C", resultVendorDetail.getReferenceNumbers().getFirst().getRefNumber());
+    assertEquals(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_ORDER_REFERENCE_NUMBER,
+      resultVendorDetail.getReferenceNumbers().getFirst().getRefNumberType());
+    assertEquals(expectedVendorAccount, resultVendorDetail.getVendorAccount());
+    assertEquals(expectedInstructions, resultVendorDetail.getInstructions());
+    assertEquals(expectedNoteFromVendor, resultVendorDetail.getNoteFromVendor());
+  }
+
+  static Stream<Arguments> testReferenceNumbersMappedWhenVendorOnlyInTemplateArgs() {
+    return Stream.of(
+      // No template VendorDetail — request refs land on a fresh VendorDetail
+      Arguments.of(null, null, null, null),
+      // Template VendorDetail present — request refs merge in, template fields survive
+      Arguments.of(
+        new VendorDetail()
+          .withVendorAccount("account-1")
+          .withInstructions("Handle with care")
+          .withNoteFromVendor("Note from template"),
+        "account-1", "Handle with care", "Note from template")
+    );
   }
 
   @Test
@@ -1562,6 +1547,35 @@ class MosaicConverterTest {
     assertNotNull(resultVendorDetail);
     assertEquals("account-1", resultVendorDetail.getVendorAccount());
     assertEquals("Handle with care", resultVendorDetail.getInstructions());
+  }
+
+  @Test
+  void testReferenceNumberWithNullTypeIsMappedWithoutNpe() {
+    // Schema does not mark refNumberType as required — a client may POST refNumber
+    // without a type. The converter must not throw NPE; the mapped item preserves the null type.
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(UUID.randomUUID().toString())
+      .withVendor("template-vendor");
+
+    var poLineTemplate = new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD")
+        .withQuantityElectronic(1));
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Ref without type")
+      .withReferenceNumbers(List.of(
+        new ReferenceNumberItem().withRefNumber("O-Q8G-Q9C")));
+
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, Pair.of(orderTemplate, poLineTemplate));
+    var resultRefs = result.getPoLines().getFirst().getVendorDetail().getReferenceNumbers();
+
+    assertEquals(1, resultRefs.size());
+    assertEquals("O-Q8G-Q9C", resultRefs.getFirst().getRefNumber());
+    assertNull(resultRefs.getFirst().getRefNumberType());
   }
 
   private PoLine createPoLineTemplate(boolean checkinItemsValue) {
