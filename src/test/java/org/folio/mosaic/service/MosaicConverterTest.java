@@ -1462,6 +1462,108 @@ class MosaicConverterTest {
     assertNotNull(result.getOngoing());
   }
 
+  @Test
+  void testReferenceNumbersMappedWhenVendorOnlyInTemplate() {
+    // Reproduces the bug where refNumbers were dropped if the request omitted vendor
+    // and relied on the template to supply it.
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(UUID.randomUUID().toString())
+      .withVendor("template-vendor");
+
+    var poLineTemplate = new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withCost(new Cost()
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD")
+        .withQuantityElectronic(1));
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Vendor from template")
+      .withReferenceNumbers(List.of(
+        new ReferenceNumberItem()
+          .withRefNumber("O-Q8G-Q9C")
+          .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_ORDER_REFERENCE_NUMBER)));
+
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, Pair.of(orderTemplate, poLineTemplate));
+    var resultPoLine = result.getPoLines().getFirst();
+
+    assertEquals("template-vendor", result.getVendor());
+    assertNotNull(resultPoLine.getVendorDetail());
+    assertEquals(1, resultPoLine.getVendorDetail().getReferenceNumbers().size());
+    assertEquals("O-Q8G-Q9C", resultPoLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumber());
+    assertEquals(org.folio.rest.acq.model.orders.ReferenceNumberItem.RefNumberType.VENDOR_ORDER_REFERENCE_NUMBER,
+      resultPoLine.getVendorDetail().getReferenceNumbers().getFirst().getRefNumberType());
+  }
+
+  @Test
+  void testReferenceNumbersMergedIntoTemplateVendorDetailPreservingOtherFields() {
+    var templateVendorDetail = new VendorDetail()
+      .withVendorAccount("account-1")
+      .withInstructions("Handle with care")
+      .withNoteFromVendor("Note from template");
+
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(UUID.randomUUID().toString())
+      .withVendor("template-vendor");
+
+    var poLineTemplate = new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withVendorDetail(templateVendorDetail)
+      .withCost(new Cost()
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD")
+        .withQuantityElectronic(1));
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("Merge into template vendor detail")
+      .withReferenceNumbers(List.of(
+        new ReferenceNumberItem()
+          .withRefNumber("O-Q8G-Q9C")
+          .withRefNumberType(ReferenceNumberItem.RefNumberType.VENDOR_ORDER_REFERENCE_NUMBER)));
+
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, Pair.of(orderTemplate, poLineTemplate));
+    var resultVendorDetail = result.getPoLines().getFirst().getVendorDetail();
+
+    assertNotNull(resultVendorDetail);
+    assertEquals("account-1", resultVendorDetail.getVendorAccount());
+    assertEquals("Handle with care", resultVendorDetail.getInstructions());
+    assertEquals("Note from template", resultVendorDetail.getNoteFromVendor());
+    assertEquals(1, resultVendorDetail.getReferenceNumbers().size());
+    assertEquals("O-Q8G-Q9C", resultVendorDetail.getReferenceNumbers().getFirst().getRefNumber());
+  }
+
+  @Test
+  void testTemplateVendorDetailPreservedWhenRequestHasNoReferenceNumbers() {
+    var templateVendorDetail = new VendorDetail()
+      .withVendorAccount("account-1")
+      .withInstructions("Handle with care");
+
+    var orderTemplate = new CompositePurchaseOrder()
+      .withId(UUID.randomUUID().toString())
+      .withVendor("template-vendor");
+
+    var poLineTemplate = new PoLine()
+      .withTitleOrPackage("Default Title")
+      .withOrderFormat(OrderFormat.ELECTRONIC_RESOURCE)
+      .withVendorDetail(templateVendorDetail)
+      .withCost(new Cost()
+        .withListUnitPriceElectronic(10.0)
+        .withCurrency("USD")
+        .withQuantityElectronic(1));
+
+    var mosaicOrder = new MosaicOrder()
+      .withTitle("No reference numbers on request");
+
+    var result = mosaicOrderConverter.convertToCompositePurchaseOrder(mosaicOrder, Pair.of(orderTemplate, poLineTemplate));
+    var resultVendorDetail = result.getPoLines().getFirst().getVendorDetail();
+
+    assertNotNull(resultVendorDetail);
+    assertEquals("account-1", resultVendorDetail.getVendorAccount());
+    assertEquals("Handle with care", resultVendorDetail.getInstructions());
+  }
+
   private PoLine createPoLineTemplate(boolean checkinItemsValue) {
     var vendorDetail = new VendorDetail();
     var referenceNumbers = List.of(new org.folio.rest.acq.model.orders.ReferenceNumberItem()
