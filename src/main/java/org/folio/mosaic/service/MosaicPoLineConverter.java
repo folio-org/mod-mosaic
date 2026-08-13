@@ -18,11 +18,9 @@ import org.folio.rest.acq.model.orders.VendorDetail;
 import org.folio.rest.jaxrs.model.acq.Location;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.folio.mosaic.util.error.CustomFieldsUtil.getCustomFieldsByEntityType;
 import static org.folio.rest.acq.model.mosaic.MosaicCustomFields.EntityType.PO_LINE;
@@ -244,21 +242,21 @@ public class MosaicPoLineConverter {
   }
 
   private void updatePoLineVendor(MosaicOrder mosaicOrder, PoLine poLine) {
-    if (isBlank(mosaicOrder.getVendor())) {
+    if (CollectionUtils.isEmpty(mosaicOrder.getReferenceNumbers())) {
       return;
     }
-    var vendorDetail = new VendorDetail();
-    var referenceNumbers = new ArrayList<ReferenceNumberItem>();
+    var referenceNumbers = mosaicOrder.getReferenceNumbers().stream()
+      .map(mosaicRefNumber -> {
+        var type = mosaicRefNumber.getRefNumberType();
+        return new ReferenceNumberItem()
+          .withRefNumber(mosaicRefNumber.getRefNumber())
+          .withRefNumberType(type == null ? null : ReferenceNumberItem.RefNumberType.fromValue(type.toString()));
+      })
+      .toList();
 
-    for (var mosaicRefNumber : mosaicOrder.getReferenceNumbers()) {
-      var referenceNumber = new ReferenceNumberItem();
-      referenceNumber.setRefNumber(mosaicRefNumber.getRefNumber());
-      referenceNumber.setRefNumberType(ReferenceNumberItem.RefNumberType.fromValue(mosaicRefNumber.getRefNumberType().toString()));
-      referenceNumbers.add(referenceNumber);
-    }
-
+    var vendorDetail = ObjectUtils.isNotEmpty(poLine.getVendorDetail())
+      ? poLine.getVendorDetail() : new VendorDetail();
     vendorDetail.setReferenceNumbers(referenceNumbers);
-
     poLine.setVendorDetail(vendorDetail);
   }
 
