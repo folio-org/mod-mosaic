@@ -1,3 +1,11 @@
+## 1.1.2 - Released (Trillium R1 2026)
+This release focused on fixing mapping of vendor reference numbers.
+
+[Full Changelog](https://github.com/folio-org/mod-mosaic/compare/v1.1.1...v1.1.2)
+
+### Stories
+* [MODMO-33](https://folio-org.atlassian.net/browse/MODMO-35) - Apply reference numbers when vendor is null in request
+
 ## 1.1.1 - Released (Trillium R1 2026)
 This release focused on adding discount functionality to Mosaic orders integration.
 
