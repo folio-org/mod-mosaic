@@ -1,3 +1,8 @@
+## WIP
+
+### Stories
+* [MODINVOICE-665](https://folio-org.atlassian.net/browse/MODINVOICE-665) - Upgrade from Java 21 to Java 25
+
 ## 1.1.0 - Released (Trillium R2 2025)
 This release focused on upgrading to Spring Boot 4.0 / Spring 7.0, enhancements for Mosaic integration, and adding the "Generate Integration Templates" endpoint.
 
