@@ -134,6 +134,41 @@
         "essential": true
       },
       {
+        "name": "SERVER_PORT",
+        "value": "8081",
+        "description": "HTTP port the module listens on (overrides server.port from application.yml). Must match the port in the sidecar's MODULE_URL",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_REQUEST_ENABLED",
+        "value": false,
+        "description": "Enables logging of incoming requests (folio-spring-base). Intended for troubleshooting only; adds a log record per request",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_REQUEST_LEVEL",
+        "value": "BASIC",
+        "description": "Detail level for incoming request logging (NONE, BASIC, HEADERS, FULL). Applies when FOLIO_LOGGING_REQUEST_ENABLED is true",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_EXCHANGE_ENABLED",
+        "value": false,
+        "description": "Enables logging of outgoing HTTP exchanges to mod-orders and mod-organizations (folio-spring-base). Intended for troubleshooting only",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_EXCHANGE_LEVEL",
+        "value": "BASIC",
+        "description": "Detail level for outgoing exchange logging (NONE, BASIC, HEADERS, FULL). Applies when FOLIO_LOGGING_EXCHANGE_ENABLED is true",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
         "name": "ENV",
         "value": null,
         "description": "Deployment environment identifier (folio.environment); a-z (any case), 0-9, '-' and '_' only. Module default is 'folio'",
