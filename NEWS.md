@@ -1,3 +1,12 @@
+## 1.1.3 - Released (Trillium R1 2026 Bugfix)
+This release focused on upgrading to Spring Boot 4.1 and adding DeployConfig.json
+
+[Full Changelog](https://github.com/folio-org/mod-mosaic/compare/v1.1.2...v1.1.3)
+
+### Stories
+* [MODMO-36](https://folio-org.atlassian.net/browse/MODMO-36) - Add DeployConfig.json to mod-mosaic
+* [MODMO-41](https://folio-org.atlassian.net/browse/MODMO-41) - Upgrade to SpringBoot 4.1
+
 ## 1.1.2 - Released (Trillium R1 2026)
 This release focused on fixing mapping of vendor reference numbers.
 

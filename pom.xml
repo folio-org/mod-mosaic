@@ -5,14 +5,14 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.2</version>
+    <version>4.1.1</version>
     <relativePath />
   </parent>
 
   <groupId>org.folio</groupId>
   <artifactId>mod-mosaic</artifactId>
   <name>mod-mosaic</name>
-  <version>1.1.3-SNAPSHOT</version>
+  <version>1.1.4-SNAPSHOT</version>
   <description>Business logic for integration with Mosaic ordering system</description>
   <packaging>jar</packaging>
 
@@ -48,9 +48,10 @@
 
     <!-- Folio dependencies properties -->
     <folio-module-descriptor-validator.version>1.0.1</folio-module-descriptor-validator.version>
-    <folio-spring-base.version>10.0.0-RC1</folio-spring-base.version>
+    <folio-spring-base.version>10.0.1</folio-spring-base.version>
 
     <!-- Other dependencies -->
+    <liquibase.version>4.33.0</liquibase.version>
     <lombok.version>1.18.42</lombok.version>
     <mapstruct.version>1.6.3</mapstruct.version>
 
