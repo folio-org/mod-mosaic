@@ -1,0 +1,267 @@
+{
+  "description": "mod-mosaic deployment configuration template. mod-mosaic receives MOSAIC purchase requests and creates purchase orders through mod-orders and mod-organizations. Resource and JVM figures are a starting point to be confirmed by PTF, not a performance measurement.",
+  "moduleDefaults": {
+    "resources": [
+      {
+        "name": "cpu",
+        "value": "64",
+        "description": "CPU request/limit for the mod-mosaic container"
+      },
+      {
+        "name": "memory",
+        "value": "1024",
+        "description": "Memory hard limit for the mod-mosaic container, in MB"
+      },
+      {
+        "name": "memoryReservation",
+        "value": "896",
+        "description": "Memory reservation (soft limit) for the mod-mosaic container, in MB"
+      }
+    ],
+    "java": [
+      {
+        "name": "xmx",
+        "value": "768m",
+        "description": "Maximum Java heap size"
+      },
+      {
+        "name": "MaxMetaspaceSize",
+        "value": "128m",
+        "description": "Maximum Java metaspace size"
+      },
+      {
+        "name": "MetaspaceSize",
+        "value": "88m",
+        "description": "Initial Java metaspace size (threshold for the first metaspace GC, not a limit)"
+      }
+    ],
+    "deployment": {
+      "isHaSupported": true,
+      "replicasRecommendedCount": 2,
+      "description": "mod-mosaic is stateless (all state lives in PostgreSQL) and supports multiple replicas for HA. Two replicas cover rolling deploys; the module's request volume is low."
+    },
+    "kong": {
+      "timeouts": {
+        "connect": "60s",
+        "send": "60s",
+        "read": "60s"
+      },
+      "description": "Default Kong proxy timeouts are sufficient for mod-mosaic order-creation endpoints, which synchronously call mod-orders and mod-organizations. Use this only if different from default Kong configuration."
+    },
+    "EnvVars": [
+      {
+        "name": "DB_HOST",
+        "value": null,
+        "description": "PostgreSQL database host. Required at startup: Liquibase migrations and Hibernate schema validation run against it",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_PORT",
+        "value": "5432",
+        "description": "PostgreSQL database port",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_USERNAME",
+        "value": null,
+        "description": "PostgreSQL database username (sourced from secret store). Needs rights to create tenant schemas",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_PASSWORD",
+        "value": null,
+        "description": "PostgreSQL database password (sourced from secret store)",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_DATABASE",
+        "value": null,
+        "description": "PostgreSQL database name; tenant data is kept in per-tenant schemas inside it",
+        "type": "DB",
+        "essential": true
+      },
+      {
+        "name": "DB_MAXSHAREDPOOLSIZE",
+        "value": "20",
+        "description": "Maximum HikariCP connection pool size shared by all tenants (HikariCP default is 10 when unset). Keep replicas x this value within the PostgreSQL max_connections budget",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_MINSHAREDPOOLSIZE",
+        "value": "0",
+        "description": "Minimum number of idle connections HikariCP keeps in the pool",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_CONNECTIONRELEASEDELAY",
+        "value": "60000",
+        "description": "Time in milliseconds an idle connection stays in the pool before it is closed",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_MAX_LIFETIME",
+        "value": "1800000",
+        "description": "Maximum lifetime of a pooled connection in milliseconds; keep it below any database- or proxy-side connection timeout",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_QUERYTIMEOUT",
+        "value": null,
+        "description": "Statement timeout in milliseconds applied to every connection; when unset, queries do not time out",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "DB_CHARSET",
+        "value": "UTF-8",
+        "description": "JDBC character encoding for database connections",
+        "type": "DB",
+        "essential": false
+      },
+      {
+        "name": "OKAPI_URL",
+        "value": "http://sidecar:8081",
+        "description": "Base URL for outbound calls to mod-orders and mod-organizations; on Eureka this is the module's own sidecar. If it is wrong, every order-creation request fails",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "SERVER_PORT",
+        "value": "8081",
+        "description": "HTTP port the module listens on (overrides server.port from application.yml). Must match the port in the sidecar's MODULE_URL",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_REQUEST_ENABLED",
+        "value": false,
+        "description": "Enables logging of incoming requests (folio-spring-base). Intended for troubleshooting only; adds a log record per request",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_REQUEST_LEVEL",
+        "value": "BASIC",
+        "description": "Detail level for incoming request logging (NONE, BASIC, HEADERS, FULL). Applies when FOLIO_LOGGING_REQUEST_ENABLED is true",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_EXCHANGE_ENABLED",
+        "value": false,
+        "description": "Enables logging of outgoing HTTP exchanges to mod-orders and mod-organizations (folio-spring-base). Intended for troubleshooting only",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "FOLIO_LOGGING_EXCHANGE_LEVEL",
+        "value": "BASIC",
+        "description": "Detail level for outgoing exchange logging (NONE, BASIC, HEADERS, FULL). Applies when FOLIO_LOGGING_EXCHANGE_ENABLED is true",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "ENV",
+        "value": null,
+        "description": "Deployment environment identifier (folio.environment); a-z (any case), 0-9, '-' and '_' only. Module default is 'folio'",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "LOG4J_CONFIGURATION_FILE",
+        "value": null,
+        "description": "Location (path or URL) of an external log4j2 configuration; the bundled log4j2.properties is used when unset",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "JAVA_OPTIONS",
+        "value": null,
+        "description": "Additional JVM options for the mod-mosaic process (heap sizing, GC, agent flags, etc.). This is the variable honoured by the run-java.sh entrypoint of the folioci/alpine-jre-openjdk21 base image; JAVA_OPTS and JAVA_ARGS are ignored",
+        "type": "CONFIG",
+        "essential": true
+      }
+    ]
+  },
+  "sidecarDefaults": {
+    "resources": [
+      {
+        "name": "cpu",
+        "value": "64",
+        "description": "CPU request/limit for the sidecar container"
+      },
+      {
+        "name": "memory",
+        "value": "1024",
+        "description": "Memory hard limit for the sidecar container, in MB"
+      },
+      {
+        "name": "memoryReservation",
+        "value": "512",
+        "description": "Memory reservation for the sidecar container, in MB"
+      }
+    ],
+    "java": [
+      {
+        "name": "xms",
+        "value": "128m",
+        "description": "Initial Java heap size"
+      },
+      {
+        "name": "xmx",
+        "value": "256m",
+        "description": "Maximum Java heap size"
+      },
+      {
+        "name": "MaxMetaspaceSize",
+        "value": "96m",
+        "description": "Maximum Java metaspace size"
+      }
+    ],
+    "EnvVars": [
+      {
+        "name": "ENV",
+        "value": null,
+        "description": "Deployment environment identifier; must match the module's ENV",
+        "type": "CONFIG",
+        "essential": false
+      },
+      {
+        "name": "JAVA_OPTS",
+        "value": null,
+        "description": "Additional JVM options for the sidecar process",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_NAME",
+        "value": "mod-mosaic",
+        "description": "Name of the backend module the sidecar fronts",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_URL",
+        "value": null,
+        "description": "Internal URL (host:port) at which the mod-mosaic backend container is reachable from its sidecar; mod-mosaic listens on port 8081",
+        "type": "CONFIG",
+        "essential": true
+      },
+      {
+        "name": "MODULE_VERSION",
+        "value": null,
+        "description": "Version of the mod-mosaic module deployed alongside this sidecar",
+        "type": "CONFIG",
+        "essential": true
+      }
+    ]
+  }
+}
