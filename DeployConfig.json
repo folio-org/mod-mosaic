@@ -187,7 +187,7 @@
         "value": null,
         "description": "Additional JVM options for the mod-mosaic process (heap sizing, GC, agent flags, etc.). This is the variable honoured by the run-java.sh entrypoint of the folioci/alpine-jre-openjdk21 base image; JAVA_OPTS and JAVA_ARGS are ignored",
         "type": "CONFIG",
-        "essential": true
+        "essential": false
       }
     ]
   },
