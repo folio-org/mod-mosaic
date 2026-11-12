@@ -173,7 +173,7 @@
         "value": null,
         "description": "Deployment environment identifier (folio.environment); a-z (any case), 0-9, '-' and '_' only. Module default is 'folio'",
         "type": "CONFIG",
-        "essential": false
+        "essential": true
       },
       {
         "name": "LOG4J_CONFIGURATION_FILE",
@@ -185,7 +185,7 @@
       {
         "name": "JAVA_OPTIONS",
         "value": null,
-        "description": "Additional JVM options for the mod-mosaic process (heap sizing, GC, agent flags, etc.). This is the variable honoured by the run-java.sh entrypoint of the folioci/alpine-jre-openjdk21 base image; JAVA_OPTS and JAVA_ARGS are ignored",
+        "description": "Additional JVM options for the mod-mosaic process (heap sizing, GC, agent flags, etc.)",
         "type": "CONFIG",
         "essential": false
       }
