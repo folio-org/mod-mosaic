@@ -1,5 +1,5 @@
 {
-  "description": "mod-mosaic deployment configuration template. mod-mosaic receives MOSAIC purchase requests and creates purchase orders through mod-orders and mod-organizations. Resource and JVM figures are a starting point to be confirmed by PTF, not a performance measurement.",
+  "description": "mod-mosaic deployment configuration template. Default values are calibrated against a reference bugfest environment (tebfcon-mod-mosaic revision 13); see ADR-0013 (Module configuration management) for the governance model behind this file. mod-mosaic receives MOSAIC purchase requests and creates purchase orders through mod-orders and mod-organizations. Resource and JVM figures are a starting point to be confirmed by PTF, not a performance measurement.",
   "moduleDefaults": {
     "resources": [
       {
@@ -233,13 +233,6 @@
         "description": "Deployment environment identifier; must match the module's ENV",
         "type": "CONFIG",
         "essential": true
-      },
-      {
-        "name": "JAVA_OPTS",
-        "value": null,
-        "description": "Additional JVM options for the sidecar process",
-        "type": "CONFIG",
-        "essential": false
       },
       {
         "name": "MODULE_NAME",
