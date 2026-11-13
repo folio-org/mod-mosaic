@@ -1,5 +1,5 @@
 {
-  "description": "mod-mosaic deployment configuration template. mod-mosaic receives MOSAIC purchase requests and creates purchase orders through mod-orders and mod-organizations. Resource and JVM figures are a starting point to be confirmed by PTF, not a performance measurement.",
+  "description": "mod-mosaic deployment configuration template. Default values are calibrated against a reference bugfest environment (tebfcon-mod-mosaic revision 13); see ADR-0013 (Module configuration management) for the governance model behind this file. mod-mosaic receives MOSAIC purchase requests and creates purchase orders through mod-orders and mod-organizations. Resource and JVM figures are a starting point to be confirmed by PTF, not a performance measurement.",
   "moduleDefaults": {
     "resources": [
       {
@@ -128,7 +128,7 @@
       },
       {
         "name": "OKAPI_URL",
-        "value": "http://sidecar:8081",
+        "value": null,
         "description": "Base URL for outbound calls to mod-orders and mod-organizations; on Eureka this is the module's own sidecar. If it is wrong, every order-creation request fails",
         "type": "CONFIG",
         "essential": true
@@ -173,7 +173,7 @@
         "value": null,
         "description": "Deployment environment identifier (folio.environment); a-z (any case), 0-9, '-' and '_' only. Module default is 'folio'",
         "type": "CONFIG",
-        "essential": false
+        "essential": true
       },
       {
         "name": "LOG4J_CONFIGURATION_FILE",
@@ -185,9 +185,9 @@
       {
         "name": "JAVA_OPTIONS",
         "value": null,
-        "description": "Additional JVM options for the mod-mosaic process (heap sizing, GC, agent flags, etc.). This is the variable honoured by the run-java.sh entrypoint of the folioci/alpine-jre-openjdk21 base image; JAVA_OPTS and JAVA_ARGS are ignored",
+        "description": "Additional JVM options for the mod-mosaic process (heap sizing, GC, agent flags, etc.)",
         "type": "CONFIG",
-        "essential": true
+        "essential": false
       }
     ]
   },
@@ -231,13 +231,6 @@
         "name": "ENV",
         "value": null,
         "description": "Deployment environment identifier; must match the module's ENV",
-        "type": "CONFIG",
-        "essential": false
-      },
-      {
-        "name": "JAVA_OPTS",
-        "value": null,
-        "description": "Additional JVM options for the sidecar process",
         "type": "CONFIG",
         "essential": true
       },
