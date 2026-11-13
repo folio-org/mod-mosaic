@@ -128,7 +128,7 @@
       },
       {
         "name": "OKAPI_URL",
-        "value": "http://sidecar:8081",
+        "value": null,
         "description": "Base URL for outbound calls to mod-orders and mod-organizations; on Eureka this is the module's own sidecar. If it is wrong, every order-creation request fails",
         "type": "CONFIG",
         "essential": true
