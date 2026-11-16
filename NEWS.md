@@ -1,3 +1,11 @@
+## 1.1.4 - Released (Trillium R1 2026 Bugfix)
+This release focused on updating essential flags in DeployConfig.json
+
+[Full Changelog](https://github.com/folio-org/mod-mosaic/compare/v1.1.3...v1.1.4)
+
+### Stories
+* [MODMO-36](https://folio-org.atlassian.net/browse/MODMO-36) - Align DeployConfig essential flags and env-specific values with fse-check-deploy-config
+
 ## 1.1.3 - Released (Trillium R1 2026 Bugfix)
 This release focused on upgrading to Spring Boot 4.1 and adding DeployConfig.json
 
