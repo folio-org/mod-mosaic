@@ -1,6 +1,5 @@
 package org.folio.mosaic.client;
 
-import java.io.InputStream;
 import java.util.Optional;
 
 import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
+import tools.jackson.databind.JsonNode;
 
 @HttpExchange("orders")
 public interface OrdersClient {
@@ -18,7 +18,7 @@ public interface OrdersClient {
   CompositePurchaseOrder createOrder(@RequestBody CompositePurchaseOrder poLine);
 
   @GetExchange(value = "/order-templates/{templateId}")
-  Optional<InputStream> getOrderTemplateAsResponse(@PathVariable String templateId);
+  Optional<JsonNode> getOrderTemplateJson(@PathVariable String templateId);
 
   @PostExchange("/order-templates")
   void createOrderTemplate(@RequestBody OrderTemplate template);

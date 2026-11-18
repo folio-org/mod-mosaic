@@ -1,6 +1,6 @@
 package org.folio.mosaic.service;
 
-import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -14,9 +14,6 @@ import org.folio.rest.acq.model.orders.CompositePurchaseOrder;
 import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 
 @Log4j2
 @Service
@@ -60,8 +57,8 @@ public class OrdersService {
   }
 
   public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
-    return ordersClient.getOrderTemplateAsResponse(templateId)
-      .map(this::responseToOrderAndPoLineObjects)
+    return ordersClient.getOrderTemplateJson(templateId)
+      .map(this::toOrderAndPoLine)
       .orElse(null);
   }
 
@@ -69,20 +66,13 @@ public class OrdersService {
     ordersClient.createOrderTemplate(orderTemplate);
   }
 
-  @SneakyThrows
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(InputStream inputStream) {
-    try (inputStream) {
-      var byteArrayOutputStream = new ByteArrayOutputStream();
-      inputStream.transferTo(byteArrayOutputStream);
-
-      var byteArray = byteArrayOutputStream.toByteArray();
-      var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
-      var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
-      if (order == null || order.getId() == null) {
-        return null;
-      }
-
-      return Pair.of(order, poLine);
+  private Pair<CompositePurchaseOrder, PoLine> toOrderAndPoLine(JsonNode template) {
+    var order = objectMapper.treeToValue(template, CompositePurchaseOrder.class);
+    var poLine = objectMapper.treeToValue(template, PoLine.class);
+    if (order == null || order.getId() == null) {
+      return null;
     }
+
+    return Pair.of(order, poLine);
   }
 }

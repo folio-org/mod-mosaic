@@ -9,9 +9,9 @@ import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
-import java.io.ByteArrayInputStream;
+import tools.jackson.databind.node.JsonNodeFactory;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,7 +66,7 @@ class OrdersServiceTest {
 
     // Then
     assertEquals("POL12345", result);
-    verify(ordersClient).getOrderTemplateAsResponse(templateId);
+    verify(ordersClient).getOrderTemplateJson(templateId);
     verify(orderConverter).convertToCompositePurchaseOrder(eq(orderRequest.getMosaicOrder()), any());
     verify(ordersClient).createOrder(expectedCompositeOrder);
   }
@@ -100,7 +100,7 @@ class OrdersServiceTest {
     // Then
     assertEquals("POL12345", result);
     verify(configurationService).getConfiguration();
-    verify(ordersClient).getOrderTemplateAsResponse(defaultTemplateId);
+    verify(ordersClient).getOrderTemplateJson(defaultTemplateId);
     verify(orderConverter).convertToCompositePurchaseOrder(eq(orderRequest.getMosaicOrder()), any());
     verify(ordersClient).createOrder(expectedCompositeOrder);
   }
@@ -120,8 +120,8 @@ class OrdersServiceTest {
     // When & Then
     assertThrows(ResourceNotFoundException.class, () -> ordersService.createOrder(orderRequest));
 
-    verify(ordersClient).getOrderTemplateAsResponse(templateId);
-    verify(objectMapper, atLeast(2)).readValue(any(byte[].class), any(TypeReference.class));
+    verify(ordersClient).getOrderTemplateJson(templateId);
+    verify(objectMapper, atLeast(2)).treeToValue(any(JsonNode.class), any(Class.class));
   }
 
   @Test
@@ -156,7 +156,7 @@ class OrdersServiceTest {
     // Then
     assertEquals(compositeTemplate, result.getLeft());
     assertEquals(poLineTemplate, result.getRight());
-    verify(ordersClient).getOrderTemplateAsResponse(templateId);
+    verify(ordersClient).getOrderTemplateJson(templateId);
   }
 
   @Test
@@ -173,7 +173,7 @@ class OrdersServiceTest {
 
     // Then
     assertNull(result);
-    verify(ordersClient).getOrderTemplateAsResponse(templateId);
+    verify(ordersClient).getOrderTemplateJson(templateId);
   }
 
   // Helper method to create a standard order request
@@ -188,17 +188,13 @@ class OrdersServiceTest {
 
   // Helper method to setup mock response with template objects
   private void setupMockResponse(String templateId, CompositePurchaseOrder order, PoLine poLine) throws Exception {
-    var inputStream = new ByteArrayInputStream("dummy".getBytes());
-    when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(Optional.of(inputStream));
+    JsonNode template = JsonNodeFactory.instance.objectNode().put("id", templateId);
+    when(ordersClient.getOrderTemplateJson(templateId)).thenReturn(Optional.of(template));
 
-    when(objectMapper.readValue(any(byte[].class), any(TypeReference.class)))
+    when(objectMapper.treeToValue(eq(template), any(Class.class)))
       .thenAnswer(invocation -> {
-        var typeRef = invocation.getArgument(1, TypeReference.class);
-        if (typeRef.getType().getTypeName().contains("CompositePurchaseOrder")) {
-          return order;
-        } else {
-          return poLine;
-        }
+        var type = invocation.getArgument(1, Class.class);
+        return type == CompositePurchaseOrder.class ? order : poLine;
       });
   }
 }

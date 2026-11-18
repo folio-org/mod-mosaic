@@ -1,3 +1,11 @@
+## 1.1.5 - Released (Trillium R1 2026 Bugfix)
+This release focused on fixing order creation flow covered by karate tests
+
+[Full Changelog](https://github.com/folio-org/mod-mosaic/compare/v1.1.4...v1.1.5)
+
+### Bug Fixes
+* Fix karate tests ([#83](https://github.com/folio-org/mod-mosaic/pull/83))
+
 ## 1.1.4 - Released (Trillium R1 2026 Bugfix)
 This release focused on updating essential flags in DeployConfig.json
 
