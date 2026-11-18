@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -188,8 +187,7 @@ class OrdersServiceTest {
 
   // Helper method to setup mock response with template objects
   private void setupMockResponse(String templateId, CompositePurchaseOrder order, PoLine poLine) throws Exception {
-    var inputStream = new ByteArrayInputStream("dummy".getBytes());
-    when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(Optional.of(inputStream));
+    when(ordersClient.getOrderTemplateAsResponse(templateId)).thenReturn(Optional.of("dummy".getBytes()));
 
     when(objectMapper.readValue(any(byte[].class), any(TypeReference.class)))
       .thenAnswer(invocation -> {

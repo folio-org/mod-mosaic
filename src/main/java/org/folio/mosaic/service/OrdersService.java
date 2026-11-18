@@ -15,9 +15,6 @@ import org.folio.rest.acq.model.orders.OrderTemplate;
 import org.folio.rest.acq.model.orders.PoLine;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -69,20 +66,13 @@ public class OrdersService {
     ordersClient.createOrderTemplate(orderTemplate);
   }
 
-  @SneakyThrows
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(InputStream inputStream) {
-    try (inputStream) {
-      var byteArrayOutputStream = new ByteArrayOutputStream();
-      inputStream.transferTo(byteArrayOutputStream);
-
-      var byteArray = byteArrayOutputStream.toByteArray();
-      var order = objectMapper.readValue(byteArray, new TypeReference<CompositePurchaseOrder>() {});
-      var poLine = objectMapper.readValue(byteArray, new TypeReference<PoLine>() {});
-      if (order == null || order.getId() == null) {
-        return null;
-      }
-
-      return Pair.of(order, poLine);
+  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(byte[] body) {
+    var order = objectMapper.readValue(body, new TypeReference<CompositePurchaseOrder>() {});
+    var poLine = objectMapper.readValue(body, new TypeReference<PoLine>() {});
+    if (order == null || order.getId() == null) {
+      return null;
     }
+
+    return Pair.of(order, poLine);
   }
 }
