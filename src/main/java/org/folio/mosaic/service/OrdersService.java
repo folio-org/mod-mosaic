@@ -1,6 +1,6 @@
 package org.folio.mosaic.service;
 
-import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -57,8 +57,8 @@ public class OrdersService {
   }
 
   public Pair<CompositePurchaseOrder, PoLine> getOrderTemplateById(String templateId) {
-    return ordersClient.getOrderTemplateAsResponse(templateId)
-      .map(this::responseToOrderAndPoLineObjects)
+    return ordersClient.getOrderTemplateJson(templateId)
+      .map(this::toOrderAndPoLine)
       .orElse(null);
   }
 
@@ -66,9 +66,9 @@ public class OrdersService {
     ordersClient.createOrderTemplate(orderTemplate);
   }
 
-  private Pair<CompositePurchaseOrder, PoLine> responseToOrderAndPoLineObjects(byte[] body) {
-    var order = objectMapper.readValue(body, new TypeReference<CompositePurchaseOrder>() {});
-    var poLine = objectMapper.readValue(body, new TypeReference<PoLine>() {});
+  private Pair<CompositePurchaseOrder, PoLine> toOrderAndPoLine(JsonNode template) {
+    var order = objectMapper.treeToValue(template, CompositePurchaseOrder.class);
+    var poLine = objectMapper.treeToValue(template, PoLine.class);
     if (order == null || order.getId() == null) {
       return null;
     }
